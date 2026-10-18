@@ -2,6 +2,7 @@
 
 import { Bot, Loader2, LocateFixed, MapPin, Stethoscope } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function NavbarPincode({
@@ -54,11 +55,7 @@ export function NavbarPincode({
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-2 px-4 lg:px-6">
-        <div className="grid h-7 w-7 place-items-center rounded-lg bg-brand text-[12px] font-bold text-[#03150f]">MP</div>
-        <div className="mr-2 leading-tight">
-          <div className="text-sm font-semibold tracking-tight">MedPulse AI</div>
-          <div className="hidden text-[10px] text-faint sm:block">branded ⇄ generic price engine</div>
-        </div>
+        <Logo className="h-9 w-auto shrink-0 sm:h-11" />
 
         <div className="ml-auto flex items-center gap-2">
           {modeChip}

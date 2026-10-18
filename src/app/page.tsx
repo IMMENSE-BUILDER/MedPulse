@@ -8,6 +8,7 @@ import { DocAiDock } from "@/components/DocAiDock";
 import { DualTrackGrid } from "@/components/DualTrackGrid";
 import { LabGrid } from "@/components/LabGrid";
 import { LiveAgentPipDock } from "@/components/LiveAgentPipDock";
+import { Logo } from "@/components/Logo";
 import { NavbarPincode } from "@/components/NavbarPincode";
 import { PrescriptionDropzone } from "@/components/PrescriptionDropzone";
 import { SearchPanel } from "@/components/SearchPanel";
@@ -532,6 +533,7 @@ export default function Home() {
         ) : null}
 
         <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[10px] text-faint">
+          <Logo className="h-7 w-auto text-ink-2" />
           <span>Track A PMBJP · Track B generics · Track C branded · Track D labs</span>
           <span>
             {health?.mode === "live"

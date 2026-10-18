@@ -3,9 +3,20 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://medpulse-ai-snowy.vercel.app"),
   title: "MedPulse AI — branded vs generic price engine",
   description:
     "Real-time dual-track price comparison: PMBJP/Jan Aushadhi generics vs branded e-pharmacies, on-demand live-agent stock checks, lab test comparison and prescription OCR.",
+  applicationName: "MedPulse AI",
+  openGraph: {
+    type: "website",
+    siteName: "MedPulse AI",
+    url: "/",
+    title: "MedPulse AI — branded vs generic price engine",
+    description:
+      "Real-time dual-track price comparison: PMBJP/Jan Aushadhi generics vs branded e-pharmacies, on-demand live-agent stock checks, lab test comparison and prescription OCR.",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -75,6 +75,9 @@ MedPulse-main/
 │   │   ├── page.tsx                    # Dashboard: search + Rx + dual-track grid + PiP dock + cart
 │   │   ├── layout.tsx                  # Fonts + metadata
 │   │   ├── globals.css                 # Tailwind v4 theme tokens
+│   │   ├── icon.svg / icon.png         # Browser tab icon (blister-grid logo)
+│   │   ├── apple-icon.png              # iOS home-screen icon (same logo, cropped)
+│   │   ├── opengraph-image.png         # Social share card (+ .alt.txt)
 │   │   └── api/
 │   │       ├── compare/route.ts        # POST medicines (A/B/C) or {type:"lab"} (D)
 │   │       ├── compare-stream/route.ts # POST SSE: real pipeline stages + final result
@@ -86,7 +89,8 @@ MedPulse-main/
 │   │       ├── health/route.ts         # GET mode + key status + model IDs
 │   │       └── suggest/route.ts        # GET demo suggestions
 │   ├── components/
-│   │   ├── NavbarPincode.tsx           # Pincode + Auto-verify switch + model badges + status
+│   │   ├── Logo.tsx                    # Brand lockup (blister-grid badge + wordmark) — navbar + footer
+│   │   ├── NavbarPincode.tsx           # Logo + Pincode + Auto-verify switch + status
 │   │   ├── SearchPanel.tsx             # Medicine/Lab tabs + typeahead dropdown + quick pills
 │   │   ├── PrescriptionDropzone.tsx    # capture="environment" camera + Rx result
 │   │   ├── ClinicalSaltBanner.tsx      # PMBJP ceiling + kendra + AMRIT/bilingual safety
@@ -135,6 +139,7 @@ MedPulse-main/
 10. **Typeahead suggestions are local + honest:** the search dropdown filters the curated catalog (`src/lib/catalog.ts`) client-side — instant, no network, no AI call per keystroke. Selecting a suggestion fills the box and runs the real compare; the **"Search ⋯ in live prices anyway"** row always runs the user's exact text through the live pipeline. Never invent suggestion names from the network here, and never present catalog hints as live prices.
 11. **Light/dark theme:** `ThemeToggle` (navbar top-right corner) toggles `light` on `<html>`; the initial theme is applied before first paint by the inline script in `layout.tsx` and stored under `medpulse:theme`. Light palette lives in `globals.css` as `html.light` token overrides — add new colors as tokens, never as per-component hardcoded values.
 12. **Never surface model IDs:** no badges, footers, dock chips or API response fields may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3).
+13. **Branding & icons:** the brand mark is the blister-grid lockup rendered by `Logo.tsx` (navbar + footer) — never re-create the badge or wordmark inline. Tab/app/social icons are file-based app metadata: `icon.svg` / `icon.png` / `apple-icon.png` / `opengraph-image.png`. If the logo ever changes, regenerate those files (the generator lives outside the repo in the logos demo workspace).
 
 ## 8. Common Commands
 - Install: `npm install`
