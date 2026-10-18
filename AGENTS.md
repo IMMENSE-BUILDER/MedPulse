@@ -1,0 +1,162 @@
+# AGENTS.md — MedPulse AI Architecture & Coding Guidelines
+
+> Source of truth for the PRD v5.0 build. Keep this file in sync with the code.
+
+## 1. Project Overview
+**MedPulse AI** is a Next.js (App Router) PWA that compares real-time Indian prescription medicine and diagnostic lab prices across **mainstream branded e-pharmacies** and **government-subsidised / NABL-tested generic portals** (PMBJP Jan Aushadhi, AMRIT, SayaCare, …) plus **diagnostic labs** (Track D).
+
+Two core engineering challenges:
+1. **Clinical Salt Decoding** — mapping expensive prescribed brand names to their exact WHO-GMP active salt composition.
+2. **Two-Wave Progressive Execution** — sub-3-second zero-cost price discovery in **Wave 1** (`TinySearch` + `TinyFetch` + AI extraction), then on-demand streaming stealth-browser verification (`TinyAgent`) rendered inside a Picture-in-Picture `<iframe>` dock in **Wave 2**.
+
+## 2. Tech Stack & Core Dependencies
+- **Framework:** Next.js 16 (App Router, TypeScript, Route Handlers). No Server Actions — the API surface is explicit route handlers.
+- **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Deep-emerald on near-black, editorial-clinical aesthetic.
+- **AI:** `ai` package (AI SDK) + `zod` v4 schemas, routed **exclusively** through the Vercel AI Gateway.
+- **Web execution:** `@tiny-fish/sdk` (Search / Fetch / Agent).
+- **Tests:** Vitest (`tests/*.test.ts`, 34 tests).
+- **Required env (`.env.local`, never committed):**
+  ```env
+  TINYFISH_API_KEY="..."            # Search/Fetch (free tier) + Agent (paid, on-demand)
+  AI_GATEWAY_API_KEY="..."          # enables the live dual-model pipeline
+  MEDPULSE_MODE=auto                # auto | demo | live
+  DEFAULT_PINCODE=110053
+  CACHE_TTL_SECONDS=3600
+  ```
+
+## 3. Strict Dual-Model AI Routing (CRITICAL)
+All LLM calls go through `src/lib/ai-router.ts` and the Vercel AI Gateway. **Never mix the models up.**
+
+> Model IDs are **env-configured** (defaults in `src/lib/env.ts`, override via `VISION_MODEL` / `TEXT_MODEL`) and are **never surfaced in the UI or API responses** — no badges, no footers, no `/api/health` fields. Never hardcode a model ID outside `src/lib/env.ts` defaults.
+
+### A. Vision model (`VISION_MODEL`) — prescription OCR
+- **Only** for uploaded prescription images (`/api/ocr`, `visionExtractRx`). Never for text/JSON tasks.
+- Output: raw transcription + rough medicine lines, handed to the text model.
+
+### B. Text model (`TEXT_MODEL`) — clinical reasoning / salt mapping / JSON
+- **All** non-vision tasks: salt decoding, listing extraction, lab extraction, Rx structuring + interactions.
+- **DocAI chat** (`/api/docai`, `docaiChat()`): free-form general medical help & consulting — same model, safety-first system prompt (emergency redirect to 108/112, no dose changes, no invented prices).
+- Demo mode (`MEDPULSE_MODE=demo`, or auto-without-gateway) makes **no LLM calls at all** — it serves labelled demo fixtures. (The gateway's zero-cost `-free` tier for the text model has ended.)
+- Implementation note: the gateway provider currently serving the text model has no `structured-output` capability, so schema-constrained calls (`generateObject` / `Output.object`, also deprecated in AI SDK v7) 400 for that model. We embed the schema's JSON Schema in the prompt, parse the reply tolerantly and zod-validate it, retrying once on invalid output — everything entering the app is still schema-validated.
+
+## 4. TinyFish Escalation & Cost-Control Rules
+Protect the prepaid wallet (`$0.016/step` for TinyAgent). Enforce the **Two-Wave pattern**:
+
+### Wave 1 — zero-cost discovery (always on)
+1. `tf.search.query()` — `location: "IN"`, always pass a `purpose`. Branded portals queried by **brand name**; generic portals by **chemical salt**; labs (Track D) by **test/package name**.
+2. `tf.fetch.getContents()` — batch ≤10 URLs, `format: "markdown"`, `ttl` 3600. Per-URL extraction results are cached 1 hr (`x:<url>` keys).
+3. Progress is streamed **for real** — the compare pipeline emits live stage events (`resolve → search → fetch → extract → guard`, unresolved queries add `suggest`) through `POST /api/compare-stream` (`jsonSseResponse`). STAGE frames carry actual counts (listings, portals, pages, failed batches). Never simulate progress.
+
+### Wave 2 — live stealth browser (`$0.016/step`, user-triggered ONLY)
+- **Never** auto-run the agent in a loop without consent. The only auto path is the explicit **Auto-verify** toggle, and it only fires for **live** results, ≤5 URLs, ≤3 concurrent runs.
+- `browser_profile: BrowserProfile.STEALTH`, pincode injection (`110053` default) into pharmacy modals; UMANG (`web.umang.gov.in`) for Jan Aushadhi Kendra lookup.
+- Agents must **never** log in, add to cart, or checkout. Stock check only.
+- **SSE contract** (`POST /api/agent-stream`, via `src/lib/sse.ts`) — forward all frames:
+  - `STARTED` `{run_id, goal}`
+  - `STREAMING_URL` `{streaming_url}` → rendered inside the PiP `<iframe>`
+  - `PROGRESS` `{purpose}` → appended to the monospace step terminal
+  - `COMPLETE` `{ok, result, error, video_url}` → patches the relevant quote cards
+- With no TinyFish key (or in demo mode) the route runs an **honest labelled simulation** — never fake live stock numbers.
+
+## 5. Domain Registry (Track A/B/C/D)
+- **Branded (Track C):** `1mg.com`, `pharmeasy.in`, `apollopharmacy.in`, `netmeds.com`
+- **Subsidised generics (Track B):** `sayacare.in`, `janaushadhionline.com`, `janaushadhistore.in`, **`apijanaushadhi.in`**, `zeelabpharmacy.com`, `davaindia.com`, `truemeds.in`
+- **Govt (Track A):** `janaushadhi.gov.in` (PMBJP master), `web.umang.gov.in` (kendra locator), `lifecarehll.com` (AMRIT)
+- **Labs (Track D):** `redcliffelabs.com`, `lalpathlabs.com`, `orangehealth.in`, `healthians.com`
+
+Edit `src/lib/domains.ts` only — nothing else hardcodes domains.
+
+## 6. Repository Structure (as built)
+```text
+MedPulse-main/
+├── AGENTS.md
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                    # Dashboard: search + Rx + dual-track grid + PiP dock + cart
+│   │   ├── layout.tsx                  # Fonts + metadata
+│   │   ├── globals.css                 # Tailwind v4 theme tokens
+│   │   └── api/
+│   │       ├── compare/route.ts        # POST medicines (A/B/C) or {type:"lab"} (D)
+│   │       ├── compare-stream/route.ts # POST SSE: real pipeline stages + final result
+│   │       ├── locate/route.ts         # POST coordinates → Indian pincode (reverse geocode)
+│   │       ├── ocr/route.ts            # POST vision OCR + structuring
+│   │       ├── agent-stream/route.ts   # POST SSE proxy for TinyAgent
+│   │       ├── docai/route.ts          # POST DocAI general help & consulting chat
+│   │       ├── optimize-cart/route.ts  # POST split-cart optimizer
+│   │       ├── health/route.ts         # GET mode + key status + model IDs
+│   │       └── suggest/route.ts        # GET demo suggestions
+│   ├── components/
+│   │   ├── NavbarPincode.tsx           # Pincode + Auto-verify switch + model badges + status
+│   │   ├── SearchPanel.tsx             # Medicine/Lab tabs + typeahead dropdown + quick pills
+│   │   ├── PrescriptionDropzone.tsx    # capture="environment" camera + Rx result
+│   │   ├── ClinicalSaltBanner.tsx      # PMBJP ceiling + kendra + AMRIT/bilingual safety
+│   │   ├── CompareProgress.tsx         # Real pipeline stage tracker (SSE from compare-stream)
+│   │   ├── DualTrackGrid.tsx           # Generic vs Branded columns (+ per-10-tabs pricing)
+│   │   ├── LabGrid.tsx                 # Track D lab offer rows
+│   │   ├── LiveAgentPipDock.tsx        # Non-blocking PiP iframe + SSE terminal
+│   │   ├── SplitCartDrawer.tsx         # Express vs refill cart + checkout links
+│   │   ├── UnresolvedPanel.tsx         # Undecodable query → reliable real search picks
+│   │   ├── DocAiDock.tsx               # DocAI chat dock (general help & consulting)
+│   │   └── ThemeToggle.tsx             # Light/dark theme toggle (navbar top-right corner)
+│   ├── hooks/useAgentStream.ts         # Agent dock state machine
+│   └── lib/
+│       ├── ai-router.ts                # ONLY file that talks to the AI Gateway
+│       ├── tinyfish.ts                 # ONLY file that talks to the TinyFish SDK
+│       ├── compare.ts                  # Wave 1 live pipeline + demo fallback
+│       ├── labs.ts                     # Track D pipeline
+│       ├── optimizer.ts                # Split-cart rules
+│       ├── prescription.ts             # OCR orchestration + demo sample
+│       ├── pricing.ts                  # per-10-tabs normalisation, strength guard, trimPage
+│       ├── catalog.ts                  # curated medicine/lab catalog + instant typeahead scorer
+│       ├── schedule.ts                 # EN/HI dosing schedule
+│       ├── domains.ts                  # Track A/B/C/D registry
+│       ├── demo-seed.ts                # Labelled demo fixtures (used when no keys)
+│       ├── cache.ts                    # In-memory TTL cache (default 1 hr)
+│       ├── env.ts / errors.ts / pool.ts / sse.ts / format.ts / urls.ts
+│       ├── schemas.ts                  # zod contracts (PRD §9 shapes)
+│       ├── agent-client.ts             # Browser-side SSE reader (agent-stream)
+│       ├── compare-client.ts           # Browser-side SSE reader (compare-stream)
+│       ├── sse-client.ts               # Shared SSE frame parser
+│       └── hooks: src/hooks/useAgentStream.ts
+├── tests/                              # Vitest: pricing, schedule, demo, optimizer
+└── .env.local / .env.example
+```
+
+## 7. UI/UX Conventions
+1. **Mobile camera:** the dropzone input keeps `accept="image/*,application/pdf"` + `capture="environment"`. PDFs are rejected client-side with a clear message (vision pipeline is image-only in v1) — do not silently POST PDFs.
+2. **Fair price normalisation:** every medicine card shows `price_per_10_tabs_inr` alongside strike-through MRP and % discount. Never compare raw pack prices.
+3. **Non-blocking PiP dock:** `fixed right-4 z-50` (raised above the cart bar when the cart is open). It must never block scrolling or clicking Wave 1 results. Runs are abortable (close = abort).
+4. **Demo resilience + honesty:** without keys the app serves labelled demo data (`data_source:"demo"`, notes marked) for the seeded queries (Augmentin 625 Duo, Dolo 650, Telma 40, Glycomet SR 500, Pan 40, HbA1c, Full Body Checkup). Demo results are never dressed up as live; the agent simulation says so in its errors.
+5. **Pincode changes re-resolve** the current comparison and re-optimise the cart automatically.
+6. **DocAI honesty + safety:** the DocAI dock answers general medical questions only via the text model. Always keep the footer disclaimer (not a doctor / emergencies 108–112), never invent prices, never advise changing prescribed doses, and in demo mode return the clearly labelled demo reply.
+7. **Live-location pincode:** the navbar locate button (`/api/locate`, bigdatacloud → nominatim fallback) sets the delivery pincode from real coordinates — only via the browser permission prompt or an explicit click. Store the chosen pincode in `medpulse:pincode`; never invent a pincode when geocoding fails — show the honest message instead.
+8. **Unresolved queries never dead-end:** a query that cannot be decoded to a salt — or whose listings yield no trustworthy price (D3-60K class etc.) — runs a real TinySearch across the tracked portals and the text model picks up to 4 suggestions **that must appear in the search results** (rendered as clickable picks in `UnresolvedPanel`). If the suggestion path fails, fall back to the honest error. `status:"unresolved"` results are never cached.
+9. **Real progress only:** `/api/compare-stream` emits real pipeline stage events with actual counts — the tracker (`CompareProgress`) must never display simulated or fabricated steps.
+10. **Typeahead suggestions are local + honest:** the search dropdown filters the curated catalog (`src/lib/catalog.ts`) client-side — instant, no network, no AI call per keystroke. Selecting a suggestion fills the box and runs the real compare; the **"Search ⋯ in live prices anyway"** row always runs the user's exact text through the live pipeline. Never invent suggestion names from the network here, and never present catalog hints as live prices.
+11. **Light/dark theme:** `ThemeToggle` (navbar top-right corner) toggles `light` on `<html>`; the initial theme is applied before first paint by the inline script in `layout.tsx` and stored under `medpulse:theme`. Light palette lives in `globals.css` as `html.light` token overrides — add new colors as tokens, never as per-component hardcoded values.
+12. **Never surface model IDs:** no badges, footers, dock chips or API response fields may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3).
+
+## 8. Common Commands
+- Install: `npm install`
+- Dev: `npm run dev` → http://localhost:3000
+- Typecheck: `npm run typecheck`
+- Tests: `npm test`
+- Prod build: `npm run build && npm start`
+
+## 9. Never Do
+- Never hardcode API keys in source (`.env.local` only, gitignored).
+- Never call the vision model for text tasks or the text model for images.
+- Never auto-run TinyAgent outside the Auto-verify toggle / user click; never log in or checkout with the agent.
+- Never present demo numbers as live; always keep `data_source` accurate.
+- Never bypass the strength guard (`strengthOk`) — a 500 mg listing must not appear for a 650 mg query.
+- Never add a bundler/backend/database beyond Next.js route handlers without approval.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

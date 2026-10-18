@@ -1,0 +1,32 @@
+{
+  "name": "medpulse-ai",
+  "version": "5.0.0",
+  "private": true,
+  "description": "MedPulse AI — Real-time branded vs government-subsidised medicine & lab test aggregator (PRD v5.0)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@tiny-fish/sdk": "^0.8.0",
+    "ai": "^7.0.143",
+    "lucide-react": "^1.59.0",
+    "next": "16.4.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  }
+}

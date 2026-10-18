@@ -1,0 +1,117 @@
+# MedPulse AI — PRD v5.0 build
+
+Real-time price comparison for Indian prescription medicines and diagnostic lab tests.
+One search prices everything three ways at once — the **PMBJP / Jan Aushadhi government benchmark** (Track A),
+**subsidised generic listings matched by active salt** (Track B), and **branded express e-pharmacies** (Track C) —
+plus **diagnostic lab test packages** (Track D). A split-cart optimiser then builds an express + refill basket
+with realistic INR savings.
+
+Built on Next.js (App Router) + TypeScript, the Vercel AI Gateway, and the TinyFish SDK:
+
+- **Wave 1 (always on, zero wallet cost):** `TinySearch` → `TinyFetch` → dual-model structured extraction. Sub-3-second discovery with a hard strength guard (a 500 mg listing can never be shown for a 650 mg query) and per-10-tabs price normalisation.
+- **Wave 2 (on-demand):** `TinyAgent` stealth browser streams its run as typed SSE events and renders a live browser view inside the floating PiP dock — pincode stock verification and Jan Aushadhi Kendra lookup.
+- **Prescription intelligence:** a photographed prescription is read by a dedicated vision model, structured by a clinical text model (both via the Vercel AI Gateway), with an English + हिन्दी dosing schedule and established drug-interaction flags.
+- **DocAI (general help):** a safety-first chat for general medicine and symptom questions, answered by the clinical text model — emergencies are routed to 108/112, and it never guesses prices.
+- **Real progress, no theatre:** every comparison streams its genuine pipeline stages over SSE (`/api/compare-stream`) — salt decode → portal search → fetch → model extraction → strength guard — with live counts as they happen.
+- **Live-location pincode:** one tap (with browser permission) reverse-geocodes your coordinates into a delivery pincode and remembers it locally (`/api/locate`).
+- **Instant typeahead:** as you type, a dropdown suggests matching medicines/lab tests from a curated in-app catalog (brand names + their common salt compositions) — pick one to compare it, or hit **"Search ⋯ in live prices anyway"** to run your exact text through the full live pipeline. Suggestions are instant and local; the AI pipeline stays in the real search.
+- **Light & dark themes:** a toggle in the navbar (top-right corner) switches the whole UI between the dark clinical theme and a light theme — the choice is remembered and applied before first paint (no flash). Model names are never surfaced in the UI.
+- **Undecodable queries never dead-end:** a brand like "D60" that can't be priced (unknown salt, or no trustworthy listing found) triggers a real search across the tracked portals; the reliable picks come back as one-tap alternatives. Vitamin D3-60K formats ("60,000 IU", "60K") parse correctly in the strength guard.
+
+## Quick start
+
+```bash
+npm install
+# copy .env.example to .env.local and fill in keys
+npm run dev          # → http://localhost:3000
+```
+
+Scripts: `npm run dev` · `npm run build` · `npm start` · `npm run typecheck` · `npm test`
+
+## Environment (`.env.local`)
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `TINYFISH_API_KEY` | for live search/fetch + Wave 2 agent | `@tiny-fish/sdk` — Search/Fetch are free-tier, Agent is `$0.016/step` and only runs on demand |
+| `AI_GATEWAY_API_KEY` | for live extraction/OCR | Vercel AI Gateway — routes a vision model (prescription OCR only) and a clinical text model (all text/JSON tasks) |
+| `MEDPULSE_MODE` | no | `auto` (default: live when both keys exist, else labelled demo), `demo` (force demo), `live` (hard-require keys, return 503 otherwise) |
+| `DEFAULT_PINCODE` | no | Default delivery pincode (default `110053`) |
+| `CACHE_TTL_SECONDS` | no | Discovery/extraction cache TTL (default 3600 = 1 hr) |
+| `VISION_MODEL` / `TEXT_MODEL` | no | Model-ID overrides |
+
+Demo mode is honest: every response carries `data_source:"demo"` plus a visible note, and the agent "run" is an explicitly-labelled simulation. With only a TinyFish key the app is still fully clickable — the kendra finder can run live, while comparisons stay demo until a Gateway key is added.
+
+## API (PRD §9 contract)
+
+| Endpoint | Body / Query | Returns |
+| --- | --- | --- |
+| `POST /api/compare` | `{query, pincode, type?:"medicine"\|"lab"}` | `DualTrackComparison` (govt benchmark, generic offers, branded offers, AMRIT alert, bilingual safety tip, notes) or `LabComparison` |
+| `POST /api/compare-stream` | same body as `/api/compare` | SSE: `STAGE` (real pipeline progress with live counts) → `RESULT` — or `ERROR` |
+| `POST /api/locate` | `{lat, lng}` | `{pincode, area, city, state, source}` — reverse-geocoded Indian pincode (free providers) |
+| `POST /api/ocr` | `{image_base64, mime_type}` or `{text}` | structured medicines + salts + EN/HI schedule + interactions |
+| `POST /api/agent-stream` | `{kind:"stock"\|"kendra", pincode, product_urls?[≤5]}` | SSE: `STARTED`, `STREAMING_URL`, `PROGRESS`, `COMPLETE` |
+| `POST /api/docai` | `{messages:[{role:"user"\|"assistant", content}]}` (≤16) | DocAI reply + `data_source:"live"\|"demo"` |
+| `POST /api/optimize-cart` | `{items:[{query, quantity_strips, mode:"urgent"\|"refill"}], pincode}` | `express_cart`, `generic_cart`, totals, `net_savings_inr`, checkout links |
+| `GET /api/health` | — | mode, key status, demo query lists |
+| `GET /api/suggest?q=` | — | demo suggestions for the search box |
+
+Example:
+
+```bash
+curl -s -X POST http://localhost:3000/api/compare \
+  -H "content-type: application/json" \
+  -d '{"query":"Augmentin 625 Duo","pincode":"110053"}' | jq .data_source
+```
+
+## Architecture
+
+Everything lives in `src/lib/` — each file owns exactly one concern:
+
+- `ai-router.ts` — the only module that talks to the Vercel AI Gateway (dual-model routing, zod schemas).
+- `tinyfish.ts` — the only module that talks to the TinyFish SDK (search / fetch / agent-stream).
+- `compare.ts` · `labs.ts` · `optimizer.ts` · `prescription.ts` — the four pipelines.
+- `pricing.ts` — per-10-tabs normalisation, pack parsing, the strength guard, page trimming.
+- `catalog.ts` — curated in-app medicine/lab catalog + instant typeahead scorer for the search box (client-side, no network).
+- `schemas.ts` — zod contracts shared by API, AI structured output and the frontend.
+- `sse.ts` / `sse-client.ts` — typed SSE helpers (server stream responder + shared browser frame parser).
+- `compare-client.ts` · `agent-client.ts` — browser-side SSE readers for their endpoints.
+- `demo-seed.ts` — illustrative fixtures used in demo mode (Augmentin 625 Duo, Dolo 650, Telma 40, Glycomet SR 500, Pan 40, HbA1c, Full Body Checkup).
+
+Full conventions and guardrails: see `AGENTS.md`.
+
+## Verification
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm test            # Vitest — pricing, schedule, demo pipelines, optimizer, catalog (34 tests)
+npm run build       # production build
+```
+
+## Deploying (Vercel)
+
+Two ways — dashboard import or straight from this folder:
+
+```bash
+npx vercel login     # once, browser confirm
+npx vercel link --yes
+npx vercel --prod --yes
+```
+
+Or: push to GitHub and use **Add New → Project** in the Vercel dashboard (framework preset: Next.js; no extra config).
+
+Environment variables:
+
+- `TINYFISH_API_KEY` — required for live search/fetch and the Wave 2 agent.
+- `AI_GATEWAY_API_KEY` — optional on Vercel: the AI SDK's gateway provider can authenticate via the auto-injected OIDC token instead. Check `/api/health` → `gateway_auth` (`"key"` | `"oidc"` | `"none"`).
+
+Notes:
+
+- Route handlers set `maxDuration` up to 300 s for agent/cart work — adjust to your plan limits.
+- The TTL cache in `src/lib/cache.ts` is in-memory; for multi-instance deployments swap it for Vercel KV/Redis behind the same interface.
+- `.vercelignore` keeps `.env*` and all local-only files out of deployments.
+
+## Security
+
+- `.env.local` is gitignored — never commit keys, and rotate any key that has been shared in plain text.
+- Agent runs never log in, add to cart, or checkout.
+- All pricing is indicative; every UI surface reminds users to confirm at checkout and with a pharmacist.

@@ -1,0 +1,9 @@
+# Keep secrets and dev-only files OUT of Vercel uploads.
+.env*
+node_modules/
+.next/
+*.tsbuildinfo
+tests/
+vitest.config.mts
+AGENTS.md
+DESIGN.md
