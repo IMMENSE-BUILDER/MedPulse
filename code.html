@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Precision &amp; High-Density B2C Tele-Pharmacy | MedPulse AI</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-bg": "#000000",
+            "surface-card": "#0a0a0a",
+            "surface-elevated": "#121212",
+            "surface-subtle": "#18181b",
+            "border-clean": "#27272a",
+            "border-hover": "#3f3f46",
+            "text-main": "#fafafa",
+            "text-muted": "#a1a1aa",
+            "text-subtle": "#71717a",
+            "emerald-action": "#10b981",
+            "emerald-subtle": "rgba(16, 185, 129, 0.1)",
+            "emerald-border": "rgba(16, 185, 129, 0.25)",
+            "emerald-text": "#34d399"
+          },
+          fontFamily: {
+            sans: ["Geist", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 2px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #09090b;
+    }
+  </style>
+</head>
+<body class="bg-[#000000] text-[#fafafa] font-sans antialiased selection:bg-[#fafafa] selection:text-[#000000] pb-28">
+<!-- 1. TOP NAVIGATION -->
+<header class="w-full bg-[#000000]/90 backdrop-blur-md border-b border-[#27272a] sticky top-0 z-40">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-14 gap-3">
+<!-- Brand & Active Live Status Indicator -->
+<div class="flex items-center gap-3 shrink-0">
+<a class="flex items-center gap-2 group" href="#">
+<div class="size-7 rounded bg-[#ffffff] flex items-center justify-center text-[#000000] font-mono text-xs font-bold tracking-tight">
+  MP
+</div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-semibold text-[#fafafa] tracking-tight">MedPulse</span>
+<span class="bg-[#18181b] text-[#a1a1aa] border border-[#27272a] text-[10px] font-mono px-1.5 py-0.2 rounded font-medium">AI</span>
+</div>
+</a>
+<div class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] text-[11px] font-medium text-[#34d399] ml-2">
+<span class="size-1.5 rounded-full bg-[#10b981]"></span>
+<span class="">Radar Active</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden xl:flex items-center gap-5 text-xs font-medium text-[#a1a1aa]">
+<a class="text-[#ffffff] font-semibold" href="#">Price Radar</a>
+<a class="hover:text-[#ffffff] transition-colors" href="#">Jan Aushadhi Kendra</a>
+<a class="hover:text-[#ffffff] transition-colors" href="#">Salt Equivalence Matrix</a>
+<a class="hover:text-[#ffffff] transition-colors" href="#">NABL Vault</a>
+<a class="hover:text-[#ffffff] transition-colors" href="#">Prescription OCR</a>
+</nav>
+<!-- Location Pill & Live Pincode Stock Agent Toggle & Controls -->
+<div class="flex items-center gap-2 shrink-0">
+<!-- Location Pill -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0a0a0a] border border-[#27272a] text-xs text-[#fafafa]">
+<span class="text-[#71717a] text-[11px] font-mono">PIN</span>
+<span class="font-mono font-medium">110053</span>
+<span class="text-[#71717a] font-normal hidden sm:inline">• Delhi</span>
+</div>
+<!-- iOS-style Toggle: Live Pincode Stock Agent -->
+<div class="hidden md:flex items-center gap-2 px-2.5 py-1 rounded bg-[#0a0a0a] border border-[#27272a]">
+<span class="text-[11px] font-medium text-[#a1a1aa]">Stock Agent</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-7 h-4 bg-[#27272a] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-3 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#27272a] after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#ffffff] peer-checked:after:border-[#000000] peer-checked:after:bg-[#000000]"></div>
+</label>
+</div>
+<!-- Action Buttons -->
+<button aria-label="Notifications" class="size-8 rounded border border-[#27272a] bg-[#0a0a0a] flex items-center justify-center text-[#a1a1aa] hover:text-[#ffffff] hover:border-[#3f3f46] transition-colors">
+<span class="material-symbols-outlined text-[16px]">notifications</span>
+</button>
+<div class="size-8 rounded border border-[#27272a] overflow-hidden bg-[#18181b]">
+<img alt="Clinical Pharmacist" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOwNG6_ISDwv8-SQfOnnOLMfwrm1oKssbbKRVgdEsxFmQqgy9moi_lZ5K3btGD0T1v3QYqzJhZwvX4jVBeCW751UWxr1NkLMX2D7pShZThJEO1TnqE9T1Fpf5O7CS698WbObrJY7BhJQu3P8TFK_eiK80bF6HMkUFIrBlrkJrpNNI6v_K66BjcnIsneVKUzuCtwe9W2WM1MGoJkThK1vO9TupNO7jVp-5hpmrjV5euaK2H7o-gtxmc"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN CONTAINER -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-5">
+<!-- TOP CONTEXT STRIP -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#27272a] pb-4">
+<div>
+<div class="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#a1a1aa] uppercase tracking-wider">
+<span class="size-1.5 rounded-full bg-[#10b981]"></span>
+        Formulary Index • Real-Time Price Radar
+      </div>
+<h1 class="text-xl sm:text-2xl font-semibold text-[#fafafa] tracking-tight mt-1">
+        Augmentin 625 Duo Equivalence &amp; Jan Aushadhi Optimizer
+      </h1>
+</div>
+<div class="flex items-center gap-2 self-start sm:self-auto text-xs font-mono text-[#a1a1aa] bg-[#0a0a0a] border border-[#27272a] px-3 py-1.5 rounded">
+<span class="">Index: <span class="text-[#fafafa] font-medium">CDSCO-2025.04</span></span>
+<span class="text-[#27272a]">|</span>
+<span class="text-[#34d399] font-medium">14,200+ Kendras Synced</span>
+</div>
+</div>
+<!-- 2. HERO: DUAL-CARD SPLIT LAYOUT -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+<!-- Left Card: Search (7 cols) -->
+<div class="lg:col-span-7 bg-[#0a0a0a] border border-[#27272a] rounded-lg p-5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<div class="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-[#a1a1aa]">
+<span class="material-symbols-outlined text-[15px] text-[#fafafa]">search</span>
+            Intelligent Formulary Search
+          </div>
+<span class="text-[10px] font-mono text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-2 py-0.5 rounded">6 Depots Live</span>
+</div>
+<h2 class="text-lg font-semibold text-[#fafafa] tracking-tight">
+          Compare Generics vs Branded Instantly
+        </h2>
+<p class="text-[#a1a1aa] text-xs mt-1 mb-4">
+          CDSCO validated active salts matched across PMBJP, Jan Aushadhi, and dark store depots.
+        </p>
+<!-- Search Input -->
+<div class="relative">
+<div class="flex items-center w-full rounded border border-[#27272a] bg-[#0f0f12] focus-within:border-[#52525b] focus-within:bg-[#121215] transition-colors">
+<div class="pl-3 pr-2 text-[#71717a] flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">search</span>
+</div>
+<input class="w-full bg-transparent border-0 focus:ring-0 text-[#fafafa] placeholder:text-[#71717a] text-xs py-2.5 px-1 font-medium" placeholder="Search medicines, salts, or lab tests..." type="text" value="Augmentin 625 Duo"/>
+<div class="flex items-center gap-1.5 pr-2">
+<kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] text-[#a1a1aa] bg-[#18181b] border border-[#27272a] rounded font-mono">⌘K</kbd>
+<button class="bg-[#ffffff] hover:bg-[#e4e4e7] text-[#000000] text-xs font-semibold px-3 py-1.5 rounded transition-colors flex items-center gap-1">
+<span class="">Search</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Clean Pill Tabs -->
+<div class="mt-3.5 flex flex-wrap items-center gap-1.5 text-xs">
+<span class="text-[11px] text-[#71717a] font-mono mr-1">Trending:</span>
+<button class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#18181b] hover:bg-[#27272a] text-[#fafafa] border border-[#27272a] text-xs font-medium transition-colors">
+<span class="size-1.5 rounded-full bg-[#10b981]"></span>
+            Augmentin 625 Duo
+          </button>
+<button class="px-2.5 py-1 rounded bg-[#0a0a0a] hover:bg-[#18181b] text-[#a1a1aa] hover:text-[#fafafa] border border-[#27272a] text-xs font-medium transition-colors">
+            Telmisartan 40mg
+          </button>
+<button class="px-2.5 py-1 rounded bg-[#0a0a0a] hover:bg-[#18181b] text-[#a1a1aa] hover:text-[#fafafa] border border-[#27272a] text-xs font-medium transition-colors">
+            Metformin 500 SR
+          </button>
+<button class="px-2.5 py-1 rounded bg-[#0a0a0a] hover:bg-[#18181b] text-[#a1a1aa] hover:text-[#fafafa] border border-[#27272a] text-xs font-medium transition-colors">
+            Pantoprazole 40
+          </button>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-[#18181b] flex items-center justify-between text-[11px] text-[#a1a1aa]">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[#10b981] text-[15px]">verified</span>
+          CDSCO Master Salt Ledger Active
+        </span>
+<span class="font-mono text-[#fafafa] font-medium">1,824 Formulations</span>
+</div>
+</div>
+<!-- Right Card: Minimal Prescription OCR Dropzone (5 cols) -->
+<div class="lg:col-span-5 bg-[#0a0a0a] border border-[#27272a] rounded-lg p-5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[17px] text-[#fafafa]">document_scanner</span>
+<h3 class="text-xs font-semibold uppercase tracking-wider text-[#fafafa] font-mono">
+              Upload Prescription (OCR)
+            </h3>
+</div>
+<span class="text-[10px] font-mono text-[#a1a1aa] bg-[#18181b] px-2 py-0.5 rounded border border-[#27272a]">Gemini 1.5 Flash</span>
+</div>
+<p class="text-xs text-[#a1a1aa] mb-3">
+          Instant salt parsing and automated cart basket selection.
+        </p>
+<!-- Dropzone Area -->
+<div class="border border-dashed border-[#27272a] hover:border-[#52525b] bg-[#0f0f12] rounded-md p-4 text-center transition-colors cursor-pointer group">
+<div class="size-8 rounded bg-[#18181b] border border-[#27272a] flex items-center justify-center mx-auto text-[#fafafa] mb-2 group-hover:border-[#3f3f46]">
+<span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+</div>
+<p class="text-xs font-medium text-[#fafafa]">Drop prescription or doctor slip</p>
+<p class="text-[10px] text-[#71717a] mt-0.5 font-mono">PDF, JPG, PNG up to 25MB</p>
+<div class="mt-2.5">
+<span class="inline-flex items-center gap-1 text-[11px] font-medium text-[#fafafa] bg-[#18181b] hover:bg-[#27272a] px-2.5 py-1 rounded border border-[#27272a] transition-colors">
+<span class="material-symbols-outlined text-[13px]">add</span>
+              Browse Files
+            </span>
+</div>
+</div>
+</div>
+<!-- Parsed Rx Status -->
+<div class="mt-3 pt-3 border-t border-[#18181b]">
+<div class="bg-[#0f0f12] border border-[#27272a] rounded p-2 flex items-center justify-between text-xs">
+<div class="flex items-center gap-2 overflow-hidden">
+<span class="material-symbols-outlined text-[#10b981] text-[16px] shrink-0">check_circle</span>
+<div class="truncate">
+<div class="text-xs font-medium text-[#fafafa] truncate">DrMehta_Prescription_Scan.pdf</div>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="text-[9px] bg-[#18181b] text-[#a1a1aa] font-mono px-1 rounded border border-[#27272a]">Amoxicillin 500mg</span>
+<span class="text-[9px] bg-[#18181b] text-[#a1a1aa] font-mono px-1 rounded border border-[#27272a]">Clavulanic 125mg</span>
+</div>
+</div>
+</div>
+<button class="shrink-0 text-[10px] font-mono text-[#fafafa] hover:text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-2 py-0.5 rounded transition-colors">
+            Re-scan
+          </button>
+</div>
+<p class="text-[9px] text-[#71717a] font-mono text-center mt-2">CDSCO &amp; HIPAA 256-bit encrypted validation</p>
+</div>
+</div>
+</section>
+<!-- 3. BENCHMARK ALERT BANNER -->
+<section class="rounded-lg border border-[#27272a] bg-[#0a0a0a] p-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div class="space-y-2">
+<!-- Active Salt Header -->
+<div class="flex flex-wrap items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#18181b] border border-[#27272a] text-[#fafafa] text-[11px] font-mono font-medium uppercase tracking-wider">
+<span class="material-symbols-outlined text-[13px]">science</span>
+            Active Salt
+          </span>
+<span class="text-sm sm:text-base font-semibold text-[#fafafa] tracking-tight">
+            Amoxycillin + Clavulanic Acid 625mg <span class="text-xs font-normal text-[#a1a1aa] font-mono">(500mg + 125mg IP)</span>
+</span>
+</div>
+<!-- Benchmark Details -->
+<div class="flex flex-wrap items-center gap-3 text-xs">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#121215] border border-[#27272a] text-[#fafafa]">
+<span class="text-[#71717a] font-mono text-[11px]">PMBJP Ceiling:</span>
+<span class="font-mono font-semibold text-[#fafafa]">₹45.20 / 10 tabs</span>
+<span class="text-[10px] text-[#71717a]">(NPPA)</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] text-[#34d399] text-xs font-medium">
+<span class="font-semibold">Save 77%</span>
+<span class="text-[#34d399]/80 text-[11px]">vs Leading Branded (Augmentin @ ₹204.35)</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-[11px] text-[#a1a1aa]">
+<span class="material-symbols-outlined text-[#10b981] text-[14px]">verified</span>
+<span class="">WHO-GMP Certified • Bioequivalent Therapeutic Index 98.9%</span>
+</div>
+</div>
+<!-- Action Button -->
+<div class="shrink-0 flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-[#fafafa] text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-[14px]">policy</span>
+<span class="">View Gov Gazette</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 4. 2-COLUMN COMPARISON GRID -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+<!-- LEFT COLUMN: Subsidised & NABL Generics -->
+<section class="space-y-3">
+<!-- Section Header -->
+<div class="p-3 rounded-lg bg-[#0a0a0a] border border-[#27272a] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-[#fafafa]">savings</span>
+<div>
+<h3 class="text-xs font-semibold text-[#fafafa] uppercase tracking-wider font-mono">Subsidised &amp; NABL Generics</h3>
+</div>
+</div>
+<span class="text-[10px] font-mono text-[#34d399] bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] px-2 py-0.5 rounded font-medium">
+          MAX SAVINGS
+        </span>
+</div>
+<!-- Card 1: SayaCare Generics -->
+<div class="bg-[#0a0a0a] border border-[#27272a] hover:border-[#3f3f46] rounded-lg p-4 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#34d399] bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] px-1.5 py-0.5 rounded">
+                NABL LAB VERIFIED
+              </span>
+<span class="text-[10px] font-mono text-[#71717a]">#NABL-9821</span>
+</div>
+<h4 class="text-sm font-semibold text-[#fafafa]">Amoxycillin &amp; Pot. Clavulanate 625mg</h4>
+<p class="text-xs text-[#a1a1aa]">SayaCare Generics • WHO-GMP Plant IV</p>
+</div>
+<div class="text-right shrink-0">
+<div class="text-xl font-mono font-semibold text-[#fafafa]">₹52.00</div>
+<div class="text-xs text-[#71717a] line-through font-mono">₹210.00</div>
+<span class="inline-block mt-0.5 text-[10px] font-mono font-medium text-[#34d399] bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] px-1 rounded">75% OFF</span>
+</div>
+</div>
+<div class="mt-3 p-2 bg-[#0f0f12] rounded border border-[#27272a] text-xs space-y-1">
+<div class="flex items-center justify-between text-[#fafafa]">
+<span class="text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#10b981]">schedule</span>
+              Delivery in 4 hrs (Delhi 110053)
+            </span>
+<span class="text-[10px] font-mono text-[#71717a]">Exp: 08/2026</span>
+</div>
+<div class="flex items-center justify-between text-[11px] text-[#a1a1aa]">
+<span class="">120+ packs at Mayur Vihar Depot</span>
+<span class="font-mono text-[10px]">₹5.20 / tab</span>
+</div>
+</div>
+<div class="mt-3 flex items-center justify-between pt-1">
+<a class="text-xs text-[#a1a1aa] hover:text-[#fafafa] flex items-center gap-1 transition-colors" href="#">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+            NABL Certificate
+          </a>
+<button class="px-3 py-1.5 rounded bg-[#ffffff] hover:bg-[#e4e4e7] text-[#000000] text-xs font-semibold transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">add</span>
+            Add Generic
+          </button>
+</div>
+</div>
+<!-- Card 2: JanAushadhi Online -->
+<div class="bg-[#0a0a0a] border border-[#27272a] hover:border-[#3f3f46] rounded-lg p-4 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1.5 py-0.5 rounded">
+                PMBJP GOVT GENERIC
+              </span>
+<span class="text-[10px] font-mono text-[#71717a]">Kendra #DEL-0422</span>
+</div>
+<h4 class="text-sm font-semibold text-[#fafafa]">Amoxy-Clav 625mg Jan Aushadhi Salt</h4>
+<p class="text-xs text-[#a1a1aa]">Bureau of Pharma PSUs of India (BPPI)</p>
+</div>
+<div class="text-right shrink-0">
+<div class="text-xl font-mono font-semibold text-[#fafafa]">₹46.50</div>
+<div class="text-xs text-[#71717a] font-mono">MRP ₹46.50</div>
+<span class="inline-block mt-0.5 text-[10px] font-mono font-medium text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1 rounded">GOVT FIXED</span>
+</div>
+</div>
+<div class="mt-3 p-2 bg-[#0f0f12] rounded border border-[#27272a] text-xs space-y-1">
+<div class="flex items-center justify-between text-[#fafafa]">
+<span class="text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#a1a1aa]">store</span>
+              Pickup at Kendra (1.2 km) or Next-Day Courier
+            </span>
+</div>
+<div class="flex items-center justify-between text-[11px] text-[#a1a1aa]">
+<span class="">Tele-POS Verified: 84 packs in stock</span>
+<span class="font-mono text-[10px]">₹4.65 / tab</span>
+</div>
+</div>
+<div class="mt-3 flex items-center justify-between pt-1">
+<button class="text-xs text-[#a1a1aa] hover:text-[#fafafa] flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">directions</span>
+            Route (1.2 km)
+          </button>
+<button class="px-3 py-1.5 rounded bg-[#ffffff] hover:bg-[#e4e4e7] text-[#000000] text-xs font-semibold transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check</span>
+            Select Lowest Price
+          </button>
+</div>
+</div>
+<!-- Card 3: Zeelab Pharmacy -->
+<div class="bg-[#0a0a0a] border border-[#27272a] hover:border-[#3f3f46] rounded-lg p-4 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1.5 py-0.5 rounded">
+                WHO-GMP
+              </span>
+<span class="text-[10px] font-mono text-[#71717a]">#ZL-903</span>
+</div>
+<h4 class="text-sm font-semibold text-[#fafafa]">ZeeMox-CV 625 Tablets</h4>
+<p class="text-xs text-[#a1a1aa]">Zeelab Pharmacy India Ltd.</p>
+</div>
+<div class="text-right shrink-0">
+<div class="text-xl font-mono font-semibold text-[#fafafa]">₹64.00</div>
+<div class="text-xs text-[#71717a] line-through font-mono">₹200.00</div>
+<span class="inline-block mt-0.5 text-[10px] font-mono font-medium text-[#34d399] bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] px-1 rounded">68% OFF</span>
+</div>
+</div>
+<div class="mt-3 p-2 bg-[#0f0f12] rounded border border-[#27272a] text-xs space-y-1">
+<div class="flex items-center justify-between text-[#fafafa]">
+<span class="text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#a1a1aa]">schedule</span>
+              Standard Delivery: Same Day Evening
+            </span>
+<span class="text-[10px] font-mono text-[#10b981]">In Stock</span>
+</div>
+</div>
+<div class="mt-3 flex items-center justify-between pt-1">
+<span class="text-[11px] text-[#a1a1aa] font-mono">Equivalence: 99.1%</span>
+<button class="px-3 py-1.5 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-[#fafafa] text-xs font-medium transition-colors">
+            Add to Cart
+          </button>
+</div>
+</div>
+</section>
+<!-- RIGHT COLUMN: Branded Express Delivery -->
+<section class="space-y-3">
+<!-- Section Header -->
+<div class="p-3 rounded-lg bg-[#0a0a0a] border border-[#27272a] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-[#fafafa]">bolt</span>
+<div>
+<h3 class="text-xs font-semibold text-[#fafafa] uppercase tracking-wider font-mono">Branded Express Delivery</h3>
+</div>
+</div>
+<span class="text-[10px] font-mono text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-2 py-0.5 rounded font-medium">
+          INSTANT ETA
+        </span>
+</div>
+<!-- Card 1: Tata 1mg -->
+<div class="bg-[#0a0a0a] border border-[#27272a] hover:border-[#3f3f46] rounded-lg p-4 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#fafafa] bg-[#18181b] border border-[#27272a] px-1.5 py-0.5 rounded">
+                EXPRESS 2-HR
+              </span>
+<span class="text-[10px] text-[#a1a1aa]">Patparganj Dark Store</span>
+</div>
+<h4 class="text-sm font-semibold text-[#fafafa]">Augmentin 625 Duo Tablet (GSK)</h4>
+<p class="text-xs text-[#a1a1aa]">GlaxoSmithKline Pharmaceuticals Ltd.</p>
+</div>
+<div class="text-right shrink-0">
+<div class="text-xl font-mono font-semibold text-[#fafafa]">₹171.65</div>
+<div class="text-xs text-[#71717a] line-through font-mono">₹204.35</div>
+<span class="inline-block mt-0.5 text-[10px] font-mono font-medium text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1 rounded">16% OFF</span>
+</div>
+</div>
+<div class="mt-3 p-2 bg-[#0f0f12] rounded border border-[#27272a] text-xs space-y-1">
+<div class="flex items-center justify-between text-[#fafafa]">
+<span class="text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#a1a1aa]">moped</span>
+              Rider assigned in ~8 mins
+            </span>
+<span class="text-[10px] font-mono text-[#10b981]">Rx Approved</span>
+</div>
+<div class="flex items-center justify-between text-[11px] text-[#a1a1aa]">
+<span class="">14 units in local hub</span>
+<span class="font-mono text-[10px]">₹17.16 / tab</span>
+</div>
+</div>
+<div class="mt-3 flex items-center justify-between pt-1">
+<span class="text-[11px] text-[#a1a1aa] flex items-center gap-1">
+<span class="material-symbols-outlined text-[#10b981] text-[14px]">check</span>
+            Rx Verification Passed
+          </span>
+<button class="px-3 py-1.5 rounded bg-[#ffffff] hover:bg-[#e4e4e7] text-[#000000] text-xs font-semibold transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+            Add Branded (Express)
+          </button>
+</div>
+</div>
+<!-- Card 2: Apollo 24|7 -->
+<div class="bg-[#0a0a0a] border border-[#27272a] hover:border-[#3f3f46] rounded-lg p-4 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#fafafa] bg-[#18181b] border border-[#27272a] px-1.5 py-0.5 rounded">
+                1-HR DELIVERY
+              </span>
+<span class="text-[10px] text-[#a1a1aa]">Nirman Vihar (2.1 km)</span>
+</div>
+<h4 class="text-sm font-semibold text-[#fafafa]">Augmentin 625 Duo (GlaxoSmithKline)</h4>
+<p class="text-xs text-[#a1a1aa]">GSK Original Formulation</p>
+</div>
+<div class="text-right shrink-0">
+<div class="text-xl font-mono font-semibold text-[#fafafa]">₹175.74</div>
+<div class="text-xs text-[#71717a] line-through font-mono">₹204.35</div>
+<span class="inline-block mt-0.5 text-[10px] font-mono font-medium text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1 rounded">14% OFF</span>
+</div>
+</div>
+<div class="mt-3 p-2 bg-[#0f0f12] rounded border border-[#27272a] text-xs space-y-1">
+<div class="flex items-center justify-between text-[#fafafa]">
+<span class="text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#a1a1aa]">schedule</span>
+              Ultra-Fast Delivery: ~45 mins
+            </span>
+<span class="text-[10px] font-mono text-[#10b981]">15 Strips</span>
+</div>
+</div>
+<div class="mt-3 flex items-center justify-between pt-1">
+<span class="text-[11px] text-[#a1a1aa]">Retail store inventory verified</span>
+<button class="px-3 py-1.5 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-[#fafafa] text-xs font-medium transition-colors">
+            Quick Buy
+          </button>
+</div>
+</div>
+<!-- Card 3: PharmEasy -->
+<div class="bg-[#0a0a0a] border border-[#27272a] hover:border-[#3f3f46] rounded-lg p-4 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div>
+<div class="flex items-center gap-1.5 mb-1">
+<span class="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1.5 py-0.5 rounded">
+                6-HR DELIVERY
+              </span>
+<span class="text-[10px] text-[#a1a1aa]">Central NCR Depot</span>
+</div>
+<h4 class="text-sm font-semibold text-[#fafafa]">Moxikind-CV 625 (Mankind Pharma)</h4>
+<p class="text-xs text-[#a1a1aa]">Mankind Pharma Ltd.</p>
+</div>
+<div class="text-right shrink-0">
+<div class="text-xl font-mono font-semibold text-[#fafafa]">₹144.00</div>
+<div class="text-xs text-[#71717a] line-through font-mono">₹192.00</div>
+<span class="inline-block mt-0.5 text-[10px] font-mono font-medium text-[#34d399] bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] px-1 rounded">25% OFF</span>
+</div>
+</div>
+<div class="mt-3 p-2 bg-[#0f0f12] rounded border border-[#27272a] text-xs space-y-1">
+<div class="flex items-center justify-between text-[#fafafa]">
+<span class="text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-[#a1a1aa]">local_shipping</span>
+              Standard Dispatch Today
+            </span>
+<span class="text-[10px] font-mono text-[#10b981]">In Stock</span>
+</div>
+</div>
+<div class="mt-3 flex items-center justify-between pt-1">
+<span class="text-[11px] text-[#a1a1aa]">Trusted Branded Substitute</span>
+<button class="px-3 py-1.5 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-[#fafafa] text-xs font-medium transition-colors">
+            Add to Cart
+          </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- 5. FLOATING DOCK (PiP DRAWER): TinyAgent Live Stream -->
+<aside class="fixed bottom-20 right-4 sm:right-6 z-40 w-88 max-w-[calc(100vw-2rem)] bg-[#0a0a0a] text-[#fafafa] border border-[#27272a] rounded-lg shadow-2xl overflow-hidden transition-all duration-200" id="tinyAgentDrawer">
+<!-- Header -->
+<div class="p-2.5 bg-[#0a0a0a] border-b border-[#27272a] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-[#10b981]"></span>
+<h5 class="text-xs font-medium tracking-tight text-[#fafafa] font-mono">
+        TinyAgent Stream <span class="text-[#71717a]">110053</span>
+</h5>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-[10px] font-mono text-[#a1a1aa] bg-[#18181b] border border-[#27272a] px-1.5 py-0.2 rounded">
+        Active
+      </span>
+<button class="text-[#a1a1aa] hover:text-[#fafafa] p-0.5 rounded transition-colors" id="toggleAgentLogs" title="Toggle Log Drawer">
+<span class="material-symbols-outlined text-[16px]">keyboard_arrow_down</span>
+</button>
+</div>
+</div>
+<!-- Logs -->
+<div class="p-3 space-y-1.5 font-mono text-[11px] text-[#a1a1aa] bg-[#000000] max-h-36 overflow-y-auto custom-scrollbar" id="agentLogContent">
+<div class="flex items-start gap-1.5">
+<span class="text-[#71717a] shrink-0">11:04:12</span>
+<span class="">Session initialized for 110053</span>
+</div>
+<div class="flex items-start gap-1.5 text-[#fafafa]">
+<span class="text-[#71717a] shrink-0">11:04:13</span>
+<span class="">Tata 1mg Patparganj: 14 units verified</span>
+</div>
+<div class="flex items-start gap-1.5">
+<span class="text-[#71717a] shrink-0">11:04:14</span>
+<span class="">Apollo Nirman Vihar: Rider ready (~45m)</span>
+</div>
+<div class="flex items-start gap-1.5">
+<span class="text-[#71717a] shrink-0">11:04:15</span>
+<span class="">Jan Aushadhi #DEL-0422 stock confirmed</span>
+</div>
+<div class="flex items-start gap-1.5 text-[#34d399]">
+<span class="text-[#71717a] shrink-0">11:04:16</span>
+<span class="">NABL batch #NABL-9821 validated</span>
+</div>
+</div>
+<!-- Footer -->
+<div class="p-2 px-3 bg-[#0a0a0a] border-t border-[#27272a] flex items-center justify-between text-[10px] text-[#a1a1aa] font-mono">
+<span class="">6 Endpoints (0.3s)</span>
+<button class="text-[#fafafa] hover:text-[#a1a1aa] transition-colors">
+      Re-scan
+    </button>
+</div>
+</aside>
+<!-- 6. STICKY ACTION BAR (BOTTOM SPLIT-CART CTA) -->
+<footer class="fixed bottom-0 inset-x-0 z-50 bg-[#000000]/95 backdrop-blur-md border-t border-[#27272a] px-4 sm:px-8 py-3">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+<!-- Left: Summary -->
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="size-8 rounded bg-[#18181b] border border-[#27272a] text-[#fafafa] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">shopping_bag</span>
+</div>
+<div class="text-xs">
+<div class="flex items-center gap-2">
+<span class="font-medium text-[#fafafa]">Split-Cart Ready</span>
+<span class="text-[10px] font-mono font-medium text-[#34d399] bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.25)] px-1.5 py-0.2 rounded">Optimal Route</span>
+</div>
+<p class="text-[#a1a1aa] text-xs truncate max-w-md mt-0.5">
+<span class="">1x Urgent (Augmentin 2-Hr)</span> + <span class="text-[#fafafa] font-medium">2x Maintenance (SayaCare)</span>
+</p>
+</div>
+</div>
+<!-- Right: Savings Breakdown & Action -->
+<div class="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto">
+<div class="text-right shrink-0">
+<span class="text-[10px] text-[#a1a1aa] font-mono block">NET SAVINGS</span>
+<span class="text-base font-semibold text-[#34d399] font-mono">₹306.70</span>
+</div>
+<button class="grow sm:grow-0 px-4 py-2 rounded bg-[#ffffff] hover:bg-[#e4e4e7] text-[#000000] font-semibold text-xs transition-colors flex items-center justify-center gap-2">
+<span class="">Optimize Split-Cart</span>
+<span class="text-[#71717a] font-mono text-[11px]">|</span>
+<span class="text-[#000000]/80 font-mono text-[11px]">Save ₹306</span>
+</button>
+</div>
+</div>
+</footer>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('toggleAgentLogs');
+    const content = document.getElementById('agentLogContent');
+    let isCollapsed = false;
+
+    if (toggleBtn && content) {
+      toggleBtn.addEventListener('click', () => {
+        isCollapsed = !isCollapsed;
+        if (isCollapsed) {
+          content.style.display = 'none';
+          toggleBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">keyboard_arrow_up</span>';
+        } else {
+          content.style.display = 'block';
+          toggleBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">keyboard_arrow_down</span>';
+        }
+      });
+    }
+  });
+</script>
+</body></html>
