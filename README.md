@@ -71,9 +71,3 @@ static/app.js           renders API data into the existing design
 tests/                  16 tests; live path tested with fake TinyFish/Gemini clients
 ```
 
-## Known gaps / before a public launch
-- **Live path has not been run against the real TinyFish/Gemini APIs** (no keys during development). It is unit-tested with fakes; expect to tune search queries, extraction prompts and the agent goals on the first real run.
-- Demo prices are made up (Augmentin figures mirror the mock-up). The PRD uses ₹52 / ₹223 for Augmentin; the mock-up uses ₹45.20 / ₹204.35. Pick one source of truth. PMBJP ceilings should come from janaushadhi.gov.in.
-- Kendra and AMRIT demo entries are placeholders, not a real directory.
-- No auth/rate limiting on the API; add before exposing publicly. Uploaded prescriptions are processed in memory and not stored.
-- Substitution is informational. Keep the disclaimer: switching brand to generic needs a doctor/pharmacist's OK, and the app links out rather than selling medicines.
