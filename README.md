@@ -115,3 +115,7 @@ Notes:
 - `.env.local` is gitignored — never commit keys, and rotate any key that has been shared in plain text.
 - Agent runs never log in, add to cart, or checkout.
 - All pricing is indicative; every UI surface reminds users to confirm at checkout and with a pharmacist.
+
+---
+
+**By Satyam and Sujal** ❤️
