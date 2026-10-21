@@ -6,12 +6,19 @@ import type { AgentEvent, AgentStreamRequest } from "@/lib/schemas";
 
 export type AgentLogLine = { id: number; ts: number; kind: "start" | "log" | "url" | "done" | "error"; text: string };
 
+export type AgentView = {
+  id: string;
+  label: string;
+  url: string;
+  productUrl: string | null;
+};
+
 export type AgentDockState = {
   open: boolean;
   running: boolean;
   target: string | null;
   lines: AgentLogLine[];
-  streamingUrl: string | null;
+  streams: AgentView[];
   ok: boolean | null;
   error: string | null;
   result: unknown;
@@ -24,7 +31,7 @@ const EMPTY: AgentDockState = {
   running: false,
   target: null,
   lines: [],
-  streamingUrl: null,
+  streams: [],
   ok: null,
   error: null,
   result: null,
@@ -50,8 +57,8 @@ export function useAgentStream() {
         open: true,
         running: true,
         target,
-        lines: [{ id: ++seqRef.current, ts: Date.now(), kind: "start", text: `run → ${target}` }],
-        streamingUrl: null,
+        lines: [{ id: ++seqRef.current, ts: Date.now(), kind: "start", text: `run -> ${target}` }],
+        streams: [],
         ok: null,
         error: null,
         result: null,
@@ -62,12 +69,28 @@ export function useAgentStream() {
           (event: AgentEvent) => {
             switch (event.type) {
               case "STARTED":
-                push("start", `agent ${event.run_id} — ${event.goal}`);
+                push("start", `agent ${event.run_id} - ${event.goal}`);
                 break;
-              case "STREAMING_URL":
-                setState((s) => ({ ...s, streamingUrl: event.streaming_url }));
-                push("url", "live view attached");
+              case "STREAMING_URL": {
+                const id = event.product_url || event.run_id || `${event.label ?? "agent"}-${Date.now()}`;
+                const label = event.label ?? event.product_url ?? "live agent";
+                const entry: AgentView = {
+                  id,
+                  label,
+                  url: event.streaming_url,
+                  productUrl: event.product_url ?? null,
+                };
+                setState((s) => {
+                  const index = s.streams.findIndex((stream) => stream.id === id);
+                  const streams =
+                    index >= 0
+                      ? s.streams.map((stream, i) => (i === index ? entry : stream))
+                      : [...s.streams, entry];
+                  return { ...s, streams };
+                });
+                push("url", `${label}: live view attached`);
                 break;
+              }
               case "PROGRESS":
                 push("log", event.purpose);
                 break;
@@ -84,7 +107,7 @@ export function useAgentStream() {
                       id: ++seqRef.current,
                       ts: Date.now(),
                       kind: event.ok ? "done" : "error",
-                      text: event.ok ? "run complete ✓" : `run finished — ${event.error ?? "no result"}`,
+                      text: event.ok ? "run complete" : `run finished - ${event.error ?? "no result"}`,
                     },
                   ],
                 }));
@@ -109,7 +132,7 @@ export function useAgentStream() {
 
   const close = useCallback(() => {
     abortRef.current?.abort();
-    setState((s) => ({ ...s, open: false, running: false }));
+    setState((s) => ({ ...s, open: false, running: false, streams: [] }));
   }, []);
 
   const setOpen = useCallback((open: boolean) => {

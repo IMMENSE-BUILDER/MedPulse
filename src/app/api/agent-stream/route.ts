@@ -1,7 +1,7 @@
 /**
  * POST /api/agent-stream — Wave 2 live browser agent (SSE).
  *
- * kind:"stock"  -> verify up to 10 medicine URLs against a pincode (max 3 concurrent)
+ * kind:"stock"  -> verify up to 10 medicine URLs against a pincode (max 5 concurrent)
  * kind:"lab"    -> verify up to 10 diagnostic lab URLs against a pincode
  * kind:"kendra" -> find Jan Aushadhi Kendras near a pincode via UMANG
  *
@@ -74,6 +74,8 @@ async function runStockLive(
 ): Promise<void> {
   const checks: Array<StockCheck | null> = new Array(urls.length).fill(null);
   const jobs = urls.map((url, i) => async () => {
+    const label = hostOf(url);
+    let runId = "";
     const goal =
       kind === "lab"
         ? `You are verifying a diagnostic lab test package in India. Open ${url}, set the delivery pincode to ${pincode} ` +
@@ -92,14 +94,31 @@ async function runStockLive(
       timeoutMs: 180_000,
       signal,
       callbacks: {
-        onStarted: (runId) =>
+        onStarted: (id) => {
+          runId = id;
           send({
             type: "STARTED",
-            run_id: runId,
-            goal: `Pincode ${pincode} ${kind === "lab" ? "lab" : "stock"} check on ${hostOf(url)}`,
+            run_id: id,
+            goal: `Pincode ${pincode} ${kind === "lab" ? "lab" : "stock"} check on ${label}`,
+            label,
+            product_url: url,
+          });
+        },
+        onStreamUrl: (streamingUrl) =>
+          send({
+            type: "STREAMING_URL",
+            streaming_url: streamingUrl,
+            run_id: runId || undefined,
+            label,
+            product_url: url,
           }),
-        onStreamUrl: (streamingUrl) => send({ type: "STREAMING_URL", streaming_url: streamingUrl }),
-        onProgress: (purpose) => send({ type: "PROGRESS", purpose: `${hostOf(url)}: ${purpose}` }),
+        onProgress: (purpose) =>
+          send({
+            type: "PROGRESS",
+            purpose: `${label}: ${purpose}`,
+            run_id: runId || undefined,
+            label,
+          }),
       },
     });
     const result = (outcome.result ?? {}) as Record<string, unknown>;
@@ -115,12 +134,12 @@ async function runStockLive(
     };
   });
 
-  await runPool(jobs, 3);
+  await runPool(jobs, 5);
   const finalChecks = checks.filter((c): c is StockCheck => c !== null);
   send({
     type: "COMPLETE",
     ok: finalChecks.some((c) => c.in_stock_at_pincode !== null),
-    result: { kind: "stock", checks: finalChecks },
+    result: { kind, checks: finalChecks },
     error:
       finalChecks.length > 0 && finalChecks.every((c) => c.error)
         ? (finalChecks[0].error ?? "all stock checks failed")

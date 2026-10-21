@@ -56,8 +56,9 @@ Protect the prepaid wallet (`$0.016/step` for TinyAgent). Enforce the **Two-Wave
 3. Progress is streamed **for real** — the compare pipeline emits live stage events (`resolve → search → fetch → extract → guard`, unresolved queries add `suggest`) through `POST /api/compare-stream` (`jsonSseResponse`). STAGE frames carry actual counts (listings, portals, pages, failed batches). Never simulate progress.
 
 ### Wave 2 — live stealth browser (`$0.016/step`, user-triggered ONLY)
-- **Never** auto-run the agent in a loop without consent. The only auto path is the explicit **Auto-verify** scope chooser, and it only fires for **live** results, with a chosen scope (generics, branded, or all), up to 10 URLs, and at most 3 concurrent runs.
+- **Never** auto-run the agent in a loop without consent. The only auto path is the explicit **Auto-verify** scope chooser, and it only fires for **live** results, with a chosen scope (generics, branded, or all), up to 10 URLs, and at most 5 concurrent runs.
 - `browser_profile: BrowserProfile.STEALTH`, pincode injection (`110053` default) into pharmacy modals; UMANG (`web.umang.gov.in`) for Jan Aushadhi Kendra lookup.
+- The PiP dock renders one live browser tile per active run (2-column grid when multiple runs stream in parallel), so every agent screen is visible during a demo.
 - Agents must **never** log in, add to cart, or checkout. Stock check only.
 - **SSE contract** (`POST /api/agent-stream`, via `src/lib/sse.ts`) — forward all frames:
   - `STARTED` `{run_id, goal}`

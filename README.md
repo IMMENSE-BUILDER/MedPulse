@@ -11,7 +11,7 @@ The public front door is a 3D welcome page at `/`; the comparison dashboard live
 Built on Next.js (App Router) + TypeScript, the Vercel AI Gateway, and the TinyFish SDK:
 
 - **Wave 1 (always on, no TinyAgent spend):** `TinySearch` → `TinyFetch` → dual-model structured extraction. Progressive live discovery with a hard strength guard (a 500 mg listing can never be shown for a 650 mg query) and per-10-tabs price normalisation. Every stage streams as it completes — there is no fixed latency promise.
-- **Wave 2 (on-demand):** `TinyAgent` stealth browser streams its run as typed SSE events and renders a live browser view inside the floating PiP dock — pincode stock verification and Jan Aushadhi Kendra lookup.
+- **Wave 2 (on-demand):** `TinyAgent` stealth browser streams its runs as typed SSE events and renders parallel live browser tiles inside the floating PiP dock — pincode stock verification and Jan Aushadhi Kendra lookup.
 - **Agent Run:** one click verifies every displayed medicine link in the live browser; each offer's "Stock unverified - run agent" line is also clickable. Auto-verify opens a scope chooser (generic substitutes, branded express, or all) and runs that scope on each live comparison. Lab results get the same Agent Run control.
 - **Prescription intelligence:** a photographed prescription is read by a dedicated vision model and structured by a clinical text model (both via the Vercel AI Gateway), with an English + हिन्दी dosing schedule and established drug-interaction flags. Both OCR legs run with hidden reasoning disabled for latency; model names/IDs are never returned by the API.
 - **DocAI (general help):** a safety-first chat for general medicine and symptom questions, answered by the clinical text model — emergencies are routed to 108/112, and it never guesses prices.
@@ -61,7 +61,7 @@ Every paid/AI-backed route has a per-IP fixed-window budget, enforced **before**
 | `POST /api/optimize-cart` | 30 / min |
 | `POST /api/agent-stream` | 4 / min |
 
-Implementation: `src/lib/rate-limit.ts`. Counters are in-memory per serverless instance — good for casual-abuse and demo-day protection, **not** a distributed quota. The Wave 2 agent is also capped at ≤10 URLs and ≤3 concurrent runs per Agent Run; Auto-verify uses the selected scope.
+Implementation: `src/lib/rate-limit.ts`. Counters are in-memory per serverless instance — good for casual-abuse and demo-day protection, **not** a distributed quota. The Wave 2 agent is also capped at ≤10 URLs and ≤5 concurrent runs per Agent Run; multiple streaming URLs render as parallel browser tiles; Auto-verify uses the selected scope.
 
 ## API (PRD §9 contract)
 

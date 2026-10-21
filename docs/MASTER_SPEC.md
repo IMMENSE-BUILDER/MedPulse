@@ -274,7 +274,8 @@ The engine:
 
 - User-triggered only. **Agent Run** verifies every displayed medicine link in one pass; per-offer **Stock unverified - run agent** buttons verify one listing.
 - **Auto-verify** opens a scope chooser — subsidised generic substitutes, branded express medicines, or all medicine offers — and runs that scope on each live comparison.
-- Stock and lab checks accept up to 10 URLs, with ≤3 concurrent runs. Lab results expose an Agent Run button backed by `kind:"lab"`.
+- Stock and lab checks accept up to 10 URLs, with ≤5 concurrent runs. Lab results expose an Agent Run button backed by `kind:"lab"`.
+- The PiP dock renders one live browser tile per active run — a 2-column grid when multiple agents stream in parallel — so every screen is visible during a demo.
 - Pincode injection into pharmacy stock modals.
 - Jan Aushadhi Kendra lookup via UMANG.
 - Never logs in, adds to cart, or checks out.
@@ -369,7 +370,7 @@ Per-IP fixed-window budgets, enforced before body parsing:
 
 1. User reviews live offers.
 2. User clicks **Agent Run** for all medicine links, **Run generics** / **Run branded** for one column, or the **Stock unverified - run agent** line on a single offer.
-3. The PiP dock streams the browser view; the terminal shows each host and step. The column shows an agent-live strip while the run is active.
+3. The PiP dock streams one live browser tile per active run (2-column grid for parallel runs); the terminal shows each host and step. The column shows an agent-live strip while the run is active.
 4. Result cards are patched with stock outcomes; lab results use the same Agent Run control with a lab-specific goal.
 5. Auto-verify opens the scope chooser and repeats the chosen scope on later live comparisons.
 6. User is taken to the source pharmacy for the final purchase — the app never checks out.
@@ -402,7 +403,7 @@ Browser (Next.js App Router UI)
 ### 6.2 Two-wave execution
 
 - **Wave 1** is always on: TinyFish Search + Fetch, dual-model extraction, normalisation, strength guard. No TinyAgent wallet spend. TinyFish Search/Fetch are free-tier; gateway tokens are billed.
-- **Wave 2** is user-triggered: TinyAgent stealth browser costs `$0.016/step`, streams into a PiP dock, and is capped at ≤10 URLs and ≤3 concurrent runs per Agent Run.
+- **Wave 2** is user-triggered: TinyAgent stealth browser costs `$0.016/step`, streams into a multi-tile PiP dock, and is capped at ≤10 URLs and ≤5 concurrent runs per Agent Run.
 
 ### 6.3 Dual-model routing
 
@@ -684,7 +685,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 5. **How it works** — simple two-wave architecture diagram: resolve → search/fetch → extract → guard → results; on-demand agent.
 6. **The trust layer** — savings receipt, provenance chips, share links, real timings, honest empty state.
 7. **Prescription intelligence** — photo → vision transcription → clinical structuring → EN/HI schedule + interactions; show the OCR result screenshot.
-8. **Agent Run** — one click verifies every displayed medicine/lab link; show the PiP browser and terminal, plus the Auto-verify scope chooser (generics / branded / all). “No checkout, no login”.
+8. **Agent Run** — one click verifies every displayed medicine/lab link; show the parallel PiP browser tiles and terminal, plus the Auto-verify scope chooser (generics / branded / all). “No checkout, no login”.
 9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 42 tests; 17/17 production checks; OCR 27s → 5–9s. Caveat label.
 10. **Safety & reliability** — strength guard, live/demo honesty, rate limits, schema validation, no model IDs, disclaimers.
 11. **Differentiation & roadmap** — comparison table; roadmap: PWA/offline, voice EN/HI, OCR streaming, richer interaction checks, shared rate-limit store, more portals.
@@ -774,7 +775,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 3. **Results + receipt (60 s):** show per-10-tablet prices, savings receipt, provenance, freshness.
 4. **Share (20 s):** copy the link; open it in a new tab; show it rehydrates.
 5. **Prescription OCR (60 s):** upload the image; show medicines, salts, EN/HI schedule, disclaimer.
-6. **Agent Run (45 s):** click Agent Run for all listings, or Auto-verify → subsidised generic substitutes; show the PiP browser and terminal; note “no login, no checkout”.
+6. **Agent Run (45 s):** click Agent Run for all listings, or Auto-verify → subsidised generic substitutes; show the parallel PiP browser tiles and terminal; note “no login, no checkout”.
 7. **Close (25 s):** recap the trust layer, 42 tests, 17/17 checks; point to the repo and production URL.
 
 ---
@@ -814,7 +815,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 | **Strength guard** | Rule that rejects listings whose strength does not match the query. |
 | **Wave 1** | Always-on search/fetch/extract pipeline; no TinyAgent spend. |
 | **Wave 2** | User-triggered TinyAgent stealth-browser verification. |
-| **PiP** | Picture-in-picture dock showing the live agent browser. |
+| **PiP** | Picture-in-picture dock showing parallel live agent browser tiles, one per active run. |
 | **Provenance** | Evidence of how a price was obtained and when. |
 | **Live / demo** | Real data vs clearly labelled fixtures. |
 | **Local demo profile** | Browser-only welcome sign-in gate for saved history; not real auth, no password stored. |

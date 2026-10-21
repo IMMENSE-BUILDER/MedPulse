@@ -229,10 +229,31 @@ export const StockCheckSchema = z.object({
 export type StockCheck = z.infer<typeof StockCheckSchema>;
 
 /** Typed SSE contract from the PRD §9 / AGENTS.md §4. */
+const AgentEventMeta = {
+  run_id: z.string().optional(),
+  label: z.string().optional(),
+  product_url: z.string().url().optional(),
+};
+
 export const AgentEventSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("STARTED"), run_id: z.string(), goal: z.string() }),
-  z.object({ type: z.literal("STREAMING_URL"), streaming_url: z.string() }),
-  z.object({ type: z.literal("PROGRESS"), purpose: z.string() }),
+  z.object({
+    type: z.literal("STARTED"),
+    run_id: z.string(),
+    goal: z.string(),
+    label: z.string().optional(),
+    product_url: z.string().url().optional(),
+  }),
+  z.object({
+    type: z.literal("STREAMING_URL"),
+    streaming_url: z.string(),
+    ...AgentEventMeta,
+  }),
+  z.object({
+    type: z.literal("PROGRESS"),
+    purpose: z.string(),
+    run_id: z.string().optional(),
+    label: z.string().optional(),
+  }),
   z.object({
     type: z.literal("COMPLETE"),
     ok: z.boolean(),
