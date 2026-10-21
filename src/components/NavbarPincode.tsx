@@ -1,6 +1,7 @@
 "use client";
 
 import { Bot, Loader2, LocateFixed, MapPin, Stethoscope } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -55,7 +56,9 @@ export function NavbarPincode({
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-2 px-4 lg:px-6">
-        <Logo className="h-9 w-auto shrink-0 sm:h-11" />
+        <Link href="/" aria-label="MedPulse AI home" className="shrink-0">
+          <Logo className="h-9 w-auto sm:h-11" />
+        </Link>
 
         <div className="ml-auto flex items-center gap-2">
           {modeChip}

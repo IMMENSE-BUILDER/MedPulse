@@ -23,6 +23,8 @@ export function ThemeToggle() {
     } catch {
       /* storage unavailable — theme still applies for this session */
     }
+    // The welcome page's Three.js scene listens for this to retune lighting.
+    window.dispatchEvent(new CustomEvent("medpulse:theme", { detail: { light: next } }));
     setLight(next);
   };
 

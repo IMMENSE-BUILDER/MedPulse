@@ -5,6 +5,8 @@
 ## 1. Project Overview
 **MedPulse AI** is a Next.js (App Router) web app that compares real-time Indian prescription medicine and diagnostic lab prices across **mainstream branded e-pharmacies** and **government-subsidised / NABL-tested generic portals** (PMBJP Jan Aushadhi, AMRIT, SayaCare, …) plus **diagnostic labs** (Track D).
 
+Public routes: **`/`** is the 3D welcome/landing page; **`/engine`** is the price engine. Legacy `/?q=&pin=&type=` links 307-forward to `/engine` so shared comparisons keep working.
+
 Two core engineering challenges:
 1. **Clinical Salt Decoding** — mapping expensive prescribed brand names to their exact WHO-GMP active salt composition.
 2. **Two-Wave Progressive Execution** — progressive, zero-TinyAgent-spend price discovery in **Wave 1** (`TinySearch` + `TinyFetch` + AI extraction), then on-demand streaming stealth-browser verification (`TinyAgent`) rendered inside a Picture-in-Picture `<iframe>` dock in **Wave 2**. Latency is whatever the real network + models take; never advertise a fixed latency guarantee.
@@ -14,6 +16,7 @@ Full product/engineering spec and PPT generation brief: `docs/MASTER_SPEC.md`. K
 ## 2. Tech Stack & Core Dependencies
 - **Framework:** Next.js 16 (App Router, TypeScript, Route Handlers). No Server Actions — the API surface is explicit route handlers.
 - **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Blue (`#0000ff` default, dark-blue `#0041c2` on hover) on near-black, editorial-clinical aesthetic.
+- **3D:** Three.js 0.160 (bundled) for the procedural welcome scene only. No textures or model files.
 - **AI:** `ai` package (AI SDK) + `zod` v4 schemas, routed **exclusively** through the Vercel AI Gateway.
 - **Web execution:** `@tiny-fish/sdk` (Search / Fetch / Agent).
 - **Tests:** Vitest (`tests/*.test.ts`, 42 tests).
@@ -77,7 +80,9 @@ MedPulse-main/
 ├── AGENTS.md
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx                    # Dashboard: search + Rx + dual-track grid + PiP dock + cart
+│   │   ├── page.tsx                    # Public welcome: 3D hero + local history → /engine
+│   │   ├── engine/page.tsx             # Dashboard: search + Rx + dual-track grid + PiP dock + cart
+│   │   ├── welcome.css                 # Welcome styles, scoped under .welcome-root
 │   │   ├── layout.tsx                  # Fonts + metadata
 │   │   ├── globals.css                 # Tailwind v4 theme tokens
 │   │   ├── icon.svg / icon.png         # Browser tab icon (blister-grid logo)
@@ -94,6 +99,7 @@ MedPulse-main/
 │   │       ├── health/route.ts         # GET mode + key status (never model IDs)
 │   │       └── suggest/route.ts        # GET demo suggestions
 │   ├── components/
+│   │   ├── welcome/                    # WelcomePage, WelcomeScene (three), auth + motion wiring
 │   │   ├── Logo.tsx                    # Brand lockup (blister-grid badge + wordmark) — navbar + footer
 │   │   ├── NavbarPincode.tsx           # Logo + Pincode + Auto-verify switch + status
 │   │   ├── SearchPanel.tsx             # Medicine/Lab tabs + typeahead dropdown + quick pills
@@ -125,6 +131,7 @@ MedPulse-main/
 │       ├── cache.ts                    # In-memory TTL cache (default 1 hr)
 │       ├── rate-limit.ts               # Per-IP fixed-window budgets for public/AI routes
 │       ├── env.ts / errors.ts / pool.ts / sse.ts / format.ts / urls.ts
+│       ├── welcome-store.ts            # Local-only profile/session/history for the welcome page
 │       ├── schemas.ts                  # zod contracts (PRD §9 shapes)
 │       ├── agent-client.ts             # Browser-side SSE reader (agent-stream)
 │       ├── compare-client.ts           # Browser-side SSE reader (compare-stream)
@@ -152,7 +159,7 @@ MedPulse-main/
 11. **Light/dark theme:** `ThemeToggle` (navbar top-right corner) toggles `light` on `<html>`; the initial theme is applied before first paint by the inline script in `layout.tsx` and stored under `medpulse:theme`. Light palette lives in `globals.css` as `html.light` token overrides — add new colors as tokens, never as per-component hardcoded values.
 12. **Never surface model IDs:** no badges, footers, dock chips, API response fields or docs may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3). The OCR response in particular must not contain a `models` field.
 13. **Branding & icons:** the brand mark is the blue blister-grid lockup on a white rounded tile, rendered by `Logo.tsx` (navbar + footer) — never re-create the badge or wordmark inline. Tab/app/social icons are file-based app metadata: `icon.svg` / `icon.png` / `apple-icon.png` / `opengraph-image.png`. If the logo ever changes, regenerate those files (the generator lives outside the repo in the logos demo workspace).
-14. **Shareable results:** `page.tsx` keeps `?q=&pin=&type=` in the address bar via `history.replaceState` after every successful comparison, and hydrates those params on boot (skipping the demo auto-query). `ShareLinkButton` copies the current URL. Never break a shared link — a missing `/api/health` response must not block hydration.
+14. **Shareable results:** `engine/page.tsx` keeps `?q=&pin=&type=` in the address bar via `history.replaceState` after every successful comparison, and hydrates those params on boot (skipping the demo auto-query). `ShareLinkButton` copies the current URL. The public welcome lives at `/`; a root URL carrying any of those params is **307-forwarded** to `/engine` so old shared links keep working. Never break a shared link — a missing `/api/health` response must not block hydration.
 15. **Provenance is visible:** every offer card shows how it was verified (`verified_by`, or "demo fixture"), the source host as an outbound link, the NABL batch when present, and "as of …" from the comparison's `generated_at`. Never hide that demo prices are fixtures.
 16. **Savings receipt:** `SavingsReceipt` may only use real per-10-tab offers from the current comparison. The monthly/yearly numbers are an explicit projection from a user-adjustable "strips per month" assumption and must stay labelled as a projection — never invent adherence or usage statistics.
 17. **Rate limits / cost guard:** `src/lib/rate-limit.ts` holds the per-IP budgets (compare 20/min, OCR 6/min, DocAI 20/min, cart 30/min, agent 4/min). Every new paid or AI-backed route must add a bucket and call `guard()` before parsing the body. SSE routes must return the plain 429 JSON **before** starting a stream.

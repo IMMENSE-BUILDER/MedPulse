@@ -1,0 +1,1384 @@
+/* Generated from dashboard-3d/styles.css for the merged welcome route.
+   Every selector is scoped to .welcome-root; only light-mode overrides stay
+   attached to html.light. Tokens come from globals.css. */
+
+.welcome-root {
+  --radius-card: 14px;
+  --radius-stage: 22px;
+  min-height: 100dvh;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background:
+    radial-gradient(900px 520px at 62% -120px, rgba(0, 65, 194, 0.16), transparent 70%),
+    var(--color-canvas);
+}
+
+html.light .welcome-root {
+  background:
+    radial-gradient(900px 520px at 62% -120px, rgba(0, 65, 194, 0.09), transparent 70%),
+    var(--color-canvas);
+}
+
+.welcome-root.motion-on .reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.welcome-root.motion-on .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.welcome-root .welcome-brand {
+  height: 40px;
+  width: auto;
+  flex: none;
+}
+
+.welcome-root .welcome-footer-brand {
+  height: 28px;
+  width: auto;
+  flex: none;
+}
+
+/* ==========================================================================
+   MedPulse AI — standalone welcome build
+   Design tokens mirror src/app/globals.css so this can be merged 1:1.
+   Dark is the default; `html.light` flips the palette.
+   ========================================================================== */
+
+/* ---- base ---------------------------------------------------------------- */
+
+.welcome-root *, .welcome-root *::before, .welcome-root *::after {
+  box-sizing: border-box;
+}
+
+.welcome-root h1, .welcome-root h2, .welcome-root h3, .welcome-root p, .welcome-root ul, .welcome-root figure {
+  margin: 0;
+}
+
+.welcome-root ul {
+  padding: 0;
+  list-style: none;
+}
+
+.welcome-root button, .welcome-root input, .welcome-root select {
+  font: inherit;
+  color: inherit;
+}
+
+.welcome-root a {
+  color: inherit;
+}
+
+.welcome-root ::selection {
+  background: rgba(0, 0, 255, 0.32);
+}
+
+.welcome-root * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-2) transparent;
+}
+
+.welcome-root *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.welcome-root *::-webkit-scrollbar-thumb {
+  background: var(--color-line-2);
+  border-radius: 8px;
+}
+
+.welcome-root :focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.welcome-root .wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.welcome-root .skip {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--color-panel-2);
+  border: 1px solid var(--color-line-2);
+  font-size: 12px;
+  text-decoration: none;
+  transform: translateY(-160%);
+}
+
+.welcome-root .skip:focus-visible {
+  transform: translateY(0);
+}
+
+/* ---- nav ----------------------------------------------------------------- */
+
+.welcome-root .nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--color-line);
+  background: rgba(5, 6, 7, 0.74);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+html.light .welcome-root .nav {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.welcome-root .nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  height: 60px;
+}
+
+.welcome-root .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--color-ink);
+}
+
+.welcome-root .brand-mark {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--color-brand-2);
+}
+
+.welcome-root .brand-text {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.welcome-root .brand-ai {
+  margin-left: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.welcome-root .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: 10px;
+}
+
+.welcome-root .nav-links a {
+  font-size: 12.5px;
+  color: var(--color-mute);
+  text-decoration: none;
+  transition: color 0.16s ease;
+}
+
+.welcome-root .nav-links a:hover {
+  color: var(--color-ink);
+}
+
+.welcome-root .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.welcome-root .icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-mute);
+  cursor: pointer;
+  transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.welcome-root .icon-btn:hover {
+  color: var(--color-ink);
+  background: var(--color-panel-2);
+  border-color: var(--color-line);
+}
+
+.welcome-root .ico {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- buttons & links ----------------------------------------------------- */
+
+.welcome-root .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, opacity 0.16s ease;
+}
+
+.welcome-root .btn.sm {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.welcome-root .btn.block {
+  width: 100%;
+}
+
+.welcome-root .btn.primary {
+  background: var(--color-brand);
+  color: #ffffff;
+}
+
+.welcome-root .btn.primary:hover {
+  background: var(--color-brand-hover);
+}
+
+.welcome-root .btn.ghost {
+  border-color: var(--color-line);
+  background: transparent;
+  color: var(--color-ink-2);
+}
+
+.welcome-root .btn.ghost:hover {
+  background: var(--color-panel-2);
+  border-color: var(--color-line-2);
+  color: var(--color-ink);
+}
+
+.welcome-root .btn:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.welcome-root .link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11.5px;
+  color: var(--color-mute);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.welcome-root .link:hover {
+  color: var(--color-ink);
+}
+
+.welcome-root .link.danger {
+  color: var(--color-danger);
+  opacity: 0.85;
+}
+
+.welcome-root .link.danger:hover {
+  opacity: 1;
+}
+
+/* ---- hero ---------------------------------------------------------------- */
+
+.welcome-root .hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100svh - 60px);
+  padding-block: clamp(28px, 5vh, 60px) clamp(16px, 2.4vh, 30px);
+  overflow: clip;
+  scroll-margin-top: 70px;
+}
+
+.welcome-root .hero-copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 980px;
+  text-align: center;
+  transform: translate3d(0, calc(var(--hero-p, 0) * -28px), 0);
+  opacity: calc(1 - var(--hero-fade, 0) * 0.95);
+}
+
+.welcome-root .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-brand-2);
+}
+
+.welcome-root .eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  flex: none;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.welcome-root .eyebrow-short {
+  display: none;
+}
+
+.welcome-root .hero h1 {
+  margin-top: 12px;
+  font-size: clamp(2.4rem, 5.4vw, 4rem);
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.welcome-root .hero h1 em {
+  font-style: normal;
+  color: var(--color-brand-2);
+}
+
+.welcome-root .hero .eyebrow, .welcome-root .hero .proof, .welcome-root .hero .cta-row {
+  justify-content: center;
+}
+
+.welcome-root .hero .lede {
+  max-width: 62ch;
+  margin-inline: auto;
+}
+
+.welcome-root .hero .micro {
+  text-align: center;
+}
+
+.welcome-root .lede {
+  max-width: 55ch;
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.66;
+  color: var(--color-mute);
+}
+
+.welcome-root .proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--color-ink-2);
+}
+
+.welcome-root .proof li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-root .dot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.24);
+}
+
+html.light .welcome-root .dot {
+  box-shadow: 0 0 0 3px rgba(0, 65, 194, 0.16);
+}
+
+.welcome-root .cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.welcome-root .micro {
+  margin-top: 12px;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--color-faint);
+}
+
+.welcome-root .quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+}
+
+.welcome-root .quick-label {
+  margin-right: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.welcome-root .chip {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-2);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.welcome-root .chip:hover {
+  background: var(--color-panel);
+  border-color: var(--color-line-2);
+  color: var(--color-ink);
+}
+
+.welcome-root .hero-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: clamp(4px, 1.2vh, 12px);
+  transform: translate3d(0, calc(var(--hero-p, 0) * -18px), 0);
+  opacity: calc(1 - var(--hero-fade, 0) * 0.9);
+}
+
+.welcome-root .hero-foot .quick {
+  justify-content: center;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.welcome-root .scroll-cue {
+  position: relative;
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(180deg, var(--color-line-2), transparent);
+}
+
+.welcome-root .scroll-cue span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.18);
+  animation: welcome-scroll-cue 1.9s ease-in-out infinite;
+}
+
+html.light .welcome-root .scroll-cue span {
+  box-shadow: 0 0 0 3px rgba(0, 65, 194, 0.14);
+}
+
+@keyframes welcome-scroll-cue {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+/* ---- 3D stage ------------------------------------------------------------ */
+
+.welcome-root .stage {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  width: 100%;
+  height: clamp(280px, 37svh, 400px);
+  margin-block: clamp(2px, 1.2vh, 12px) 0;
+  overflow: clip;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  -webkit-mask-image: radial-gradient(62% 88% at 50% 52%, #000 44%, transparent 84%);
+  mask-image: radial-gradient(62% 88% at 50% 52%, #000 44%, transparent 84%);
+  transform: translate3d(0, calc(var(--hero-p, 0) * -26px), 0);
+  will-change: transform;
+}
+
+.welcome-root .stage::before {
+  content: "";
+  position: absolute;
+  inset: 6% 16%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(50% 55% at 50% 50%, rgba(0, 65, 194, 0.34), transparent 72%);
+  filter: blur(34px);
+  pointer-events: none;
+}
+
+html.light .welcome-root .stage::before {
+  background: radial-gradient(50% 55% at 50% 50%, rgba(0, 65, 194, 0.14), transparent 74%);
+}
+
+.welcome-root #pill-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.welcome-root .stage.grabbing #pill-canvas {
+  cursor: grabbing;
+}
+
+.welcome-root .stage-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  pointer-events: none;
+  opacity: calc(1 - var(--hero-fade, 0) * 4);
+  transition: opacity 0.5s ease;
+  white-space: nowrap;
+}
+
+.welcome-root .stage.spun .stage-hint {
+  opacity: 0;
+}
+
+/* CSS fallback when WebGL or the CDN is unavailable. */
+.welcome-root .stage-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-items: center;
+  overflow: hidden;
+}
+
+.welcome-root .stage.no-3d #pill-canvas {
+  display: none;
+}
+
+.welcome-root .stage.no-3d .stage-fallback {
+  display: grid;
+}
+
+.welcome-root .stage.no-3d .stage-hint {
+  display: none;
+}
+
+.welcome-root .fb-pill, .welcome-root .fb-pack {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  box-shadow: inset -9px -6px 18px rgba(0, 0, 0, 0.22), 0 26px 46px -26px rgba(0, 0, 0, 0.85);
+}
+
+.welcome-root .fb-pill {
+  width: 68px;
+  height: 178px;
+  background: linear-gradient(180deg, #eef3f0 0 52%, #0000ff 52% 100%);
+}
+
+.welcome-root .fb-a {
+  transform: translate(-50%, -50%) rotate(23deg) translate(8px, -14px);
+}
+
+.welcome-root .fb-b {
+  width: 54px;
+  height: 146px;
+  opacity: 0.92;
+  background: linear-gradient(180deg, #9db4ff 0 48%, #eef3f0 48% 100%);
+  transform: translate(-50%, -50%) rotate(-31deg) translate(-82px, 62px);
+}
+
+.welcome-root .fb-pack {
+  width: 196px;
+  height: 122px;
+  border: 1px solid rgba(220, 240, 232, 0.18);
+  border-radius: 18px;
+  background: rgba(220, 240, 232, 0.05);
+  transform: translate(-50%, -50%) rotate(-8deg) translate(58px, 64px);
+}
+
+/* ---- panel (sign-in + local history) ------------------------------------ */
+
+.welcome-root .panel {
+  padding: 18px;
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  background: var(--color-panel);
+}
+
+.welcome-root .panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.welcome-root .panel-head h2 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.welcome-root .panel-chip {
+  padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, var(--color-brand) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-brand) 9%, transparent);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-brand-2);
+  white-space: nowrap;
+}
+
+.welcome-root .panel-sub {
+  margin-bottom: 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-mute);
+}
+
+.welcome-root .field {
+  margin-bottom: 10px;
+}
+
+.welcome-root .field label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 5px;
+  font-size: 11.5px;
+  color: var(--color-ink-2);
+}
+
+.welcome-root .opt {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.welcome-root .field input, .welcome-root .field select, .welcome-root .add-form input, .welcome-root .add-form select {
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--color-line);
+  border-radius: 9px;
+  background: var(--color-inset);
+  font-size: 13px;
+  color: var(--color-ink);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.welcome-root .field input::placeholder, .welcome-root .add-form input::placeholder {
+  color: var(--color-faint);
+}
+
+.welcome-root .field input:focus-visible, .welcome-root .field select:focus-visible, .welcome-root .add-form input:focus-visible, .welcome-root .add-form select:focus-visible {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 16%, transparent);
+}
+
+.welcome-root .pass-wrap {
+  position: relative;
+}
+
+.welcome-root .pass-wrap input {
+  padding-right: 54px;
+}
+
+.welcome-root .pass-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  height: 26px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.welcome-root .pass-toggle:hover {
+  color: var(--color-ink);
+  background: var(--color-panel-2);
+}
+
+.welcome-root .form-error {
+  margin: 2px 0 8px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--color-danger);
+}
+
+.welcome-root .form-error:empty {
+  display: none;
+}
+
+.welcome-root .panel-alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-top: 11px;
+}
+
+/* history view */
+
+.welcome-root .who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.welcome-root .avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid color-mix(in srgb, var(--color-brand) 32%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-brand-2);
+}
+
+.welcome-root .who-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.welcome-root .who-name {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.welcome-root .who-mail {
+  overflow: hidden;
+  font-size: 10.5px;
+  color: var(--color-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.welcome-root .who .link {
+  margin-left: auto;
+  flex: none;
+}
+
+.welcome-root .add-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.welcome-root .add-form input {
+  height: 32px;
+  min-width: 0;
+  padding-inline: 9px;
+  font-size: 12px;
+}
+
+.welcome-root .add-form select {
+  width: auto;
+  height: 32px;
+  padding-inline: 6px;
+  font-size: 11.5px;
+  color: var(--color-ink-2);
+}
+
+.welcome-root .add-form .btn {
+  height: 32px;
+}
+
+.welcome-root .hist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 2px 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.welcome-root .mono {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-faint);
+}
+
+.welcome-root .hist {
+  max-height: 186px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.welcome-root .hist-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 2px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.welcome-root .hist-row:last-child {
+  border-bottom: 0;
+}
+
+.welcome-root .hist-kind {
+  padding: 3px 6px;
+  border: 1px solid color-mix(in srgb, var(--color-brand) 26%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--color-brand) 7%, transparent);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand-2);
+  white-space: nowrap;
+}
+
+.welcome-root .hist-kind[data-kind="rx"] {
+  border-color: color-mix(in srgb, var(--color-warn) 32%, transparent);
+  background: color-mix(in srgb, var(--color-warn) 8%, transparent);
+  color: var(--color-warn);
+}
+
+.welcome-root .hist-kind[data-kind="note"] {
+  border-color: var(--color-line-2);
+  background: var(--color-inset);
+  color: var(--color-mute);
+}
+
+.welcome-root .hist-main {
+  min-width: 0;
+}
+
+.welcome-root .hist-label {
+  display: block;
+  overflow: hidden;
+  font-size: 12.5px;
+  color: var(--color-ink-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.welcome-root .hist-meta {
+  display: block;
+  overflow: hidden;
+  font-size: 10px;
+  color: var(--color-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.welcome-root .hist-go, .welcome-root .hist-del {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-faint);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.16s ease, background-color 0.16s ease;
+}
+
+.welcome-root .hist-go:hover {
+  color: var(--color-brand-2);
+  background: var(--color-panel-2);
+}
+
+.welcome-root .hist-del:hover {
+  color: var(--color-danger);
+  background: var(--color-panel-2);
+}
+
+.welcome-root .hist-empty {
+  padding: 16px 6px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--color-faint);
+  text-align: center;
+}
+
+.welcome-root .hist-foot {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.welcome-root .hist-foot .link {
+  justify-self: start;
+}
+
+/* ---- sections ------------------------------------------------------------ */
+
+.welcome-root .section {
+  padding-block: clamp(44px, 5.6vw, 84px);
+  scroll-margin-top: 76px;
+}
+
+.welcome-root .section-head {
+  max-width: 620px;
+  margin-bottom: 26px;
+}
+
+.welcome-root .section-head h2 {
+  margin-top: 10px;
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.welcome-root .section-head.center {
+  max-width: 640px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.welcome-root .section-head.center .eyebrow {
+  justify-content: center;
+}
+
+.welcome-root .section-sub {
+  margin-top: 10px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-mute);
+}
+
+.welcome-root .account {
+  scroll-margin-top: 74px;
+}
+
+.welcome-root .account .panel {
+  max-width: 540px;
+  margin: 28px auto 0;
+}
+
+.welcome-root .tracks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.welcome-root .fair {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.welcome-root .card {
+  padding: 18px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-panel);
+  transition: border-color 0.18s ease;
+}
+
+.welcome-root .card:hover {
+  border-color: var(--color-line-2);
+}
+
+.welcome-root .card-tag {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.welcome-root .card h3 {
+  margin-bottom: 6px;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.welcome-root .card p {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-mute);
+}
+
+/* ---- closing CTA --------------------------------------------------------- */
+
+.welcome-root #engine {
+  scroll-margin-top: 76px;
+}
+
+.welcome-root .cta-band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: clamp(24px, 3.6vw, 38px);
+  border: 1px solid var(--color-line);
+  border-radius: 20px;
+  background:
+    radial-gradient(80% 150% at 100% 0%, rgba(0, 65, 194, 0.22), transparent 62%),
+    var(--color-panel);
+}
+
+html.light .welcome-root .cta-band {
+  background:
+    radial-gradient(80% 150% at 100% 0%, rgba(0, 65, 194, 0.1), transparent 62%),
+    var(--color-panel);
+}
+
+.welcome-root .cta-band h2 {
+  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+  font-weight: 600;
+  letter-spacing: -0.026em;
+}
+
+.welcome-root .cta-band p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-mute);
+}
+
+/* ---- footer -------------------------------------------------------------- */
+
+.welcome-root .footer {
+  margin-top: 28px;
+  padding-block: 28px 34px;
+  border-top: 1px solid var(--color-line);
+}
+
+.welcome-root .footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.welcome-root .footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.welcome-root .brand-mark.sm {
+  width: 16px;
+  height: 16px;
+}
+
+.welcome-root .footer-note {
+  max-width: 78ch;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--color-faint);
+}
+
+.welcome-root .footer-meta {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+/* ---- toast & misc -------------------------------------------------------- */
+
+.welcome-root .toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 60;
+  max-width: min(92vw, 420px);
+  padding: 10px 14px;
+  border: 1px solid var(--color-line-2);
+  border-radius: 10px;
+  background: var(--color-panel-2);
+  box-shadow: 0 20px 46px -18px rgba(0, 0, 0, 0.8);
+  font-size: 12px;
+  color: var(--color-ink);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+html.light .welcome-root .toast {
+  box-shadow: 0 20px 46px -18px rgba(24, 44, 37, 0.24);
+}
+
+.welcome-root .toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.welcome-root .noscript {
+  padding-block: 12px;
+  font-size: 12px;
+  color: var(--color-warn);
+}
+
+.welcome-root [hidden] {
+  display: none !important;
+}
+
+/* ---- scroll reveal ------------------------------------------------------- */
+
+.welcome-root .tracks .card:nth-child(2), .welcome-root .fair .card:nth-child(2) {
+  --reveal-delay: 70ms;
+}
+
+.welcome-root .tracks .card:nth-child(3), .welcome-root .fair .card:nth-child(3) {
+  --reveal-delay: 140ms;
+}
+
+.welcome-root .tracks .card:nth-child(4) {
+  --reveal-delay: 210ms;
+}
+
+/* ---- responsive ---------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .welcome-root .tracks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .welcome-root .nav-links {
+    display: none;
+  }
+
+  .welcome-root .fair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .welcome-root .wrap {
+    padding-inline: 18px;
+  }
+
+  .welcome-root .nav-inner {
+    height: 56px;
+    gap: 14px;
+  }
+
+  .welcome-root .nav-actions .btn.sm {
+    height: 36px;
+    padding-inline: 14px;
+  }
+
+  .welcome-root .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* 16px prevents the iOS focus zoom on the sign-in fields. */
+  .welcome-root .field input, .welcome-root .field select, .welcome-root .add-form input, .welcome-root .add-form select {
+    font-size: 16px;
+  }
+
+  .welcome-root .add-form input, .welcome-root .add-form select, .welcome-root .add-form .btn {
+    height: 36px;
+  }
+
+  .welcome-root .hist-go, .welcome-root .hist-del {
+    width: 28px;
+    height: 28px;
+  }
+
+  .welcome-root .hero {
+    min-height: auto;
+    padding-block: 26px 16px;
+  }
+
+  .welcome-root .hero h1 {
+    margin-top: 14px;
+  }
+
+  .welcome-root .hero-foot {
+    gap: 10px;
+  }
+
+  .welcome-root .scroll-cue {
+    display: none;
+  }
+
+  .welcome-root .eyebrow-long {
+    display: none;
+  }
+
+  .welcome-root .eyebrow-short {
+    display: inline;
+  }
+
+  .welcome-root .lede {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+
+  .welcome-root .cta-row {
+    margin-top: 22px;
+  }
+
+  .welcome-root .cta-row .btn {
+    flex: 1 1 160px;
+  }
+
+  .welcome-root .stage {
+    height: clamp(260px, 38svh, 330px);
+  }
+
+  .welcome-root .section {
+    padding-block: 40px;
+  }
+
+  .welcome-root .account .panel {
+    margin-top: 18px;
+  }
+
+  .welcome-root .tracks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .welcome-root .panel {
+    padding: 16px;
+  }
+
+  .welcome-root .add-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .welcome-root .add-form input {
+    grid-column: 1 / -1;
+  }
+
+  .welcome-root .cta-band .btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-root *, .welcome-root *::before, .welcome-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .welcome-root .hero-copy, .welcome-root .hero-foot, .welcome-root .stage {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .welcome-root .scroll-cue span {
+    animation: none;
+    opacity: 1;
+  }
+
+  .welcome-root .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
