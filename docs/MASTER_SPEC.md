@@ -280,7 +280,7 @@ A responsive Next.js web application that:
 
 - Dark clinical theme by default; light theme available from the navbar.
 - Theme is applied before first paint and stored under `medpulse:theme` to avoid flash.
-- Brand mark: blister-grid badge + wordmark, used consistently in navbar and footer.
+- Brand mark: blue blister grid on a white rounded tile + wordmark, used consistently in the navbar, footer and favicon.
 - Icons/metadata: `icon.svg`, `icon.png`, `apple-icon.png`, `opengraph-image.png`.
 - Palette: near-black surfaces, blue accents — light blue `#0000ff` by default, dark blue `#0041c2` on hover — with Geist + JetBrains Mono. White text on solid blue buttons.
 
