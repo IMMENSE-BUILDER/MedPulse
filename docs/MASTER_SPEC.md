@@ -76,6 +76,8 @@ MedPulse AI’s differentiator is the **combination**: salt-first matching, thre
 
 A responsive Next.js web application that:
 
+The public front door is `/` — a 3D welcome/landing page. The price engine and all comparison tools live at `/engine`; legacy `/?q=&pin=&type=` links 307-forward to `/engine`.
+
 1. Resolves a medicine brand/salt or lab test.
 2. Discovers live listings across tracked Indian portals.
 3. Extracts and normalises offers.
@@ -424,7 +426,8 @@ MedPulse-main/
 ├── docs/MASTER_SPEC.md           # this document — PPT-ready master spec
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx              # dashboard + share hydration + empty state
+│   │   ├── page.tsx              # 3D welcome/landing + legacy-share redirect
+│   │   ├── engine/page.tsx       # price-engine dashboard + share hydration + empty state
 │   │   ├── layout.tsx            # metadata, fonts, theme bootstrap
 │   │   ├── globals.css           # Tailwind v4 tokens, dark/light themes
 │   │   ├── icon.svg/.png         # brand icons
@@ -670,6 +673,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Apple icon | `src/app/apple-icon.png` |
 | Social card | `src/app/opengraph-image.png` |
 | Logo lockup | Render from `src/components/Logo.tsx` or screenshot the navbar |
+| Welcome hero | `docs/screenshots/00-welcome-dark.png` + `00-welcome-light.png` (captured) |
 | Dashboard empty state | `docs/screenshots/01-empty-dark.png` (captured) |
 | Live results + savings receipt | `docs/screenshots/02-results-dark.png` + `03-receipt-dark.png` (captured from a live Augmentin 625 Duo run) |
 | OCR result | `docs/screenshots/04-ocr-dark.png` (captured from a live OCR run) |
