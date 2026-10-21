@@ -140,6 +140,12 @@ Notes:
 - The TTL cache in `src/lib/cache.ts` is in-memory; for multi-instance deployments swap it for Vercel KV/Redis behind the same interface.
 - `.vercelignore` keeps `.env*` and all local-only files out of deployments.
 
+## Documentation
+
+- [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md) — full product + engineering spec with a ready-to-use PPT generation brief (start here for decks and onboarding).
+- [`AGENTS.md`](AGENTS.md) — architecture rules, dual-model routing, UI conventions and guardrails.
+- [`DESIGN.md`](DESIGN.md) — visual system and component/token reference.
+
 ## Security
 
 - `.env.local` is gitignored — never commit keys, and rotate any key that has been shared in plain text.

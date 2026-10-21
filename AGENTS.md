@@ -3,11 +3,13 @@
 > Source of truth for the PRD v5.0 build. Keep this file in sync with the code.
 
 ## 1. Project Overview
-**MedPulse AI** is a Next.js (App Router) PWA that compares real-time Indian prescription medicine and diagnostic lab prices across **mainstream branded e-pharmacies** and **government-subsidised / NABL-tested generic portals** (PMBJP Jan Aushadhi, AMRIT, SayaCare, …) plus **diagnostic labs** (Track D).
+**MedPulse AI** is a Next.js (App Router) web app that compares real-time Indian prescription medicine and diagnostic lab prices across **mainstream branded e-pharmacies** and **government-subsidised / NABL-tested generic portals** (PMBJP Jan Aushadhi, AMRIT, SayaCare, …) plus **diagnostic labs** (Track D).
 
 Two core engineering challenges:
 1. **Clinical Salt Decoding** — mapping expensive prescribed brand names to their exact WHO-GMP active salt composition.
 2. **Two-Wave Progressive Execution** — progressive, zero-TinyAgent-spend price discovery in **Wave 1** (`TinySearch` + `TinyFetch` + AI extraction), then on-demand streaming stealth-browser verification (`TinyAgent`) rendered inside a Picture-in-Picture `<iframe>` dock in **Wave 2**. Latency is whatever the real network + models take; never advertise a fixed latency guarantee.
+
+Full product/engineering spec and PPT generation brief: `docs/MASTER_SPEC.md`. Keep it in sync with shipped behavior.
 
 ## 2. Tech Stack & Core Dependencies
 - **Framework:** Next.js 16 (App Router, TypeScript, Route Handlers). No Server Actions — the API surface is explicit route handlers.
@@ -128,6 +130,8 @@ MedPulse-main/
 │       ├── compare-client.ts           # Browser-side SSE reader (compare-stream)
 │       └── sse-client.ts               # Shared SSE frame parser
 ├── tests/                              # Vitest: pricing, schedule, demo, optimizer, catalog, rate limits (42)
+├── docs/
+│   └── MASTER_SPEC.md                  # Full product/engineering spec + PPT generation brief
 ├── README.md                           # User/API/deploy docs — keep in sync with shipped behavior
 ├── DESIGN.md                           # Design-system reference for the UI surfaces
 └── .env.local / .env.example
