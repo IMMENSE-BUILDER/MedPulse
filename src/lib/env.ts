@@ -18,7 +18,7 @@ export const env = {
     return m === "demo" || m === "live" ? m : "auto";
   },
   defaultPincode: () => str("DEFAULT_PINCODE", "110053"),
-  visionModel: () => str("VISION_MODEL", "xiaomi/mimo-v2.6-flash"),
+  visionModel: () => str("VISION_MODEL", "deepseek/deepseek-v4.1-flash-1017"),
   textModel: () => str("TEXT_MODEL", "inclusionai/ling-3.0-flash-sante"),
   cacheTtlSeconds: () => {
     const n = Number(str("CACHE_TTL_SECONDS", "3600"));

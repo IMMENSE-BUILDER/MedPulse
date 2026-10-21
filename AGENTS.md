@@ -32,6 +32,8 @@ All LLM calls go through `src/lib/ai-router.ts` and the Vercel AI Gateway. **Nev
 ### A. Vision model (`VISION_MODEL`) — prescription OCR
 - **Only** for uploaded prescription images (`/api/ocr`, `visionExtractRx`). Never for text/JSON tasks.
 - Output: raw transcription + rough medicine lines, handed to the text model.
+- OCR pins `reasoning: "none"` on **both** legs (`visionExtractRx` and the Rx `structureRx` call) via `generateValidated`. Both models are reasoning models; leaving reasoning on adds ~6 s (vision) and ~10–20 s (structuring) of hidden thinking without improving the output. Do not remove this without benchmarking — it is the main OCR latency lever.
+- The OCR response must never include the model name/ID (no `models` field) — see §7.12.
 
 ### B. Text model (`TEXT_MODEL`) — clinical reasoning / salt mapping / JSON
 - **All** non-vision tasks: salt decoding, listing extraction, lab extraction, Rx structuring + interactions.
@@ -86,7 +88,7 @@ MedPulse-main/
 │   │       ├── agent-stream/route.ts   # POST SSE proxy for TinyAgent
 │   │       ├── docai/route.ts          # POST DocAI general help & consulting chat
 │   │       ├── optimize-cart/route.ts  # POST split-cart optimizer
-│   │       ├── health/route.ts         # GET mode + key status + model IDs
+│   │       ├── health/route.ts         # GET mode + key status (never model IDs)
 │   │       └── suggest/route.ts        # GET demo suggestions
 │   ├── components/
 │   │   ├── Logo.tsx                    # Brand lockup (blister-grid badge + wordmark) — navbar + footer

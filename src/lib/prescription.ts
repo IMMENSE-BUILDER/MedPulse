@@ -41,10 +41,6 @@ export async function analyzePrescription(input: {
       extracted_text: extractedText,
       medicines: structured.medicines.map(toRxMedicine),
       interactions: structured.interactions,
-      models: {
-        vision: input.imageBase64 ? env.visionModel() : null,
-        text: env.textModel(),
-      },
       data_source: "live",
       disclaimer: OCR_DISCLAIMER,
     };
@@ -109,7 +105,6 @@ function demoOcr(input: { imageBase64?: string; text?: string }): OcrResponse {
       "DEMO SAMPLE (no image processed)\nDr. A. Sharma, MBBS\nRx:\n1. Augmentin 625 Duo — 1-0-1 after food × 5 days\n2. Dolo 650 — 1-0-1 × 3 days",
     medicines: [augmentin, dolo],
     interactions,
-    models: { vision: hasGateway() ? env.visionModel() : null, text: null },
     data_source: "demo",
     disclaimer:
       (input.imageBase64 ? "Demo sample shown — " : "") + "DEMO sample output. " + OCR_DISCLAIMER,

@@ -117,6 +117,13 @@ async function generateValidated<T>(opts: {
   schema: z.ZodType<T>;
   prompt?: string;
   messages?: ModelMessage[];
+  /**
+   * OCR path only: switch off the model's hidden reasoning tokens. They add
+   * several seconds per call without changing the transcription or the
+   * structured result, so both visionExtractRx and structureRx pass "none".
+   * Other text/JSON tasks leave this undefined.
+   */
+  reasoning?: "none";
 }): Promise<T> {
   const instruction = jsonInstruction(opts.schema);
 
@@ -124,11 +131,13 @@ async function generateValidated<T>(opts: {
     ? await generateText({
         model: opts.model,
         temperature: 0,
+        reasoning: opts.reasoning,
         messages: withInstruction(opts.messages, instruction),
       })
     : await generateText({
         model: opts.model,
         temperature: 0,
+        reasoning: opts.reasoning,
         prompt: `${opts.prompt ?? ""}\n\n${instruction}`,
       });
 
@@ -143,6 +152,7 @@ async function generateValidated<T>(opts: {
     ? await generateText({
         model: opts.model,
         temperature: 0,
+        reasoning: opts.reasoning,
         messages: [
           ...withInstruction(opts.messages, instruction),
           { role: "assistant", content: first.text.slice(0, 2000) },
@@ -152,6 +162,7 @@ async function generateValidated<T>(opts: {
     : await generateText({
         model: opts.model,
         temperature: 0,
+        reasoning: opts.reasoning,
         prompt: `${opts.prompt ?? ""}\n\n${instruction}\n\n${repair}`,
       });
 
@@ -250,6 +261,7 @@ export async function visionExtractRx(input: { base64: string; mimeType: string 
   return generateValidated({
     model: visionModel(),
     schema: AiVisionRxSchema,
+    reasoning: "none",
     messages: [
       {
         role: "user",
@@ -278,6 +290,7 @@ export async function structureRx(input: { text?: string; vision?: AiVisionRx })
   return generateValidated({
     model: textModel(),
     schema: AiRxSchema,
+    reasoning: "none",
     prompt:
       "You structure Indian prescription data into clinical JSON. For every prescribed medicine return: " +
       "brand_name as written, dosage, pack_size (only if written), salts (exact active chemical names + " +

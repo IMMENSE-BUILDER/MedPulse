@@ -303,7 +303,6 @@ export const OcrResponseSchema = z.object({
   extracted_text: z.string(),
   medicines: z.array(RxMedicineSchema),
   interactions: z.array(RxInteractionSchema),
-  models: z.object({ vision: z.string().nullable(), text: z.string().nullable() }),
   data_source: DataSourceSchema,
   disclaimer: z.string(),
 });
