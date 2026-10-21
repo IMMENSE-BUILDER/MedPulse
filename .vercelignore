@@ -7,3 +7,5 @@ tests/
 vitest.config.mts
 AGENTS.md
 DESIGN.md
+dashboard-3d/
+docs/screenshots/
