@@ -1,11 +1,23 @@
 "use client";
 
-import { ExternalLink, FlaskConical, Home, Timer } from "lucide-react";
+import { Bot, ExternalLink, FlaskConical, Home, Loader2, Timer } from "lucide-react";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { inr0, pct } from "@/lib/format";
 import type { LabComparison } from "@/lib/schemas";
 
-export function LabGrid({ labs }: { labs: LabComparison }) {
+export function LabGrid({
+  labs,
+  onRunAgent,
+  agentRunning = false,
+  verifyDisabled = false,
+  verifyTitle,
+}: {
+  labs: LabComparison;
+  onRunAgent?: () => void;
+  agentRunning?: boolean;
+  verifyDisabled?: boolean;
+  verifyTitle?: string;
+}) {
   return (
     <section className="rounded-2xl border border-line bg-panel p-5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -24,6 +36,18 @@ export function LabGrid({ labs }: { labs: LabComparison }) {
           </span>
         ) : null}
         <div className="ml-auto flex items-center gap-2">
+          {onRunAgent ? (
+            <button
+              type="button"
+              onClick={onRunAgent}
+              disabled={agentRunning || verifyDisabled || labs.offers.every((offer) => !offer.product_url)}
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-brand px-3 text-[10px] font-semibold text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
+              title={verifyTitle ?? "Run the live browser agent on every lab listing"}
+            >
+              {agentRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
+              Agent Run
+            </button>
+          ) : null}
           <ShareLinkButton />
           <span
             className={`rounded-full border px-2.5 py-1 text-[10px] ${
@@ -99,6 +123,12 @@ export function LabGrid({ labs }: { labs: LabComparison }) {
             </li>
           ))}
         </ul>
+      ) : null}
+      {agentRunning ? (
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-[10px] font-medium text-brand-2">
+          <span className="dot-live h-1.5 w-1.5 rounded-full bg-brand" />
+          Agent live - checking lab listings in the PiP browser
+        </div>
       ) : null}
     </section>
   );

@@ -16,6 +16,7 @@ import { SearchPanel } from "@/components/SearchPanel";
 import { SplitCartDrawer } from "@/components/SplitCartDrawer";
 import { UnresolvedPanel } from "@/components/UnresolvedPanel";
 import { useAgentStream } from "@/hooks/useAgentStream";
+import { AGENT_SCOPE_LABEL, type AgentScope } from "@/lib/agent-scope";
 import { streamCompare } from "@/lib/compare-client";
 import { inr0 } from "@/lib/format";
 import { per10Tabs, perTab } from "@/lib/pricing";
@@ -98,7 +99,8 @@ export default function Home() {
   const [cartRes, setCartRes] = useState<CartResponse | null>(null);
   const [cartBusy, setCartBusy] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [autoVerify, setAutoVerify] = useState(false);
+  const [autoVerify, setAutoVerify] = useState<AgentScope | null>(null);
+  const [agentScope, setAgentScope] = useState<AgentScope | "lab" | null>(null);
   const [rx, setRx] = useState<OcrResponse | null>(null);
   const [rxBusy, setRxBusy] = useState(false);
   const [rxError, setRxError] = useState<string | null>(null);
@@ -448,28 +450,80 @@ export default function Home() {
     );
   }, []);
 
-  const verifyStock = useCallback(() => {
-    if (!cmp || cmp.data_source !== "live") return;
+  const offerUrls = useCallback(
+    (scope: AgentScope): string[] => {
+      if (!cmp) return [];
+      const offers =
+        scope === "generic"
+          ? cmp.subsidised_generic_online
+          : scope === "branded"
+            ? cmp.branded_express_online
+            : [...cmp.subsidised_generic_online, ...cmp.branded_express_online];
+      return Array.from(
+        new Set(offers.map((o) => o.product_url).filter((u): u is string => Boolean(u))),
+      ).slice(0, 10);
+    },
+    [cmp],
+  );
+
+  const runAgent = useCallback(
+    (scope: AgentScope) => {
+      if (!cmp || cmp.data_source !== "live") return;
+      const urls = offerUrls(scope);
+      if (!urls.length) return;
+      setAgentScope(scope);
+      void agent.run(
+        { kind: "stock", pincode: cmp.user_pincode, product_urls: urls },
+        `Agent Run - ${AGENT_SCOPE_LABEL[scope]} - ${cmp.query_brand}`,
+        (result) => applyStockChecks(result),
+      );
+    },
+    [cmp, offerUrls, agent, applyStockChecks],
+  );
+
+  const runOfferAgent = useCallback(
+    (offer: Offer, accent: "generic" | "branded") => {
+      if (!cmp || cmp.data_source !== "live" || !offer.product_url) return;
+      setAgentScope(accent);
+      void agent.run(
+        { kind: "stock", pincode: cmp.user_pincode, product_urls: [offer.product_url] },
+        `Agent Run - ${offer.platform}`,
+        (result) => applyStockChecks(result),
+      );
+    },
+    [cmp, agent, applyStockChecks],
+  );
+
+  const runLabAgent = useCallback(() => {
+    if (!labs || labs.data_source !== "live") return;
     const urls = Array.from(
-      new Set(cmp.branded_express_online.map((o) => o.product_url).filter((u): u is string => Boolean(u))),
-    ).slice(0, 5);
+      new Set(labs.offers.map((o) => o.product_url).filter((u): u is string => Boolean(u))),
+    ).slice(0, 10);
     if (!urls.length) return;
-    void agent.run({ kind: "stock", pincode: cmp.user_pincode, product_urls: urls }, `Stock verify · ${cmp.query_brand}`, (result) =>
-      applyStockChecks(result),
+    setAgentScope("lab");
+    void agent.run(
+      { kind: "lab", pincode: labs.pincode, product_urls: urls },
+      `Agent Run - ${labs.query} - lab listings`,
     );
-  }, [cmp, agent, applyStockChecks]);
+  }, [labs, agent]);
 
   useEffect(() => {
     if (!autoVerify || !cmp || cmp.data_source !== "live" || !health?.tinyfish_key) return;
-    const sig = `${cmp.query_brand}|${cmp.user_pincode}`;
+    const sig = `${autoVerify}|${cmp.query_brand}|${cmp.user_pincode}`;
     if (autoRef.current === sig) return;
     autoRef.current = sig;
-    verifyStock();
-  }, [autoVerify, cmp, health, verifyStock]);
+    runAgent(autoVerify);
+  }, [autoVerify, cmp, health, runAgent]);
+
+  const handleAutoVerify = useCallback((scope: AgentScope | null) => {
+    autoRef.current = null;
+    setAutoVerify(scope);
+  }, []);
 
   const findKendra = useCallback(() => {
     const pin = cmp?.user_pincode ?? pincode;
-    void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder · ${pin}`, (result) => {
+    setAgentScope(null);
+    void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder - ${pin}`, (result) => {
       const r = result as { kind?: string; kendras?: Kendra[] } | null;
       if (r?.kendras?.length) setKendras(r.kendras);
     });
@@ -492,7 +546,7 @@ export default function Home() {
         pincode={pincode}
         onPincode={applyPincode}
         autoVerify={autoVerify}
-        onAutoVerify={setAutoVerify}
+        onAutoVerify={handleAutoVerify}
         onOpenAgent={() => agent.setOpen(true)}
         onOpenDocAi={() => setDocaiOpen(true)}
         onLocate={() => void locateMe(true)}
@@ -544,19 +598,33 @@ export default function Home() {
               cmp={cmp}
               cart={cart}
               onAdd={toggleCart}
-              onVerifyStock={verifyStock}
-              agentRunning={agent.state.running}
-              verifyDisabled={cmp.data_source !== "live"}
+              onVerifyScope={runAgent}
+              onVerifyOffer={runOfferAgent}
+              agentRunning={agent.state.running && agentScope !== "lab" && agentScope !== null}
+              agentScope={agentScope === "lab" ? null : agentScope}
+              verifyDisabled={cmp.data_source !== "live" || agent.state.running}
               verifyTitle={
                 cmp.data_source === "live"
-                  ? `Verify stock for pincode ${cmp.user_pincode} with the live browser agent`
-                  : "Live stock verification needs live listings — add both API keys in .env.local"
+                  ? `Run the live browser agent for every displayed listing at pincode ${cmp.user_pincode}`
+                  : "Live stock verification needs live listings - add both API keys in .env.local"
               }
             />
           </>
         ) : null}
 
-        {track === "lab" && labs ? <LabGrid labs={labs} /> : null}
+        {track === "lab" && labs ? (
+          <LabGrid
+            labs={labs}
+            onRunAgent={runLabAgent}
+            agentRunning={agent.state.running && agentScope === "lab"}
+            verifyDisabled={labs.data_source !== "live" || agent.state.running}
+            verifyTitle={
+              labs.data_source === "live"
+                ? `Run the live browser agent on every lab listing at pincode ${labs.pincode}`
+                : "Live lab verification needs live listings - add both API keys in .env.local"
+            }
+          />
+        ) : null}
 
         {showEmpty ? (
           <section className="rounded-2xl border border-line bg-panel p-6 sm:p-8">

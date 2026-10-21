@@ -22,6 +22,8 @@ Final captures for the PPT live here. Re-capture after any UI change.
 | `03-receipt-dark.png` | Savings receipt + projection detail | Captured 21 Oct 2026 |
 | `04-ocr-dark.png` | Prescription result with schedule and disclaimer | Captured 21 Oct 2026 |
 | `05-agent-pip-dark.png` | Live agent PiP with progress terminal | Pending — user-triggered run |
+| `10-agent-run-dark.png` | Agent Run toolbar + per-offer run controls | Captured 21 Oct 2026 |
+| `11-auto-verify-dark.png` | Auto-verify scope chooser (generics / branded / all) | Captured 21 Oct 2026 |
 | `06-empty-light.png` | Light-theme dashboard | Captured 21 Oct 2026 |
 | `07-hover-dark.png` | Primary button in dark-blue hover state | Captured 21 Oct 2026 |
 | `08-share-light.png` | “Link copied” state | Pending |

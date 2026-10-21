@@ -2,15 +2,24 @@
 
 import { CheckCircle2, Clock, ExternalLink, Loader2, Pill, ShieldCheck, ShoppingBag, Bot, XCircle } from "lucide-react";
 import type { ReactNode } from "react";
+import { AGENT_SCOPE_LABEL, type AgentScope } from "@/lib/agent-scope";
 import { inr0, hostOf, timeAgo } from "@/lib/format";
 import type { CartMode, DualTrackComparison, Offer } from "@/lib/schemas";
 
-function StockLine({ offer }: { offer: Offer }) {
+function StockLine({
+  offer,
+  onRun,
+  disabled,
+}: {
+  offer: Offer;
+  onRun: () => void;
+  disabled: boolean;
+}) {
   if (offer.in_stock === true) {
     return (
       <span className="inline-flex items-center gap-1 text-brand-2">
         <CheckCircle2 className="h-3 w-3" />
-        In stock{offer.verified_by.includes("Agent") ? " · agent-verified" : ""}
+        In stock{offer.verified_by.includes("Agent") ? " - agent-verified" : ""}
       </span>
     );
   }
@@ -22,7 +31,18 @@ function StockLine({ offer }: { offer: Offer }) {
       </span>
     );
   }
-  return <span className="text-faint">Stock unverified — run agent</span>;
+  return (
+    <button
+      type="button"
+      onClick={onRun}
+      disabled={disabled}
+      className="inline-flex items-center gap-1 text-faint transition-colors hover:text-brand-2 disabled:cursor-not-allowed disabled:opacity-50"
+      title="Run the live browser agent on this exact listing"
+    >
+      <Bot className="h-3 w-3" />
+      Stock unverified - run agent
+    </button>
+  );
 }
 
 function OfferCard({
@@ -31,12 +51,16 @@ function OfferCard({
   added,
   generatedAt,
   onAdd,
+  onVerify,
+  verifyDisabled,
 }: {
   offer: Offer;
   accent: "generic" | "branded";
   added: boolean;
   generatedAt?: string;
   onAdd: () => void;
+  onVerify: () => void;
+  verifyDisabled: boolean;
 }) {
   const border =
     accent === "generic"
@@ -85,11 +109,24 @@ function OfferCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-mute">
-        <span className="inline-flex items-center gap-1">
-          <Clock className="h-3 w-3 text-faint" />
-          {offer.delivery_eta}
-        </span>
-        <StockLine offer={offer} />
+        {offer.delivery_eta.toLowerCase().includes("run agent") ? (
+          <button
+            type="button"
+            onClick={onVerify}
+            disabled={verifyDisabled}
+            className="inline-flex items-center gap-1 text-faint transition-colors hover:text-brand-2 disabled:cursor-not-allowed disabled:opacity-50"
+            title="Run the live browser agent on this exact listing"
+          >
+            <Clock className="h-3 w-3" />
+            {offer.delivery_eta}
+          </button>
+        ) : (
+          <span className="inline-flex items-center gap-1">
+            <Clock className="h-3 w-3 text-faint" />
+            {offer.delivery_eta}
+          </span>
+        )}
+        <StockLine offer={offer} onRun={onVerify} disabled={verifyDisabled} />
         {offer.equivalence_percent ? <span className="text-faint">equivalence {offer.equivalence_percent}%</span> : null}
       </div>
 
@@ -180,98 +217,174 @@ function ColumnHeader({
   );
 }
 
+function AgentLiveStrip({ label }: { label: string }) {
+  return (
+    <div className="mt-3 flex items-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-[10px] font-medium text-brand-2">
+      <span className="dot-live h-1.5 w-1.5 rounded-full bg-brand" />
+      Agent live - checking {label} in the PiP browser
+    </div>
+  );
+}
+
 export function DualTrackGrid({
   cmp,
   cart,
   onAdd,
-  onVerifyStock,
+  onVerifyScope,
+  onVerifyOffer,
   agentRunning,
+  agentScope,
   verifyDisabled,
   verifyTitle,
 }: {
   cmp: DualTrackComparison;
   cart: Record<string, CartMode>;
   onAdd: (query: string, mode: CartMode) => void;
-  onVerifyStock: () => void;
+  onVerifyScope: (scope: AgentScope) => void;
+  onVerifyOffer: (offer: Offer, accent: "generic" | "branded") => void;
   agentRunning: boolean;
+  agentScope: AgentScope | null;
   verifyDisabled: boolean;
   verifyTitle: string;
 }) {
-  return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-      <section className="rounded-2xl border border-line bg-panel p-5">
-        <ColumnHeader
-          icon={
-            <span className="grid h-8 w-8 place-items-center rounded-lg border border-brand/40 bg-brand/10">
-              <Pill className="h-4 w-4 text-brand-2" />
-            </span>
-          }
-          title="Subsidised generic · Track B"
-          subtitle="Salt-matched · strength-guarded · NABL checked"
-          count={cmp.subsidised_generic_online.length}
-        />
-        <div className="space-y-3">
-          {cmp.subsidised_generic_online.length ? (
-            cmp.subsidised_generic_online.map((offer) => (
-              <OfferCard
-                key={`${offer.platform}-${offer.product_url ?? offer.product_name}`}
-                offer={offer}
-                accent="generic"
-                added={cart[cmp.query_brand] === "refill"}
-                generatedAt={cmp.generated_at}
-                onAdd={() => onAdd(cmp.query_brand, "refill")}
-              />
-            ))
-          ) : (
-            <p className="rounded-xl border border-dashed border-line-2 p-6 text-center text-[11px] text-faint">
-              No generic listing passed the strength guard for this query.
-            </p>
-          )}
-        </div>
-      </section>
+  const allCount = cmp.subsidised_generic_online.length + cmp.branded_express_online.length;
+  const liveLabel = agentScope && agentScope !== "all" ? AGENT_SCOPE_LABEL[agentScope] : "all medicine offers";
+  const runDisabled = agentRunning || verifyDisabled || allCount === 0;
 
-      <section className="rounded-2xl border border-line bg-panel p-5">
-        <ColumnHeader
-          icon={
-            <span className="grid h-8 w-8 place-items-center rounded-lg border border-line-2 bg-panel-2">
-              <ShoppingBag className="h-4 w-4 text-mute" />
-            </span>
-          }
-          title="Branded express · Track C"
-          subtitle="Original brands · ETA verified on demand"
-          count={cmp.branded_express_online.length}
-          action={
-            <button
-              type="button"
-              onClick={onVerifyStock}
-              disabled={agentRunning || verifyDisabled}
-              className="flex items-center gap-1.5 rounded-lg border border-line bg-panel-2 px-2.5 py-1.5 text-[10px] text-mute transition-colors hover:border-brand/40 hover:text-brand-2 disabled:opacity-50"
-              title={verifyTitle}
-            >
-              {agentRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
-              Verify {cmp.user_pincode}
-            </button>
-          }
-        />
-        <div className="space-y-3">
-          {cmp.branded_express_online.length ? (
-            cmp.branded_express_online.map((offer) => (
-              <OfferCard
-                key={`${offer.platform}-${offer.product_url ?? offer.product_name}`}
-                offer={offer}
-                accent="branded"
-                added={cart[cmp.query_brand] === "urgent"}
-                generatedAt={cmp.generated_at}
-                onAdd={() => onAdd(cmp.query_brand, "urgent")}
-              />
-            ))
-          ) : (
-            <p className="rounded-xl border border-dashed border-line-2 p-6 text-center text-[11px] text-faint">
-              No branded listing matched this query.
-            </p>
-          )}
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-line bg-panel px-3.5 py-2.5">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-ink-2">
+          <Bot className="h-3.5 w-3.5 text-brand-2" />
+          Agent Run
+        </span>
+        <span className="text-[10px] text-faint">
+          Verify every displayed medicine link in the live browser - generic + branded.
+        </span>
+        <button
+          type="button"
+          onClick={() => onVerifyScope("all")}
+          disabled={runDisabled}
+          className="ml-auto flex h-8 items-center gap-1.5 rounded-lg bg-brand px-3 text-[11px] font-semibold text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
+          title={verifyTitle}
+        >
+          {agentRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
+          Agent Run
+        </button>
+      </div>
+
+      {agentRunning ? (
+        <div className="flex items-center gap-2 rounded-lg border border-brand/30 bg-brand/5 px-3 py-1.5 text-[10px] text-brand-2">
+          <span className="dot-live h-1.5 w-1.5 rounded-full bg-brand" />
+          Live agent is verifying {liveLabel}. Watch the browser in the bottom-right dock.
         </div>
-      </section>
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <section className="rounded-2xl border border-line bg-panel p-5">
+          <ColumnHeader
+            icon={
+              <span className="grid h-8 w-8 place-items-center rounded-lg border border-brand/40 bg-brand/10">
+                <Pill className="h-4 w-4 text-brand-2" />
+              </span>
+            }
+            title="Subsidised generic - Track B"
+            subtitle="Salt-matched - strength-guarded - NABL checked"
+            count={cmp.subsidised_generic_online.length}
+            action={
+              <button
+                type="button"
+                onClick={() => onVerifyScope("generic")}
+                disabled={runDisabled || cmp.subsidised_generic_online.length === 0}
+                className="flex items-center gap-1.5 rounded-lg border border-line bg-panel-2 px-2.5 py-1.5 text-[10px] text-mute transition-colors hover:border-brand/40 hover:text-brand-2 disabled:opacity-50"
+                title="Run the live browser agent on every generic listing"
+              >
+                {agentRunning && (agentScope === "all" || agentScope === "generic") ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Bot className="h-3 w-3" />
+                )}
+                Run generics
+              </button>
+            }
+          />
+          <div className="space-y-3">
+            {cmp.subsidised_generic_online.length ? (
+              cmp.subsidised_generic_online.map((offer) => (
+                <OfferCard
+                  key={`${offer.platform}-${offer.product_url ?? offer.product_name}`}
+                  offer={offer}
+                  accent="generic"
+                  added={cart[cmp.query_brand] === "refill"}
+                  generatedAt={cmp.generated_at}
+                  onAdd={() => onAdd(cmp.query_brand, "refill")}
+                  onVerify={() => onVerifyOffer(offer, "generic")}
+                  verifyDisabled={runDisabled}
+                />
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-line-2 p-6 text-center text-[11px] text-faint">
+                No generic listing passed the strength guard for this query.
+              </p>
+            )}
+          </div>
+          {agentRunning && (agentScope === "all" || agentScope === "generic") ? (
+            <AgentLiveStrip label="subsidised generic listings" />
+          ) : null}
+        </section>
+
+        <section className="rounded-2xl border border-line bg-panel p-5">
+          <ColumnHeader
+            icon={
+              <span className="grid h-8 w-8 place-items-center rounded-lg border border-line-2 bg-panel-2">
+                <ShoppingBag className="h-4 w-4 text-mute" />
+              </span>
+            }
+            title="Branded express - Track C"
+            subtitle="Original brands - ETA verified on demand"
+            count={cmp.branded_express_online.length}
+            action={
+              <button
+                type="button"
+                onClick={() => onVerifyScope("branded")}
+                disabled={runDisabled || cmp.branded_express_online.length === 0}
+                className="flex items-center gap-1.5 rounded-lg border border-line bg-panel-2 px-2.5 py-1.5 text-[10px] text-mute transition-colors hover:border-brand/40 hover:text-brand-2 disabled:opacity-50"
+                title="Run the live browser agent on every branded express listing"
+              >
+                {agentRunning && (agentScope === "all" || agentScope === "branded") ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Bot className="h-3 w-3" />
+                )}
+                Run branded
+              </button>
+            }
+          />
+          <div className="space-y-3">
+            {cmp.branded_express_online.length ? (
+              cmp.branded_express_online.map((offer) => (
+                <OfferCard
+                  key={`${offer.platform}-${offer.product_url ?? offer.product_name}`}
+                  offer={offer}
+                  accent="branded"
+                  added={cart[cmp.query_brand] === "urgent"}
+                  generatedAt={cmp.generated_at}
+                  onAdd={() => onAdd(cmp.query_brand, "urgent")}
+                  onVerify={() => onVerifyOffer(offer, "branded")}
+                  verifyDisabled={runDisabled}
+                />
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-line-2 p-6 text-center text-[11px] text-faint">
+                No branded listing matched this query.
+              </p>
+            )}
+          </div>
+          {agentRunning && (agentScope === "all" || agentScope === "branded") ? (
+            <AgentLiveStrip label="branded express listings" />
+          ) : null}
+        </section>
+      </div>
     </div>
   );
 }

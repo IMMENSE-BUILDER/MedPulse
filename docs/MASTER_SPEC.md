@@ -272,8 +272,9 @@ The engine:
 
 **Behaviour:**
 
-- User-triggered only; the explicit Auto-verify toggle is the sole automatic path and only for live results.
-- Stock checks ≤5 URLs, ≤3 concurrent runs.
+- User-triggered only. **Agent Run** verifies every displayed medicine link in one pass; per-offer **Stock unverified - run agent** buttons verify one listing.
+- **Auto-verify** opens a scope chooser — subsidised generic substitutes, branded express medicines, or all medicine offers — and runs that scope on each live comparison.
+- Stock and lab checks accept up to 10 URLs, with ≤3 concurrent runs. Lab results expose an Agent Run button backed by `kind:"lab"`.
 - Pincode injection into pharmacy stock modals.
 - Jan Aushadhi Kendra lookup via UMANG.
 - Never logs in, adds to cart, or checks out.
@@ -364,13 +365,14 @@ Per-IP fixed-window budgets, enforced before body parsing:
 4. User can tap a medicine to run its price comparison.
 5. Disclaimer reminds them to verify with a doctor/pharmacist.
 
-### 5.5 Verify stock with the agent
+### 5.5 Run the live agent
 
 1. User reviews live offers.
-2. User clicks “Verify stock” (or enables Auto-verify).
-3. PiP dock streams the agent run; terminal shows progress.
-4. Result cards are updated with stock/kendra outcomes.
-5. User is taken to the source pharmacy for the final purchase — the app never checks out.
+2. User clicks **Agent Run** for all medicine links, **Run generics** / **Run branded** for one column, or the **Stock unverified - run agent** line on a single offer.
+3. The PiP dock streams the browser view; the terminal shows each host and step. The column shows an agent-live strip while the run is active.
+4. Result cards are patched with stock outcomes; lab results use the same Agent Run control with a lab-specific goal.
+5. Auto-verify opens the scope chooser and repeats the chosen scope on later live comparisons.
+6. User is taken to the source pharmacy for the final purchase — the app never checks out.
 
 ### 5.6 Build a split cart
 
@@ -400,7 +402,7 @@ Browser (Next.js App Router UI)
 ### 6.2 Two-wave execution
 
 - **Wave 1** is always on: TinyFish Search + Fetch, dual-model extraction, normalisation, strength guard. No TinyAgent wallet spend. TinyFish Search/Fetch are free-tier; gateway tokens are billed.
-- **Wave 2** is user-triggered: TinyAgent stealth browser costs `$0.016/step`, streams into a PiP dock, and is capped at ≤5 URLs and ≤3 concurrent runs.
+- **Wave 2** is user-triggered: TinyAgent stealth browser costs `$0.016/step`, streams into a PiP dock, and is capped at ≤10 URLs and ≤3 concurrent runs per Agent Run.
 
 ### 6.3 Dual-model routing
 
@@ -463,7 +465,7 @@ MedPulse-main/
 │   │       └── suggest/route.ts          # demo suggestions
 │   ├── components/
 │   │   ├── welcome/              # WelcomePage, WelcomeScene (Three.js), auth/motion wiring
-│   │   ├── NavbarPincode.tsx     # logo, pincode, auto-verify, theme
+│   │   ├── NavbarPincode.tsx     # logo, pincode, auto-verify scope chooser, theme
 │   │   ├── SearchPanel.tsx       # tabs, typeahead, quick pills
 │   │   ├── CompareProgress.tsx   # real stage tracker/timings
 │   │   ├── ClinicalSaltBanner.tsx# PMBJP benchmark + safety
@@ -545,7 +547,7 @@ MedPulse-main/
 | `POST /api/ocr` | `{image_base64, mime_type}` or `{text}` | extracted text, medicines, salts, schedules, interactions | 6/min |
 | `POST /api/docai` | `{messages:[...]}` ≤16 | reply + data source | 20/min |
 | `POST /api/optimize-cart` | `{items, pincode}` | express/generic carts, totals, savings | 30/min |
-| `POST /api/agent-stream` | `{kind, pincode, product_urls?}` | SSE `STARTED`/`STREAMING_URL`/`PROGRESS`/`COMPLETE` | 4/min |
+| `POST /api/agent-stream` | `{kind:"stock"\|"lab"\|"kendra", pincode, product_urls?≤10}` | SSE `STARTED`/`STREAMING_URL`/`PROGRESS`/`COMPLETE` | 4/min |
 | `POST /api/locate` | `{lat, lng}` | pincode/area/city/state/source | — |
 | `GET /api/health` | — | mode, key status, demo lists (never model IDs) | — |
 | `GET /api/suggest` | `?q=` | demo suggestions | — |
@@ -682,7 +684,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 5. **How it works** — simple two-wave architecture diagram: resolve → search/fetch → extract → guard → results; on-demand agent.
 6. **The trust layer** — savings receipt, provenance chips, share links, real timings, honest empty state.
 7. **Prescription intelligence** — photo → vision transcription → clinical structuring → EN/HI schedule + interactions; show the OCR result screenshot.
-8. **Live verification** — PiP agent checking pincode stock and Jan Aushadhi kendras; “no checkout, no login”.
+8. **Agent Run** — one click verifies every displayed medicine/lab link; show the PiP browser and terminal, plus the Auto-verify scope chooser (generics / branded / all). “No checkout, no login”.
 9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 42 tests; 17/17 production checks; OCR 27s → 5–9s. Caveat label.
 10. **Safety & reliability** — strength guard, live/demo honesty, rate limits, schema validation, no model IDs, disclaimers.
 11. **Differentiation & roadmap** — comparison table; roadmap: PWA/offline, voice EN/HI, OCR streaming, richer interaction checks, shared rate-limit store, more portals.
@@ -700,7 +702,9 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Dashboard empty state | `docs/screenshots/01-empty-dark.png` (captured) |
 | Live results + savings receipt | `docs/screenshots/02-results-dark.png` + `03-receipt-dark.png` (captured from a live Augmentin 625 Duo run) |
 | OCR result | `docs/screenshots/04-ocr-dark.png` (captured from a live OCR run) |
-| Agent PiP | Pending — capture as `05-agent-pip-dark.png` from a user-triggered stock run |
+| Agent Run controls | `docs/screenshots/10-agent-run-dark.png` (captured) |
+| Auto-verify scope chooser | `docs/screenshots/11-auto-verify-dark.png` (captured) |
+| Agent PiP | Pending — capture as `05-agent-pip-dark.png` from a user-triggered run |
 | Share link | Pending — capture as `08-share-light.png` |
 | Light theme | `docs/screenshots/06-empty-light.png` (captured) |
 | Palette hover | `docs/screenshots/07-hover-dark.png` (captured; dark-blue hover `#0041c2`) |
@@ -744,7 +748,8 @@ Key constraints:
   (light blue #0000ff default, dark blue #0041c2 on hover), Geist-style sans for
   headings, JetBrains Mono for data labels.
 - Include the strength guard, per-10-tablet normalisation, live/demo honesty,
-  provenance, savings receipt, shareable links and real stage timings.
+  provenance, savings receipt, shareable links, real stage timings, Agent Run
+  (all listings) and Auto-verify (generics / branded / all).
 - Use screenshots for the product and OCR slides; keep diagrams minimal.
 - End with the production URL and repo link.
 Return an editable deck outline first, then the slide-by-slide copy and visual notes.
@@ -769,7 +774,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 3. **Results + receipt (60 s):** show per-10-tablet prices, savings receipt, provenance, freshness.
 4. **Share (20 s):** copy the link; open it in a new tab; show it rehydrates.
 5. **Prescription OCR (60 s):** upload the image; show medicines, salts, EN/HI schedule, disclaimer.
-6. **Agent (45 s):** trigger a stock check; show the PiP stream; note “no login, no checkout”.
+6. **Agent Run (45 s):** click Agent Run for all listings, or Auto-verify → subsidised generic substitutes; show the PiP browser and terminal; note “no login, no checkout”.
 7. **Close (25 s):** recap the trust layer, 42 tests, 17/17 checks; point to the repo and production URL.
 
 ---

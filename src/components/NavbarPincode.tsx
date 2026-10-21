@@ -1,10 +1,11 @@
 "use client";
 
-import { Bot, Loader2, LocateFixed, MapPin, Stethoscope } from "lucide-react";
+import { Bot, ChevronDown, Loader2, LocateFixed, MapPin, Stethoscope, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AGENT_SCOPE_LABEL, AGENT_SCOPE_SHORT, type AgentScope } from "@/lib/agent-scope";
 
 export function NavbarPincode({
   mode,
@@ -24,8 +25,8 @@ export function NavbarPincode({
   keys: { tinyfish: boolean; gateway: boolean } | null;
   pincode: string;
   onPincode: (value: string) => void;
-  autoVerify: boolean;
-  onAutoVerify: (value: boolean) => void;
+  autoVerify: AgentScope | null;
+  onAutoVerify: (scope: AgentScope | null) => void;
   onOpenAgent: () => void;
   onOpenDocAi: () => void;
   onLocate: () => void;
@@ -34,8 +35,14 @@ export function NavbarPincode({
   agentRunning: boolean;
 }) {
   const [draft, setDraft] = useState(pincode);
+  const [autoOpen, setAutoOpen] = useState(false);
   useEffect(() => setDraft(pincode), [pincode]);
   const valid = /^\d{6}$/.test(draft);
+
+  const chooseAuto = (scope: AgentScope | null) => {
+    onAutoVerify(scope);
+    setAutoOpen(false);
+  };
 
   const modeChip =
     mode === "live" ? (
@@ -54,7 +61,8 @@ export function NavbarPincode({
     );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur">
+    <>
+      <header className="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-2 px-4 lg:px-6">
         <Link href="/" aria-label="MedPulse AI home" className="shrink-0">
           <Logo className="h-9 w-auto sm:h-11" />
@@ -104,11 +112,11 @@ export function NavbarPincode({
 
           <button
             type="button"
-            onClick={() => onAutoVerify(!autoVerify)}
+            onClick={() => setAutoOpen(true)}
             className={`hidden h-9 items-center gap-2 rounded-xl border px-3 text-[12px] transition-colors md:flex ${
               autoVerify ? "border-brand/40 bg-brand/10 text-brand-2" : "border-line bg-inset text-mute hover:text-ink-2"
             }`}
-            title="Automatically verify branded stock with the live browser agent after a live comparison"
+            title="Choose what the live browser agent should verify automatically"
           >
             <span
               className={`relative h-4 w-7 rounded-full transition-colors ${autoVerify ? "bg-brand/70" : "bg-line-2"}`}
@@ -119,7 +127,8 @@ export function NavbarPincode({
                 }`}
               />
             </span>
-            Auto-verify
+            {autoVerify ? `Auto: ${AGENT_SCOPE_SHORT[autoVerify]}` : "Auto-verify"}
+            <ChevronDown className="h-3 w-3 opacity-70" />
           </button>
 
           <button
@@ -145,5 +154,82 @@ export function NavbarPincode({
         </div>
       </div>
     </header>
+
+      {autoOpen ? (
+        <div
+          className="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4"
+          role="presentation"
+          onMouseDown={() => setAutoOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="auto-verify-title"
+            className="w-full max-w-md rounded-2xl border border-line bg-panel p-4 shadow-pop"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-brand/40 bg-brand/10">
+                <Bot className="h-4 w-4 text-brand-2" />
+              </span>
+              <div className="min-w-0">
+                <h2 id="auto-verify-title" className="text-sm font-semibold">
+                  Auto-verify with the live agent
+                </h2>
+                <p className="mt-1 text-[11px] leading-relaxed text-mute">
+                  Choose which listings the browser agent should check. It runs immediately on the current live
+                  results and on every new live comparison.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAutoOpen(false)}
+                className="ml-auto grid h-7 w-7 shrink-0 place-items-center rounded-lg text-faint transition-colors hover:bg-panel-2 hover:text-ink-2"
+                aria-label="Close auto-verify choices"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {(["generic", "branded", "all"] as const).map((scope) => (
+                <button
+                  key={scope}
+                  type="button"
+                  onClick={() => chooseAuto(scope)}
+                  className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors ${
+                    autoVerify === scope
+                      ? "border-brand/50 bg-brand/10"
+                      : "border-line bg-inset hover:border-brand/40 hover:bg-brand/5"
+                  }`}
+                >
+                  <Bot className="mt-0.5 h-4 w-4 shrink-0 text-brand-2" />
+                  <span>
+                    <span className="block text-[12px] font-medium text-ink-2">{AGENT_SCOPE_LABEL[scope]}</span>
+                    <span className="mt-0.5 block text-[10px] leading-relaxed text-faint">
+                      {scope === "generic"
+                        ? "Run every Track B generic listing in the live browser."
+                        : scope === "branded"
+                          ? "Run every Track C branded express listing in the live browser."
+                          : "Run every generic and branded medicine link in one pass."}
+                    </span>
+                  </span>
+                </button>
+              ))}
+
+              {autoVerify ? (
+                <button
+                  type="button"
+                  onClick={() => chooseAuto(null)}
+                  className="w-full rounded-xl border border-line px-3 py-2 text-[11px] text-mute transition-colors hover:border-danger/40 hover:text-danger"
+                >
+                  Turn off auto-verify
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

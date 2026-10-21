@@ -56,7 +56,7 @@ Protect the prepaid wallet (`$0.016/step` for TinyAgent). Enforce the **Two-Wave
 3. Progress is streamed **for real** — the compare pipeline emits live stage events (`resolve → search → fetch → extract → guard`, unresolved queries add `suggest`) through `POST /api/compare-stream` (`jsonSseResponse`). STAGE frames carry actual counts (listings, portals, pages, failed batches). Never simulate progress.
 
 ### Wave 2 — live stealth browser (`$0.016/step`, user-triggered ONLY)
-- **Never** auto-run the agent in a loop without consent. The only auto path is the explicit **Auto-verify** toggle, and it only fires for **live** results, ≤5 URLs, ≤3 concurrent runs.
+- **Never** auto-run the agent in a loop without consent. The only auto path is the explicit **Auto-verify** scope chooser, and it only fires for **live** results, with a chosen scope (generics, branded, or all), up to 10 URLs, and at most 3 concurrent runs.
 - `browser_profile: BrowserProfile.STEALTH`, pincode injection (`110053` default) into pharmacy modals; UMANG (`web.umang.gov.in`) for Jan Aushadhi Kendra lookup.
 - Agents must **never** log in, add to cart, or checkout. Stock check only.
 - **SSE contract** (`POST /api/agent-stream`, via `src/lib/sse.ts`) — forward all frames:
@@ -101,7 +101,7 @@ MedPulse-main/
 │   ├── components/
 │   │   ├── welcome/                    # WelcomePage, WelcomeScene (three), auth + motion wiring
 │   │   ├── Logo.tsx                    # Brand lockup (blister-grid badge + wordmark) — navbar + footer
-│   │   ├── NavbarPincode.tsx           # Logo + Pincode + Auto-verify switch + status
+│   │   ├── NavbarPincode.tsx           # Logo + Pincode + Auto-verify scope chooser + status
 │   │   ├── SearchPanel.tsx             # Medicine/Lab tabs + typeahead dropdown + quick pills
 │   │   ├── PrescriptionDropzone.tsx    # capture="environment" camera + Rx result
 │   │   ├── ClinicalSaltBanner.tsx      # PMBJP ceiling + kendra + AMRIT/bilingual safety
@@ -176,7 +176,7 @@ MedPulse-main/
 - Never call the vision model for text tasks or the text model for images.
 - Never surface model IDs in the UI, API responses or docs; never re-add a `models` field to the OCR response.
 - Never remove the OCR `reasoning: "none"` pins without re-benchmarking both OCR legs.
-- Never auto-run TinyAgent outside the Auto-verify toggle / user click; never log in or checkout with the agent.
+- Never auto-run TinyAgent outside the Auto-verify scope choice / Agent Run click; never log in or checkout with the agent.
 - Never present demo numbers as live; always keep `data_source` accurate.
 - Never bypass the strength guard (`strengthOk`) — a 500 mg listing must not appear for a 650 mg query.
 - Never add a bundler/backend/database beyond Next.js route handlers without approval.

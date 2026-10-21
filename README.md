@@ -12,6 +12,7 @@ Built on Next.js (App Router) + TypeScript, the Vercel AI Gateway, and the TinyF
 
 - **Wave 1 (always on, no TinyAgent spend):** `TinySearch` → `TinyFetch` → dual-model structured extraction. Progressive live discovery with a hard strength guard (a 500 mg listing can never be shown for a 650 mg query) and per-10-tabs price normalisation. Every stage streams as it completes — there is no fixed latency promise.
 - **Wave 2 (on-demand):** `TinyAgent` stealth browser streams its run as typed SSE events and renders a live browser view inside the floating PiP dock — pincode stock verification and Jan Aushadhi Kendra lookup.
+- **Agent Run:** one click verifies every displayed medicine link in the live browser; each offer's "Stock unverified - run agent" line is also clickable. Auto-verify opens a scope chooser (generic substitutes, branded express, or all) and runs that scope on each live comparison. Lab results get the same Agent Run control.
 - **Prescription intelligence:** a photographed prescription is read by a dedicated vision model and structured by a clinical text model (both via the Vercel AI Gateway), with an English + हिन्दी dosing schedule and established drug-interaction flags. Both OCR legs run with hidden reasoning disabled for latency; model names/IDs are never returned by the API.
 - **DocAI (general help):** a safety-first chat for general medicine and symptom questions, answered by the clinical text model — emergencies are routed to 108/112, and it never guesses prices.
 - **Trust & impact layer:**
@@ -60,7 +61,7 @@ Every paid/AI-backed route has a per-IP fixed-window budget, enforced **before**
 | `POST /api/optimize-cart` | 30 / min |
 | `POST /api/agent-stream` | 4 / min |
 
-Implementation: `src/lib/rate-limit.ts`. Counters are in-memory per serverless instance — good for casual-abuse and demo-day protection, **not** a distributed quota. The Wave 2 agent is also capped at ≤5 URLs and ≤3 concurrent runs.
+Implementation: `src/lib/rate-limit.ts`. Counters are in-memory per serverless instance — good for casual-abuse and demo-day protection, **not** a distributed quota. The Wave 2 agent is also capped at ≤10 URLs and ≤3 concurrent runs per Agent Run; Auto-verify uses the selected scope.
 
 ## API (PRD §9 contract)
 
@@ -70,7 +71,7 @@ Implementation: `src/lib/rate-limit.ts`. Counters are in-memory per serverless i
 | `POST /api/compare-stream` | same body as `/api/compare` | SSE: `STAGE` (real pipeline progress with live counts) → `RESULT` — or `ERROR` |
 | `POST /api/locate` | `{lat, lng}` | `{pincode, area, city, state, source}` — reverse-geocoded Indian pincode (free providers) |
 | `POST /api/ocr` | `{image_base64, mime_type}` or `{text}` | structured medicines + salts + EN/HI schedule + interactions. No model IDs in the response. |
-| `POST /api/agent-stream` | `{kind:"stock"\|"kendra", pincode, product_urls?[≤5]}` | SSE: `STARTED`, `STREAMING_URL`, `PROGRESS`, `COMPLETE` |
+| `POST /api/agent-stream` | `{kind:"stock"\|"lab"\|"kendra", pincode, product_urls?[≤10]}` | SSE: `STARTED`, `STREAMING_URL`, `PROGRESS`, `COMPLETE` |
 | `POST /api/docai` | `{messages:[{role:"user"\|"assistant", content}]}` (≤16) | DocAI reply + `data_source:"live"\|"demo"` |
 | `POST /api/optimize-cart` | `{items:[{query, quantity_strips, mode:"urgent"\|"refill"}], pincode}` | `express_cart`, `generic_cart`, totals, `net_savings_inr`, checkout links |
 | `GET /api/health` | — | mode, key status, demo query lists — never model IDs |

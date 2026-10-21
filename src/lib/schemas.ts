@@ -205,13 +205,13 @@ export type LabComparison = z.infer<typeof LabComparisonSchema>;
 /* ------------------------------------------------------- agent (Wave 2) */
 export const AgentStreamRequestSchema = z
   .object({
-    kind: z.enum(["stock", "kendra"]).default("stock"),
+    kind: z.enum(["stock", "lab", "kendra"]).default("stock"),
     pincode: PincodeSchema,
-    product_urls: z.array(z.string().url()).max(5).optional(),
+    product_urls: z.array(z.string().url()).max(10).optional(),
     session_id: z.string().max(64).optional(),
   })
-  .refine((v) => v.kind !== "stock" || (v.product_urls && v.product_urls.length > 0), {
-    message: "product_urls (1-5) required for kind=stock",
+  .refine((v) => v.kind === "kendra" || (v.product_urls && v.product_urls.length > 0), {
+    message: "product_urls (1-10) required for stock or lab checks",
     path: ["product_urls"],
   });
 export type AgentStreamRequest = z.infer<typeof AgentStreamRequestSchema>;

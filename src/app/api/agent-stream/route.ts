@@ -1,8 +1,9 @@
 /**
  * POST /api/agent-stream — Wave 2 live browser agent (SSE).
  *
- * kind:"stock"  → verify up to 5 product URLs against a pincode (≤3 concurrent)
- * kind:"kendra" → find Jan Aushadhi Kendras near a pincode via UMANG
+ * kind:"stock"  -> verify up to 10 medicine URLs against a pincode (max 3 concurrent)
+ * kind:"lab"    -> verify up to 10 diagnostic lab URLs against a pincode
+ * kind:"kendra" -> find Jan Aushadhi Kendras near a pincode via UMANG
  *
  * Emits the typed contract: STARTED, STREAMING_URL, PROGRESS, COMPLETE.
  * Without a TinyFish key (or in demo mode) it runs an honest simulation so the
@@ -58,27 +59,45 @@ export async function POST(req: Request) {
       await runKendraLive(request.pincode, send, signal);
       return;
     }
-    await runStockLive(request.product_urls ?? [], request.pincode, send, signal);
+    await runStockLive(request.product_urls ?? [], request.pincode, send, signal, request.kind);
   }, req.signal);
 }
 
 /* ------------------------------------------------------------------ live */
 
-async function runStockLive(urls: string[], pincode: string, send: Send, signal: AbortSignal): Promise<void> {
+async function runStockLive(
+  urls: string[],
+  pincode: string,
+  send: Send,
+  signal: AbortSignal,
+  kind: "stock" | "lab",
+): Promise<void> {
   const checks: Array<StockCheck | null> = new Array(urls.length).fill(null);
   const jobs = urls.map((url, i) => async () => {
+    const goal =
+      kind === "lab"
+        ? `You are verifying a diagnostic lab test package in India. Open ${url}, set the delivery pincode to ${pincode} ` +
+          "if the site shows a location selector (close any popups), wait for the page to settle and the price to render, " +
+          `then report whether home collection is available for pincode ${pincode}, the displayed package price in INR, ` +
+          "and the earliest available slot or report turnaround shown on the page. Never book a test and never log in."
+        : `You are verifying medicine availability in India. Open ${url}, set the delivery pincode to ${pincode} ` +
+          "if the site shows a location selector (close any popups), wait for the page to settle and the price to " +
+          `render, then report whether this exact product can be delivered to pincode ${pincode}, the displayed ` +
+          "selling price in INR, and the delivery ETA text shown on the page. Never add items to a cart and never log in.";
+
     const outcome = await tfRunAgent({
-      goal:
-        `You are verifying medicine availability in India. Open ${url}, set the delivery pincode to ${pincode} ` +
-        "if the site shows a location selector (close any popups), wait for the page to settle and the price to " +
-        `render, then report whether this exact product can be delivered to pincode ${pincode}, the displayed ` +
-        "selling price in INR, and the delivery ETA text shown on the page. Never add items to a cart and never log in.",
+      goal,
       url,
       outputSchema: STOCK_SCHEMA,
       timeoutMs: 180_000,
       signal,
       callbacks: {
-        onStarted: (runId) => send({ type: "STARTED", run_id: runId, goal: `Pincode ${pincode} stock check on ${hostOf(url)}` }),
+        onStarted: (runId) =>
+          send({
+            type: "STARTED",
+            run_id: runId,
+            goal: `Pincode ${pincode} ${kind === "lab" ? "lab" : "stock"} check on ${hostOf(url)}`,
+          }),
         onStreamUrl: (streamingUrl) => send({ type: "STREAMING_URL", streaming_url: streamingUrl }),
         onProgress: (purpose) => send({ type: "PROGRESS", purpose: `${hostOf(url)}: ${purpose}` }),
       },
@@ -163,13 +182,17 @@ function normalizeKendras(result: Record<string, unknown> | null): Kendra[] {
 /* ------------------------------------------------------------- simulated */
 
 async function runSimulated(
-  request: { kind: "stock" | "kendra"; pincode: string; product_urls?: string[] },
+  request: { kind: "stock" | "lab" | "kendra"; pincode: string; product_urls?: string[] },
   send: Send,
   signal: AbortSignal,
 ): Promise<void> {
   const runId = `sim_${Math.random().toString(36).slice(2, 10)}`;
   const label =
-    request.kind === "kendra" ? `Jan Aushadhi Kendra finder near ${request.pincode}` : `Pincode ${request.pincode} stock check (simulated)`;
+    request.kind === "kendra"
+      ? `Jan Aushadhi Kendra finder near ${request.pincode}`
+      : request.kind === "lab"
+        ? `Pincode ${request.pincode} lab check (simulated)`
+        : `Pincode ${request.pincode} stock check (simulated)`;
   send({ type: "STARTED", run_id: runId, goal: `${label} — demo simulation, no browser session` });
 
   const pages = request.kind === "kendra" ? ["web.umang.gov.in"] : (request.product_urls ?? []).slice(0, 3).map(hostOf);
