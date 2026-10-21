@@ -6,6 +6,8 @@ One search prices everything three ways at once — the **PMBJP / Jan Aushadhi g
 plus **diagnostic lab test packages** (Track D). A split-cart optimiser then builds an express + refill basket
 with realistic INR savings.
 
+The public front door is a 3D welcome page at `/`; the comparison dashboard lives at `/engine`. Legacy `/?q=&pin=&type=` share links forward to `/engine` automatically.
+
 Built on Next.js (App Router) + TypeScript, the Vercel AI Gateway, and the TinyFish SDK:
 
 - **Wave 1 (always on, no TinyAgent spend):** `TinySearch` → `TinyFetch` → dual-model structured extraction. Progressive live discovery with a hard strength guard (a 500 mg listing can never be shown for a 650 mg query) and per-10-tabs price normalisation. Every stage streams as it completes — there is no fixed latency promise.

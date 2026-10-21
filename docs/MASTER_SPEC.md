@@ -74,9 +74,12 @@ MedPulse AI’s differentiator is the **combination**: salt-first matching, thre
 
 ### 3.1 What it is
 
-A responsive Next.js web application that:
+A responsive Next.js web application with two surfaces:
 
-The public front door is `/` — a 3D welcome/landing page. The price engine and all comparison tools live at `/engine`; legacy `/?q=&pin=&type=` links 307-forward to `/engine`.
+- **`/` — welcome:** a 3D hero, optional local-only demo profile/history, and the entry point to the engine. No account is created and no password is stored.
+- **`/engine` — price engine:** the full comparison dashboard. Legacy `/?q=&pin=&type=` links 307-forward here.
+
+The engine:
 
 1. Resolves a medicine brand/salt or lab test.
 2. Discovers live listings across tracked Indian portals.
@@ -104,6 +107,19 @@ The public front door is `/` — a 3D welcome/landing page. The price engine and
 ---
 
 ## 4. Feature specification
+
+### 4.0 Welcome front door (`/`)
+
+**User sees:** a 3D capsule hero, the four-track explanation, quick example searches, an optional “Sign in” card and a “Continue without an account” path.
+
+**Behaviour:**
+
+- “Enter price engine” opens `/engine`; “See how it works” scrolls the welcome page.
+- Sign-in is a **local-only demo profile**: name/email and up to 30 history entries in localStorage. No password is stored, no account is created, and nothing is sent to a server.
+- The welcome page carries the theme toggle and the same blue/white brand system as the engine.
+- Legacy `/?q=&pin=&type=` URLs 307-forward to `/engine` so old share links still work.
+
+**Files:** `src/app/page.tsx`, `src/components/welcome/*`, `src/lib/welcome-store.ts`, `src/app/welcome.css`.
 
 ### 4.1 Search and clinical salt decoding
 
@@ -192,7 +208,7 @@ The public front door is `/` — a 3D welcome/landing page. The price engine and
 - Clipboard failure falls back to a prompt with the URL.
 - A missing health response must not block hydration.
 
-**Files:** `src/app/page.tsx`, `src/components/ShareLinkButton.tsx`, `src/lib/urls.ts`.
+**Files:** `src/app/engine/page.tsx`, `src/components/ShareLinkButton.tsx`, `src/lib/urls.ts`.
 
 ### 4.7 Real progress and stage timings
 
@@ -294,7 +310,7 @@ The public front door is `/` — a 3D welcome/landing page. The price engine and
 - Undecodable or unpriceable queries trigger a real portal search; up to four suggestions that appear in the results are shown as clickable alternatives.
 - Unresolved results are never cached.
 
-**Files:** `src/app/page.tsx`, `src/components/UnresolvedPanel.tsx`, `src/lib/compare.ts`.
+**Files:** `src/app/engine/page.tsx`, `src/components/UnresolvedPanel.tsx`, `src/lib/compare.ts`.
 
 ### 4.15 Rate limits
 
@@ -318,10 +334,11 @@ Per-IP fixed-window budgets, enforced before body parsing:
 
 ### 5.1 First visit
 
-1. User lands on the dashboard; no demo query auto-runs.
-2. Empty state explains the three tracks and the real pipeline.
-3. Example query pills offer one-tap starts.
-4. Pincode defaults to 110053 and can be changed or located.
+1. User lands on `/` — the 3D welcome page with an optional local-only demo profile/history.
+2. “Enter price engine” opens `/engine`; no demo query auto-runs.
+3. Empty state explains the three tracks and the real pipeline.
+4. Example query pills offer one-tap starts.
+5. Pincode defaults to 110053 and can be changed or located.
 
 ### 5.2 Search a branded medicine
 
@@ -398,7 +415,7 @@ Browser (Next.js App Router UI)
 
 - In-memory TTL cache (default 1 hour) for extraction/comparison results; unresolved results are not cached.
 - Client settings: `medpulse:pincode`, `medpulse:theme`.
-- No database, no accounts, no auth, no server-side user data store.
+- No database or server-side auth. The welcome page keeps an optional demo profile/session and history in localStorage; no password is stored.
 - Rate-limit counters and cache are per serverless instance.
 
 ### 6.5 Failure behaviour
@@ -428,6 +445,7 @@ MedPulse-main/
 │   ├── app/
 │   │   ├── page.tsx              # 3D welcome/landing + legacy-share redirect
 │   │   ├── engine/page.tsx       # price-engine dashboard + share hydration + empty state
+│   │   ├── welcome.css           # scoped welcome styles + 3D hero layout
 │   │   ├── layout.tsx            # metadata, fonts, theme bootstrap
 │   │   ├── globals.css           # Tailwind v4 tokens, dark/light themes
 │   │   ├── icon.svg/.png         # brand icons
@@ -444,6 +462,7 @@ MedPulse-main/
 │   │       ├── health/route.ts           # mode/key status only
 │   │       └── suggest/route.ts          # demo suggestions
 │   ├── components/
+│   │   ├── welcome/              # WelcomePage, WelcomeScene (Three.js), auth/motion wiring
 │   │   ├── NavbarPincode.tsx     # logo, pincode, auto-verify, theme
 │   │   ├── SearchPanel.tsx       # tabs, typeahead, quick pills
 │   │   ├── CompareProgress.tsx   # real stage tracker/timings
@@ -474,6 +493,7 @@ MedPulse-main/
 │       ├── domains.ts            # portal registry
 │       ├── demo-seed.ts          # labelled demo fixtures
 │       ├── schedule.ts           # EN/HI dosing schedule
+│       ├── welcome-store.ts      # local-only demo profile/session/history
 │       ├── schemas.ts            # zod contracts
 │       ├── sse.ts / sse-client.ts
 │       ├── compare-client.ts / agent-client.ts
@@ -493,7 +513,7 @@ MedPulse-main/
 | Change rate limits | `src/lib/rate-limit.ts` |
 | Change the savings UI | `src/components/SavingsReceipt.tsx` |
 | Change provenance display | `src/components/DualTrackGrid.tsx` |
-| Change share URL behaviour | `src/app/page.tsx`, `ShareLinkButton.tsx` |
+| Change share URL behaviour | `src/app/engine/page.tsx`, `ShareLinkButton.tsx` |
 | Change theme tokens | `src/app/globals.css` |
 
 ---
@@ -505,11 +525,12 @@ MedPulse-main/
 | Framework | Next.js 16 App Router, TypeScript | Server route handlers + React UI in one deployable; no separate backend |
 | Styling | Tailwind CSS v4, custom `@theme` tokens | Fast, consistent dark/light clinical UI |
 | Icons | lucide-react | Clear, lightweight iconography |
+| 3D | Three.js 0.160 (bundled) | Procedural welcome hero only; no textures or model files |
 | AI | AI SDK v7 + zod v4, Vercel AI Gateway | Unified model routing, schema-validated outputs |
 | Web execution | TinyFish SDK (Search / Fetch / Agent) | Real portal discovery + on-demand stealth-browser verification |
 | Tests | Vitest 5 | Fast unit coverage for pricing, schedules, demo, optimizer, catalog, rate limits |
 | Hosting | Vercel | Serverless route handlers, previews, production aliasing |
-| Persistence | None (localStorage for settings) | No auth/database needed for the current scope |
+| Persistence | localStorage only | Demo profile/history + settings; no server DB or auth |
 | Caching | In-memory TTL | Simple, dependency-free; documented as per-instance |
 | Rate limiting | In-memory fixed window | Protects paid routes without external infrastructure |
 
@@ -565,7 +586,8 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 
 ### 10.5 Privacy and persistence
 
-- No database, auth, or user profile.
+- No database or server-side auth.
+- The welcome page keeps an optional local-only demo profile/session and history in localStorage; no password is stored.
 - No app-level image storage; uploaded prescriptions are processed in-request.
 - Settings live in localStorage.
 - API keys stay server-side in environment variables.
@@ -584,6 +606,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 8. **Medical safety** — disclaimers, no diagnosis, no dose changes, emergencies to 108/112.
 9. **No checkout** — the agent only checks stock; purchases happen on the source site.
 10. **Honest failures** — auto mode falls back to labelled demo; live mode surfaces errors.
+11. **Local demo profile only** — the welcome sign-in is a localStorage demo gate, not authentication; no password is stored and it can be cleared any time.
 
 ---
 
@@ -655,7 +678,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 1. **Title** — MedPulse AI; “One search. Three price tracks. Real provenance.” Team names. Product URL/QR.
 2. **The problem** — same salt, wildly different prices; fragmented portals; unfair pack comparisons; prescription friction; trust gap.
 3. **The insight** — compare the active salt and strength, not the brand; normalise to 10 tablets; guard the dose.
-4. **The product in one screen** — annotated dashboard screenshot: search, three tracks, savings receipt, provenance, timings.
+4. **Welcome → engine** — show the 3D welcome hero and local-only history, then the annotated engine dashboard: search, three tracks, savings receipt, provenance, timings.
 5. **How it works** — simple two-wave architecture diagram: resolve → search/fetch → extract → guard → results; on-demand agent.
 6. **The trust layer** — savings receipt, provenance chips, share links, real timings, honest empty state.
 7. **Prescription intelligence** — photo → vision transcription → clinical structuring → EN/HI schedule + interactions; show the OCR result screenshot.
@@ -735,13 +758,13 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 
 1. Warm the OCR endpoint with one throwaway scan (first call after idle can be slow).
 2. Confirm the production deployment is live and the pincode is 110053 (or the demo city).
-3. Clear the browser console; keep one tab on the dashboard.
+3. Clear the browser console; keep one tab on `/` (welcome) and one on `/engine`.
 4. Have a prescription image ready; avoid sensitive real patient data.
 5. Know the fallback: if live fails, the app labels demo data honestly — do not hide it.
 
 **Flow**
 
-1. **Empty state (20 s):** show the three tracks and example pills; explain “real stages, no fake progress”.
+1. **Welcome + empty state (35 s):** show the 3D hero and local-only profile/history, click “Enter price engine”; explain the three tracks, example pills, and “real stages, no fake progress”.
 2. **Search Augmentin 625 Duo (90 s):** run it; narrate the real stage panel; point out the strength guard.
 3. **Results + receipt (60 s):** show per-10-tablet prices, savings receipt, provenance, freshness.
 4. **Share (20 s):** copy the link; open it in a new tab; show it rehydrates.
@@ -769,7 +792,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 
 **Explicitly out of scope today**
 
-- Accounts/auth, checkout, order fulfilment, insurance claims, diagnosis.
+- Real accounts/auth (the welcome demo profile is local only), checkout, order fulfilment, insurance claims, diagnosis.
 - Distributed rate limiting or a persistent database.
 
 ---
@@ -789,6 +812,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 | **PiP** | Picture-in-picture dock showing the live agent browser. |
 | **Provenance** | Evidence of how a price was obtained and when. |
 | **Live / demo** | Real data vs clearly labelled fixtures. |
+| **Local demo profile** | Browser-only welcome sign-in gate for saved history; not real auth, no password stored. |
 | **NABL** | Indian accreditation for testing/calibration labs. |
 
 ---

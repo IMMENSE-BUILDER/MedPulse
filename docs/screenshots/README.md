@@ -15,6 +15,8 @@ Final captures for the PPT live here. Re-capture after any UI change.
 
 | File | Frame | Status |
 | --- | --- | --- |
+| `00-welcome-dark.png` | 3D welcome hero + local-only sign-in/history | Captured 21 Oct 2026 |
+| `00-welcome-light.png` | Light-theme welcome hero | Captured 21 Oct 2026 |
 | `01-empty-dark.png` | Dashboard empty state with example pills | Captured 21 Oct 2026 |
 | `02-results-dark.png` | Augmentin 625 Duo live results, three tracks | Captured 21 Oct 2026 |
 | `03-receipt-dark.png` | Savings receipt + projection detail | Captured 21 Oct 2026 |
