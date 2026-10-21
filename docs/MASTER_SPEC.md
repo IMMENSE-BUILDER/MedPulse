@@ -127,7 +127,7 @@ The engine:
 
 **Behaviour:**
 
-- The catalog provides instant client-side suggestions for known brands and lab tests. No network or AI call per keystroke.
+- The catalog provides instant client-side suggestions for known brands, salt names and lab tests — **350 curated entries**, up to 9 shown. No network or AI call per keystroke.
 - Selecting a suggestion fills the query and runs the real comparison.
 - “Search ⋯ in live prices anyway” always runs the user’s exact text through the live pipeline.
 - The pipeline resolves a brand to its active salt(s) and strength using the curated catalog first, then the clinical text model.
@@ -330,6 +330,17 @@ Per-IP fixed-window budgets, enforced before body parsing:
 
 **Files:** `src/lib/rate-limit.ts`, all API routes.
 
+### 4.16 Premium tier (mock)
+
+The live agent is presented as a premium demo feature:
+
+- A gold **Premium** badge in the navbar opens a ₹299/month panel.
+- The first agent touch — Agent Run, per-offer verify, Auto-verify scope, lab run, kendra lookup or the agent console — opens the same panel.
+- One click on **“Unlock preview — no payment”** bypasses the gate and resumes the pending action. The flag is stored in localStorage.
+- No payment, checkout, account or subscription is implemented. This is a mock tier for the hackathon demo.
+
+**Files:** `src/components/PremiumModal.tsx`, `src/lib/premium.ts`, `src/app/engine/page.tsx`.
+
 ---
 
 ## 5. User journeys
@@ -517,6 +528,7 @@ MedPulse-main/
 | Change the savings UI | `src/components/SavingsReceipt.tsx` |
 | Change provenance display | `src/components/DualTrackGrid.tsx` |
 | Change share URL behaviour | `src/app/engine/page.tsx`, `ShareLinkButton.tsx` |
+| Change the premium gate | `src/components/PremiumModal.tsx`, `src/lib/premium.ts` |
 | Change theme tokens | `src/app/globals.css` |
 
 ---
@@ -688,7 +700,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 8. **Agent Run** — one click verifies every displayed medicine/lab link; show the parallel PiP browser tiles and terminal, plus the Auto-verify scope chooser (generics / branded / all). “No checkout, no login”.
 9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 42 tests; 17/17 production checks; OCR 27s → 5–9s. Caveat label.
 10. **Safety & reliability** — strength guard, live/demo honesty, rate limits, schema validation, no model IDs, disclaimers.
-11. **Differentiation & roadmap** — comparison table; roadmap: PWA/offline, voice EN/HI, OCR streaming, richer interaction checks, shared rate-limit store, more portals.
+11. **Differentiation, premium & roadmap** — comparison table; the mock ₹299/month Premium tier with one-click preview; roadmap: PWA/offline, voice EN/HI, OCR streaming, richer interaction checks, shared rate-limit store, more portals.
 12. **Close** — “From prescription to fair price, with the receipts.” Links: production URL + repo. Thank you.
 
 ### 14.3 Visual asset checklist
@@ -705,6 +717,8 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | OCR result | `docs/screenshots/04-ocr-dark.png` (captured from a live OCR run) |
 | Agent Run controls | `docs/screenshots/10-agent-run-dark.png` (captured) |
 | Auto-verify scope chooser | `docs/screenshots/11-auto-verify-dark.png` (captured) |
+| Premium gate panel | `docs/screenshots/12-premium-gate.png` (captured) |
+| Expanded catalog dropdown | `docs/screenshots/13-catalog-dropdown.png` (captured) |
 | Agent PiP | Pending — capture as `05-agent-pip-dark.png` from a user-triggered run |
 | Share link | Pending — capture as `08-share-light.png` |
 | Light theme | `docs/screenshots/06-empty-light.png` (captured) |

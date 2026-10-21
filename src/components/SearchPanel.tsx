@@ -29,7 +29,7 @@ export function SearchPanel({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
 
-  const suggestions = useMemo(() => searchCatalog(query, track, 7), [query, track]);
+  const suggestions = useMemo(() => searchCatalog(query, track, 9), [query, track]);
   const trimmed = query.trim();
   const canSearchAnyway = trimmed.length >= 2;
   const rowCount = (suggestions.length ? suggestions.length : 0) + (canSearchAnyway ? 1 : 0);

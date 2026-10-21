@@ -258,6 +258,73 @@ const MEDICINES: [string, string][] = [
   ["Cholecalciferol 60,000 IU", "Vitamin D3 60K generic"],
   ["Methylcobalamin 1500 mcg", "Vitamin B12"],
   ["Montelukast + Levocetirizine", "Generic allergy combo"],
+  // Common Indian brands and salt-first entries (expanded library)
+  ["Dolo 500", "Paracetamol 500 mg"],
+  ["Pacimol 650", "Paracetamol 650 mg"],
+  ["Metacin 500", "Paracetamol 500 mg"],
+  ["Disprin", "Aspirin 350 mg"],
+  ["Nicip 100", "Nimesulide 100 mg"],
+  ["Nicip Plus", "Nimesulide 100 mg + Paracetamol 325 mg"],
+  ["Zerodol 100", "Aceclofenac 100 mg"],
+  ["Hifenac 100", "Aceclofenac 100 mg"],
+  ["Etoshine 90", "Etoricoxib 90 mg"],
+  ["Aceclo 100", "Aceclofenac 100 mg"],
+  ["Augmentin 1000 Duo", "Amoxicillin 875 mg + Clavulanic acid 125 mg"],
+  ["Clavam 375", "Amoxicillin 250 mg + Clavulanic acid 125 mg"],
+  ["Moxikind-CV 625", "Amoxicillin 500 mg + Clavulanic acid 125 mg"],
+  ["Azithral 250", "Azithromycin 250 mg"],
+  ["Azee 250", "Azithromycin 250 mg"],
+  ["Taxim-O 100", "Cefixime 100 mg"],
+  ["Cefakind 200", "Cefixime 200 mg"],
+  ["Monocef 1000", "Ceftriaxone 1000 mg"],
+  ["Oframax 1g", "Ceftriaxone 1000 mg"],
+  ["Pan 20", "Pantoprazole 20 mg"],
+  ["Pantocid DSR", "Pantoprazole 40 mg + Domperidone 30 mg (SR)"],
+  ["Omez 40", "Omeprazole 40 mg"],
+  ["Rantac 300", "Ranitidine 300 mg"],
+  ["Rabekind 20", "Rabeprazole 20 mg"],
+  ["Nexpro RD 40", "Esomeprazole 40 mg + Domperidone 30 mg (SR)"],
+  ["Esomeprazole 20 mg", "Generic esomeprazole"],
+  ["Glycomet GP 2", "Metformin 500 mg + Glimepiride 2 mg"],
+  ["Galvus Met 50/500", "Vildagliptin 50 mg + Metformin 500 mg"],
+  ["Janumet 50/500", "Sitagliptin 50 mg + Metformin 500 mg"],
+  ["Rybelsus 7", "Semaglutide 7 mg"],
+  ["Dapagliflozin 10 mg", "Generic dapagliflozin"],
+  ["Empagliflozin 10 mg", "Generic empagliflozin"],
+  ["Glimepiride 1 mg", "Generic glimepiride"],
+  ["Metformin 1000 mg", "Generic metformin"],
+  ["Telma 20", "Telmisartan 20 mg"],
+  ["Telma 80 H", "Telmisartan 80 mg + Hydrochlorothiazide 12.5 mg"],
+  ["Amlopres 10", "Amlodipine 10 mg"],
+  ["Stamlo 10", "Amlodipine 10 mg"],
+  ["Metolar XR 25", "Metoprolol ER 25 mg"],
+  ["Rosuvas F 10", "Rosuvastatin 10 mg + Fenofibrate 160 mg"],
+  ["Atorva 20", "Atorvastatin 20 mg"],
+  ["Ecosprin 150", "Aspirin 150 mg"],
+  ["Clopilet 75", "Clopidogrel 75 mg"],
+  ["Deplatt 75", "Clopidogrel 75 mg"],
+  ["Thyronorm 75", "Thyroxine 75 mcg"],
+  ["Thyronorm 125", "Thyroxine 125 mcg"],
+  ["Eltroxin 100", "Thyroxine 100 mcg"],
+  ["Foracort 400", "Budesonide 400 mcg + Formoterol 6 mcg"],
+  ["Seroflo 100", "Salmeterol 50 mcg + Fluticasone 100 mcg"],
+  ["Montair 5", "Montelukast 5 mg"],
+  ["Asthalin Respules", "Salbutamol 2.5 mg respules"],
+  ["Duolin Respules", "Levosalbutamol + Ipratropium respules"],
+  ["Shelcal 250", "Calcium + Vitamin D3"],
+  ["Calcirol Sachet", "Cholecalciferol 60,000 IU"],
+  ["Methylcobalamin 500 mcg", "Vitamin B12"],
+  ["Pregabalin 75 mg", "Generic pregabalin"],
+  ["Gabapin 100", "Gabapentin 100 mg"],
+  ["Nexito 5", "Escitalopram 5 mg"],
+  ["Amitriptyline 10 mg", "Generic amitriptyline"],
+  ["Sertraline 50 mg", "Generic sertraline"],
+  ["Flutivate Cream", "Fluticasone propionate 0.05%"],
+  ["Candid Cream", "Clotrimazole 1%"],
+  ["Luliconazole 1%", "Generic luliconazole"],
+  ["Terbinafine 250", "Terbinafine 250 mg"],
+  ["Tamsulosin 0.4 mg", "Generic tamsulosin"],
+  ["Finasteride 1 mg", "Generic finasteride"],
 ];
 
 const LABS: [string, string][] = [
@@ -305,6 +372,14 @@ const LABS: [string, string][] = [
   ["Anti-CCP", "Rheumatoid arthritis"],
   ["ANA (Antinuclear Antibody)", "Autoimmune screening"],
   ["H. pylori Antigen", "Stomach infection"],
+  ["HBsAg", "Hepatitis B surface antigen"],
+  ["HIV 1 & 2", "HIV screening"],
+  ["VDRL", "Syphilis screening"],
+  ["Blood Group & Rh", "ABO + Rh typing"],
+  ["Platelet Count", "Thrombocytopenia screen"],
+  ["Peripheral Smear", "Blood cell morphology"],
+  ["Stool Routine & Microscopy", "Stool analysis"],
+  ["Urine Pregnancy Test", "hCG urine test"],
 ];
 
 export const CATALOG: CatalogItem[] = [
@@ -328,8 +403,8 @@ export function searchCatalog(query: string, kind: CatalogKind, limit = 7): Cata
   const q = norm(query);
   if (!q) return [];
   const tokens = q.split(" ").filter(Boolean).slice(0, 4);
-  const scored: { item: CatalogItem; score: number }[] = [];
-  for (const item of CATALOG) {
+  const scored: { item: CatalogItem; score: number; order: number }[] = [];
+  for (const [order, item] of CATALOG.entries()) {
     if (item.kind !== kind) continue;
     const name = norm(item.name);
     const hint = norm(item.hint);
@@ -351,10 +426,14 @@ export function searchCatalog(query: string, kind: CatalogKind, limit = 7): Cata
     if (!all) continue;
     if (name === q) score += 60;
     else if (name.startsWith(q)) score += 40;
-    scored.push({ item, score });
+    scored.push({ item, score, order });
   }
   scored.sort(
-    (a, b) => b.score - a.score || a.item.name.length - b.item.name.length || a.item.name.localeCompare(b.item.name),
+    (a, b) =>
+      b.score - a.score ||
+      a.order - b.order ||
+      a.item.name.length - b.item.name.length ||
+      a.item.name.localeCompare(b.item.name),
   );
   return scored.slice(0, limit).map((s) => s.item);
 }

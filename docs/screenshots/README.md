@@ -24,6 +24,8 @@ Final captures for the PPT live here. Re-capture after any UI change.
 | `05-agent-pip-dark.png` | Live agent PiP with progress terminal | Pending — user-triggered run |
 | `10-agent-run-dark.png` | Agent Run toolbar + per-offer run controls | Captured 21 Oct 2026 |
 | `11-auto-verify-dark.png` | Auto-verify scope chooser (generics / branded / all) | Captured 21 Oct 2026 |
+| `12-premium-gate.png` | Mock ₹299/month Premium gate | Captured 21 Oct 2026 |
+| `13-catalog-dropdown.png` | Expanded medicine catalog typeahead | Captured 21 Oct 2026 |
 | `06-empty-light.png` | Light-theme dashboard | Captured 21 Oct 2026 |
 | `07-hover-dark.png` | Primary button in dark-blue hover state | Captured 21 Oct 2026 |
 | `08-share-light.png` | “Link copied” state | Pending |

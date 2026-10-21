@@ -165,6 +165,8 @@ MedPulse-main/
 16. **Savings receipt:** `SavingsReceipt` may only use real per-10-tab offers from the current comparison. The monthly/yearly numbers are an explicit projection from a user-adjustable "strips per month" assumption and must stay labelled as a projection — never invent adherence or usage statistics.
 17. **Rate limits / cost guard:** `src/lib/rate-limit.ts` holds the per-IP budgets (compare 20/min, OCR 6/min, DocAI 20/min, cart 30/min, agent 4/min). Every new paid or AI-backed route must add a bucket and call `guard()` before parsing the body. SSE routes must return the plain 429 JSON **before** starting a stream.
 
+18. **Premium gate (mock):** the navbar Premium badge and the first agent action open `PremiumModal` (₹299/month). `ensurePremium()` gates Agent Run, per-offer verify, Auto-verify, lab run, kendra and the agent console; one click unlocks a localStorage preview and resumes the pending action. No payment, checkout, account or subscription exists.
+
 ## 8. Common Commands
 - Install: `npm install`
 - Dev: `npm run dev` → http://localhost:3000

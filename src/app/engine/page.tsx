@@ -11,12 +11,14 @@ import { LiveAgentPipDock } from "@/components/LiveAgentPipDock";
 import { Logo } from "@/components/Logo";
 import { NavbarPincode } from "@/components/NavbarPincode";
 import { PrescriptionDropzone } from "@/components/PrescriptionDropzone";
+import { PremiumModal } from "@/components/PremiumModal";
 import { SavingsReceipt } from "@/components/SavingsReceipt";
 import { SearchPanel } from "@/components/SearchPanel";
 import { SplitCartDrawer } from "@/components/SplitCartDrawer";
 import { UnresolvedPanel } from "@/components/UnresolvedPanel";
 import { useAgentStream } from "@/hooks/useAgentStream";
 import { AGENT_SCOPE_LABEL, type AgentScope } from "@/lib/agent-scope";
+import { hasPremiumPreview, unlockPremiumPreview } from "@/lib/premium";
 import { streamCompare } from "@/lib/compare-client";
 import { inr0 } from "@/lib/format";
 import { per10Tabs, perTab } from "@/lib/pricing";
@@ -101,6 +103,13 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [autoVerify, setAutoVerify] = useState<AgentScope | null>(null);
   const [agentScope, setAgentScope] = useState<AgentScope | "lab" | null>(null);
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  const [premiumActive, setPremiumActive] = useState(false);
+  const pendingPremiumRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    setPremiumActive(hasPremiumPreview());
+  }, []);
   const [rx, setRx] = useState<OcrResponse | null>(null);
   const [rxBusy, setRxBusy] = useState(false);
   const [rxError, setRxError] = useState<string | null>(null);
@@ -412,6 +421,29 @@ export default function Home() {
 
   /* ---------------------------------------------------------------- agent */
 
+  const ensurePremium = useCallback((action: () => void) => {
+    if (hasPremiumPreview()) {
+      action();
+      return;
+    }
+    pendingPremiumRef.current = action;
+    setPremiumOpen(true);
+  }, []);
+
+  const closePremium = useCallback(() => {
+    pendingPremiumRef.current = null;
+    setPremiumOpen(false);
+  }, []);
+
+  const unlockPremium = useCallback(() => {
+    unlockPremiumPreview();
+    setPremiumActive(true);
+    setPremiumOpen(false);
+    const action = pendingPremiumRef.current;
+    pendingPremiumRef.current = null;
+    action?.();
+  }, []);
+
   const applyStockChecks = useCallback((result: unknown) => {
     const r = result as { kind?: string; checks?: StockCheck[] } | null;
     if (!r?.checks?.length) return;
@@ -471,27 +503,31 @@ export default function Home() {
       if (!cmp || cmp.data_source !== "live") return;
       const urls = offerUrls(scope);
       if (!urls.length) return;
-      setAgentScope(scope);
-      void agent.run(
-        { kind: "stock", pincode: cmp.user_pincode, product_urls: urls },
-        `Agent Run - ${AGENT_SCOPE_LABEL[scope]} - ${cmp.query_brand}`,
-        (result) => applyStockChecks(result),
-      );
+      ensurePremium(() => {
+        setAgentScope(scope);
+        void agent.run(
+          { kind: "stock", pincode: cmp.user_pincode, product_urls: urls },
+          `Agent Run - ${AGENT_SCOPE_LABEL[scope]} - ${cmp.query_brand}`,
+          (result) => applyStockChecks(result),
+        );
+      });
     },
-    [cmp, offerUrls, agent, applyStockChecks],
+    [cmp, offerUrls, ensurePremium, agent, applyStockChecks],
   );
 
   const runOfferAgent = useCallback(
     (offer: Offer, accent: "generic" | "branded") => {
       if (!cmp || cmp.data_source !== "live" || !offer.product_url) return;
-      setAgentScope(accent);
-      void agent.run(
-        { kind: "stock", pincode: cmp.user_pincode, product_urls: [offer.product_url] },
-        `Agent Run - ${offer.platform}`,
-        (result) => applyStockChecks(result),
-      );
+      ensurePremium(() => {
+        setAgentScope(accent);
+        void agent.run(
+          { kind: "stock", pincode: cmp.user_pincode, product_urls: [offer.product_url!] },
+          `Agent Run - ${offer.platform}`,
+          (result) => applyStockChecks(result),
+        );
+      });
     },
-    [cmp, agent, applyStockChecks],
+    [cmp, ensurePremium, agent, applyStockChecks],
   );
 
   const runLabAgent = useCallback(() => {
@@ -500,12 +536,14 @@ export default function Home() {
       new Set(labs.offers.map((o) => o.product_url).filter((u): u is string => Boolean(u))),
     ).slice(0, 10);
     if (!urls.length) return;
-    setAgentScope("lab");
-    void agent.run(
-      { kind: "lab", pincode: labs.pincode, product_urls: urls },
-      `Agent Run - ${labs.query} - lab listings`,
-    );
-  }, [labs, agent]);
+    ensurePremium(() => {
+      setAgentScope("lab");
+      void agent.run(
+        { kind: "lab", pincode: labs.pincode, product_urls: urls },
+        `Agent Run - ${labs.query} - lab listings`,
+      );
+    });
+  }, [labs, ensurePremium, agent]);
 
   useEffect(() => {
     if (!autoVerify || !cmp || cmp.data_source !== "live" || !health?.tinyfish_key) return;
@@ -515,19 +553,31 @@ export default function Home() {
     runAgent(autoVerify);
   }, [autoVerify, cmp, health, runAgent]);
 
-  const handleAutoVerify = useCallback((scope: AgentScope | null) => {
-    autoRef.current = null;
-    setAutoVerify(scope);
-  }, []);
+  const handleAutoVerify = useCallback(
+    (scope: AgentScope | null) => {
+      if (scope === null) {
+        autoRef.current = null;
+        setAutoVerify(null);
+        return;
+      }
+      ensurePremium(() => {
+        autoRef.current = null;
+        setAutoVerify(scope);
+      });
+    },
+    [ensurePremium],
+  );
 
   const findKendra = useCallback(() => {
     const pin = cmp?.user_pincode ?? pincode;
-    setAgentScope(null);
-    void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder - ${pin}`, (result) => {
-      const r = result as { kind?: string; kendras?: Kendra[] } | null;
-      if (r?.kendras?.length) setKendras(r.kendras);
+    ensurePremium(() => {
+      setAgentScope(null);
+      void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder - ${pin}`, (result) => {
+        const r = result as { kind?: string; kendras?: Kendra[] } | null;
+        if (r?.kendras?.length) setKendras(r.kendras);
+      });
     });
-  }, [cmp, pincode, agent]);
+  }, [cmp, pincode, ensurePremium, agent]);
 
   /* ---------------------------------------------------------------- view */
 
@@ -547,8 +597,10 @@ export default function Home() {
         onPincode={applyPincode}
         autoVerify={autoVerify}
         onAutoVerify={handleAutoVerify}
-        onOpenAgent={() => agent.setOpen(true)}
+        onOpenAgent={() => ensurePremium(() => agent.setOpen(true))}
         onOpenDocAi={() => setDocaiOpen(true)}
+        onOpenPremium={() => setPremiumOpen(true)}
+        premiumActive={premiumActive}
         onLocate={() => void locateMe(true)}
         locating={locating}
         locateMsg={locateMsg}
@@ -722,6 +774,12 @@ export default function Home() {
 
       <LiveAgentPipDock state={agent.state} onClose={agent.close} raised={cartCount > 0} />
       <DocAiDock open={docaiOpen} onClose={() => setDocaiOpen(false)} raised={cartCount > 0} />
+      <PremiumModal
+        open={premiumOpen}
+        active={premiumActive}
+        onClose={closePremium}
+        onUnlock={unlockPremium}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, ChevronDown, Loader2, LocateFixed, MapPin, Stethoscope, X } from "lucide-react";
+import { Bot, ChevronDown, Crown, Loader2, LocateFixed, MapPin, Stethoscope, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
@@ -16,6 +16,8 @@ export function NavbarPincode({
   onAutoVerify,
   onOpenAgent,
   onOpenDocAi,
+  onOpenPremium,
+  premiumActive,
   onLocate,
   locating,
   locateMsg,
@@ -29,6 +31,8 @@ export function NavbarPincode({
   onAutoVerify: (scope: AgentScope | null) => void;
   onOpenAgent: () => void;
   onOpenDocAi: () => void;
+  onOpenPremium: () => void;
+  premiumActive: boolean;
   onLocate: () => void;
   locating: boolean;
   locateMsg: string | null;
@@ -70,6 +74,19 @@ export function NavbarPincode({
 
         <div className="ml-auto flex items-center gap-2">
           {modeChip}
+          <button
+            type="button"
+            onClick={onOpenPremium}
+            className={`hidden h-9 items-center gap-1.5 rounded-xl border px-3 text-[11px] font-semibold transition-colors sm:flex ${
+              premiumActive
+                ? "border-warn/50 bg-warn/10 text-warn"
+                : "border-line bg-panel-2 text-mute hover:border-warn/40 hover:text-warn"
+            }`}
+            title={`MedPulse Premium - ₹299/month mock preview`}
+          >
+            <Crown className="h-3.5 w-3.5" />
+            Premium
+          </button>
           {locateMsg ? (
             <span className="hidden max-w-[240px] truncate text-[10px] text-warn md:inline" title={locateMsg}>
               {locateMsg}
