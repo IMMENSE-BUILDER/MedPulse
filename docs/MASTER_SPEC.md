@@ -2,11 +2,11 @@
 
 > **Purpose:** the single detailed source of truth for the whole MedPulse AI codebase and website. Written to be handed directly to an AI presentation agent to generate a pitch deck.
 >
-> **Status:** live production build (PRD v5.0).  
+> **Status:** live production build (PRD v5.0) — light-first UI, 3D welcome at `/`, price engine at `/engine`.  
 > **Production:** https://medpulse-ai-snowy.vercel.app  
 > **Repository:** https://github.com/Sujal-cyber11/MedPulse  
 > **Team:** Satyam and Sujal  
-> **Last updated:** 21 October 2026
+> **Last updated:** 21 October 2026 — light-first ambient mesh, bulk/parallel agent, mock premium preview
 
 ---
 
@@ -26,7 +26,7 @@
 
 ### One-liner
 
-**MedPulse AI turns one medicine search into a transparent, three-way price comparison — government generic benchmark, subsidised generic pharmacies, and branded express pharmacies — then shows exactly how much switching saves and where every price came from.**
+**MedPulse AI turns one medicine search into a transparent, four-way price comparison — government benchmark, subsidised generics, branded express pharmacies, and diagnostic labs — then shows exactly how much switching saves and where every price came from.**
 
 ### 30-second pitch
 
@@ -34,13 +34,15 @@ Indians often overpay for medicines because the same active salt is sold under m
 
 ### 2-minute pitch
 
-MedPulse AI is a Next.js web app for Indian patients, caregivers and price-sensitive chronic-medication users. A user searches a brand such as “Augmentin 625 Duo” or a lab test such as “HbA1c”. The app resolves the query to its active salt and strength, searches generic and branded pharmacy networks in parallel, extracts real listings, normalises pack sizes to a per-10-tablet basis, and filters out any listing whose strength does not match. Results are shown in three tracks: the PMBJP/Jan Aushadhi government benchmark (Track A), subsidised generic online listings (Track B), and branded express e-pharmacies (Track C). Track D covers diagnostic labs.
+MedPulse AI is a Next.js web app for Indian patients, caregivers and price-sensitive chronic-medication users. A user searches a brand such as “Augmentin 625 Duo” or a lab test such as “HbA1c”. The app resolves the query to its active salt and strength, searches generic and branded pharmacy networks in parallel, extracts real listings, normalises pack sizes to a per-10-tablet basis, and filters out any listing whose strength does not match. Results are shown in three medicine tracks: the PMBJP/Jan Aushadhi government benchmark (Track A), subsidised generic online listings (Track B), and branded express e-pharmacies (Track C). Track D covers diagnostic labs for a four-way view.
+
+The public front door is a light-first 3D welcome page: a full-bleed capsule scene floats over a slow six-colour gradient mesh, an optional local-only profile keeps recent checks in the browser, and one click hands off to the engine.
 
 Above the offers, a savings receipt converts the cheapest strength-matched generic and the branded reference into a plain-language delta: rupees saved per strip, percentage saved, and a user-adjustable monthly/yearly projection. Every offer carries provenance — how it was verified, the source host, the NABL batch when available, and how fresh the price is. Results are shareable through `?q=&pin=&type=` URLs. A real-time stage tracker shows actual pipeline arrivals, not a fake progress bar.
 
 The app also reads a photographed prescription with a dedicated vision model, structures it with a clinical text model, and returns medicines, salts, an English + Hindi dosing schedule and interaction flags. A safety-first DocAI chat answers general medicine questions, routes emergencies to 108/112, and never invents prices. For on-demand confidence, a TinyAgent stealth browser checks pincode stock and locates Jan Aushadhi Kendras inside a non-blocking picture-in-picture dock.
 
-The engineering choices are deliberately honest: live vs demo is always labelled, the strength guard is non-negotiable, model IDs never surface, paid routes are rate-limited, and every AI output is schema-validated. The current build has 42 automated tests, a clean typecheck and production build, and 17/17 checks in a production browser smoke run.
+The engineering choices are deliberately honest: live vs demo is always labelled, the strength guard is non-negotiable, model IDs never surface, paid routes are rate-limited, and every AI output is schema-validated. The current build has 42 automated tests, a clean typecheck and production build, and a production browser smoke covering the welcome, engine, light/dark theme, legacy share redirect and 3D scene.
 
 ---
 
@@ -66,7 +68,7 @@ The engineering choices are deliberately honest: live vs demo is always labelled
 | AI health chatbots | Fluent answers, but often no live prices, no source trail and no transactional guardrails |
 | Manual Jan Aushadhi lookup | Authoritative benchmark, but no live branded comparison or prescription workflow |
 
-MedPulse AI’s differentiator is the **combination**: salt-first matching, three price tracks, a hard strength guard, provenance on every offer, and a trust layer that makes the comparison explainable.
+MedPulse AI’s differentiator is the **combination**: salt-first matching, four price tracks, a hard strength guard, provenance on every offer, and a trust layer that makes the comparison explainable.
 
 ---
 
@@ -76,7 +78,7 @@ MedPulse AI’s differentiator is the **combination**: salt-first matching, thre
 
 A responsive Next.js web application with two surfaces:
 
-- **`/` — welcome:** a 3D hero, optional local-only demo profile/history, and the entry point to the engine. No account is created and no password is stored.
+- **`/` — welcome:** a light-first, full-bleed 3D hero over a slow six-colour fluid mesh, an optional local-only profile/history, and the entry point to the engine. No account is created and no password is stored.
 - **`/engine` — price engine:** the full comparison dashboard. Legacy `/?q=&pin=&type=` links 307-forward here.
 
 The engine:
@@ -110,16 +112,17 @@ The engine:
 
 ### 4.0 Welcome front door (`/`)
 
-**User sees:** a 3D capsule hero, the four-track explanation, quick example searches, an optional “Sign in” card and a “Continue without an account” path.
+**User sees:** a full-bleed, scroll-reactive 3D capsule hero over a light-first six-colour fluid mesh, the four-track explanation, quick example searches, and an account/history panel below the hero with a “Continue without an account” path. The scene responds to drag, pointer parallax and scroll; reduced motion gets a static frame.
 
 **Behaviour:**
 
 - “Enter price engine” opens `/engine`; “See how it works” scrolls the welcome page.
 - Sign-in is a **local-only demo profile**: name/email and up to 30 history entries in localStorage. No password is stored, no account is created, and nothing is sent to a server.
-- The welcome page carries the theme toggle and the same blue/white brand system as the engine.
+- Light is the default on every route; a saved dark preference stays dark. The light mesh uses the six reference palettes (lavender/sky, lime/aqua/royal, cyan/deep blue, orange/coral/blue, violet/peach, yellow/aqua/blue), with a warmer hero overlay. It is low-opacity, CSS-only, hidden in dark mode and frozen under `prefers-reduced-motion`.
+- The welcome page shares the theme toggle, logo and blue brand tokens with the engine.
 - Legacy `/?q=&pin=&type=` URLs 307-forward to `/engine` so old share links still work.
 
-**Files:** `src/app/page.tsx`, `src/components/welcome/*`, `src/lib/welcome-store.ts`, `src/app/welcome.css`.
+**Files:** `src/app/page.tsx`, `src/components/welcome/*` (`WelcomePage`, `WelcomeScene`, `welcome-auth`, `welcome-motion`), `src/lib/welcome-store.ts`, `src/app/welcome.css`, `src/app/ambient.css`, `src/components/SiteAmbient.tsx`.
 
 ### 4.1 Search and clinical salt decoding
 
@@ -127,7 +130,7 @@ The engine:
 
 **Behaviour:**
 
-- The catalog provides instant client-side suggestions for known brands, salt names and lab tests — **350 curated entries**, up to 9 shown. No network or AI call per keystroke.
+- The catalog provides instant client-side suggestions for known brands, salt names and lab tests — **350 curated entries** (298 medicines + 52 labs), up to 9 shown. No network or AI call per keystroke.
 - Selecting a suggestion fills the query and runs the real comparison.
 - “Search ⋯ in live prices anyway” always runs the user’s exact text through the live pipeline.
 - The pipeline resolves a brand to its active salt(s) and strength using the curated catalog first, then the clinical text model.
@@ -273,6 +276,7 @@ The engine:
 **Behaviour:**
 
 - User-triggered only. **Agent Run** verifies every displayed medicine link in one pass; per-offer **Stock unverified - run agent** buttons verify one listing.
+- The first agent action opens the mock **Premium** panel; one click on “Unlock preview — no payment” unlocks the preview and resumes the action (§4.16).
 - **Auto-verify** opens a scope chooser — subsidised generic substitutes, branded express medicines, or all medicine offers — and runs that scope on each live comparison.
 - Stock and lab checks accept up to 10 URLs, with ≤5 concurrent runs. Lab results expose an Agent Run button backed by `kind:"lab"`.
 - The PiP dock renders one live browser tile per active run — a 2-column grid when multiple agents stream in parallel — so every screen is visible during a demo.
@@ -296,15 +300,16 @@ The engine:
 
 **Files:** `src/app/api/locate/route.ts`, `src/components/NavbarPincode.tsx`.
 
-### 4.13 Light/dark theme and branding
+### 4.13 Light/dark theme, ambient mesh and branding
 
-- Dark clinical theme by default; light theme available from the navbar.
-- Theme is applied before first paint and stored under `medpulse:theme` to avoid flash.
+- **Light is the default on every route.** `<html class="light">` is server-rendered; the pre-paint script in `layout.tsx` keeps light unless `medpulse:theme === "dark"`. A saved dark choice wins and is stored under `medpulse:theme`.
+- **Light-mode fluid mesh:** a fixed six-blob gradient behind the whole app plus a warmer hero overlay in `welcome.css`. The six palettes are lavender/sky, lime/aqua/royal, cyan/deep blue, orange/coral/blue, violet/peach and yellow/aqua/blue; they drift and pulse slowly at low opacity, behind content. CSS-only; hidden in dark mode; frozen under `prefers-reduced-motion`; no runtime dependency.
+- The browser `theme-color` follows the toggle (`#f4f6f5` light / `#050607` dark).
 - Brand mark: blue blister grid on a white rounded tile + wordmark, used consistently in the navbar, footer and favicon.
 - Icons/metadata: `icon.svg`, `icon.png`, `apple-icon.png`, `opengraph-image.png`.
-- Palette: near-black surfaces, blue accents — light blue `#0000ff` by default, dark blue `#0041c2` on hover — with Geist + JetBrains Mono. White text on solid blue buttons.
+- Palette: light canvas `#f4f6f5`, dark canvas `#050607`; blue accents — `#0000ff` default, `#0041c2` on hover — with Geist + JetBrains Mono. White text on solid blue buttons.
 
-**Files:** `src/components/ThemeToggle.tsx`, `src/components/Logo.tsx`, `src/app/layout.tsx`, `src/app/globals.css`.
+**Files:** `src/components/ThemeToggle.tsx`, `src/components/Logo.tsx`, `src/app/layout.tsx`, `src/app/globals.css`, `src/app/ambient.css`, `src/components/SiteAmbient.tsx`, `src/app/welcome.css`.
 
 ### 4.14 Empty state and unresolved queries
 
@@ -336,8 +341,8 @@ The live agent is presented as a premium demo feature:
 
 - A gold **Premium** badge in the navbar opens a ₹299/month panel.
 - The first agent touch — Agent Run, per-offer verify, Auto-verify scope, lab run, kendra lookup or the agent console — opens the same panel.
-- One click on **“Unlock preview — no payment”** bypasses the gate and resumes the pending action. The flag is stored in localStorage.
-- No payment, checkout, account or subscription is implemented. This is a mock tier for the hackathon demo.
+- One click on **“Unlock preview — no payment”** bypasses the gate and resumes the pending action. The flag is stored in localStorage under `medpulse:premium-preview:v1`.
+- No payment, checkout, account or subscription is implemented. There are no payment fields and no server record. This is a mock tier for the hackathon demo.
 
 **Files:** `src/components/PremiumModal.tsx`, `src/lib/premium.ts`, `src/app/engine/page.tsx`.
 
@@ -347,11 +352,12 @@ The live agent is presented as a premium demo feature:
 
 ### 5.1 First visit
 
-1. User lands on `/` — the 3D welcome page with an optional local-only demo profile/history.
+1. User lands on `/` — the light-first 3D welcome page with the fluid mesh and an optional local-only demo profile/history.
 2. “Enter price engine” opens `/engine`; no demo query auto-runs.
-3. Empty state explains the three tracks and the real pipeline.
+3. Empty state explains the four tracks (A/B/C/D) and the real pipeline.
 4. Example query pills offer one-tap starts.
 5. Pincode defaults to 110053 and can be changed or located.
+6. The first visit is light; a saved dark preference is honored.
 
 ### 5.2 Search a branded medicine
 
@@ -380,7 +386,7 @@ The live agent is presented as a premium demo feature:
 ### 5.5 Run the live agent
 
 1. User reviews live offers.
-2. User clicks **Agent Run** for all medicine links, **Run generics** / **Run branded** for one column, or the **Stock unverified - run agent** line on a single offer.
+2. User clicks **Agent Run** for all medicine links, **Run generics** / **Run branded** for one column, or the **Stock unverified - run agent** line on a single offer. The first agent action opens the mock Premium panel; “Unlock preview — no payment” resumes the run.
 3. The PiP dock streams one live browser tile per active run (2-column grid for parallel runs); the terminal shows each host and step. The column shows an agent-live strip while the run is active.
 4. Result cards are patched with stock outcomes; lab results use the same Agent Run control with a lab-specific goal.
 5. Auto-verify opens the scope chooser and repeats the chosen scope on later live comparisons.
@@ -428,8 +434,13 @@ Browser (Next.js App Router UI)
 ### 6.4 Caching and state
 
 - In-memory TTL cache (default 1 hour) for extraction/comparison results; unresolved results are not cached.
-- Client settings: `medpulse:pincode`, `medpulse:theme`.
-- No database or server-side auth. The welcome page keeps an optional demo profile/session and history in localStorage; no password is stored.
+- Client storage:
+  - `medpulse:pincode` — delivery pincode.
+  - `medpulse:theme` — `"dark"` opts out of the light default; any other value uses light.
+  - `medpulse:profile:v1`, `medpulse:demo-session`, `medpulse:history:v1` — welcome demo profile and up to 30 history entries; no password is stored.
+  - `medpulse:premium-preview:v1` — mock premium unlock flag.
+- The light ambient mesh is CSS-only and stateless.
+- No database or server-side auth.
 - Rate-limit counters and cache are per serverless instance.
 
 ### 6.5 Failure behaviour
@@ -440,7 +451,9 @@ Browser (Next.js App Router UI)
 
 ### 6.6 Deployment
 
-- Next.js 16 App Router on Vercel.
+- Next.js 16 App Router on Vercel; production domain `https://medpulse-ai-snowy.vercel.app`.
+- Production deploys currently use the linked project via `npx vercel --prod --yes`. Once the Vercel GitHub app is authorized for `Sujal-cyber11/MedPulse`, pushes to `main` can auto-deploy. CLI deploys are atomic: a failed build leaves the previous production live.
+- `.vercelignore` keeps `.env*`, tests, `docs/screenshots/`, `dashboard-3d/`, `AGENTS.md` and `DESIGN.md` out of uploads. Runtime secrets are configured in Vercel, never in the repo.
 - Route handlers run Node.js; `maxDuration` up to 120 s for compare/OCR and 300 s for agent/cart.
 - Environment variables: TinyFish key, AI Gateway key (or Vercel OIDC), mode, default pincode, cache TTL, optional model overrides.
 - `.env.local` is gitignored; environment changes require a new deployment.
@@ -457,11 +470,12 @@ MedPulse-main/
 ├── docs/MASTER_SPEC.md           # this document — PPT-ready master spec
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx              # 3D welcome/landing + legacy-share redirect
+│   │   ├── page.tsx              # light-first 3D welcome + legacy-share redirect
 │   │   ├── engine/page.tsx       # price-engine dashboard + share hydration + empty state
-│   │   ├── welcome.css           # scoped welcome styles + 3D hero layout
-│   │   ├── layout.tsx            # metadata, fonts, theme bootstrap
-│   │   ├── globals.css           # Tailwind v4 tokens, dark/light themes
+│   │   ├── welcome.css           # scoped welcome styles + 3D hero + warm mesh
+│   │   ├── ambient.css           # fixed six-blob light-mode mesh behind the app
+│   │   ├── layout.tsx            # metadata, fonts, light-first theme bootstrap, ambient
+│   │   ├── globals.css           # Tailwind v4 tokens, light/dark themes
 │   │   ├── icon.svg/.png         # brand icons
 │   │   ├── apple-icon.png
 │   │   ├── opengraph-image.png   # social share card
@@ -477,7 +491,8 @@ MedPulse-main/
 │   │       └── suggest/route.ts          # demo suggestions
 │   ├── components/
 │   │   ├── welcome/              # WelcomePage, WelcomeScene (Three.js), auth/motion wiring
-│   │   ├── NavbarPincode.tsx     # logo, pincode, auto-verify scope chooser, theme
+│   │   ├── SiteAmbient.tsx       # six-blob light-mode mesh behind every page
+│   │   ├── NavbarPincode.tsx     # logo, pincode, premium badge, auto-verify scope, theme
 │   │   ├── SearchPanel.tsx       # tabs, typeahead, quick pills
 │   │   ├── CompareProgress.tsx   # real stage tracker/timings
 │   │   ├── ClinicalSaltBanner.tsx# PMBJP benchmark + safety
@@ -487,7 +502,8 @@ MedPulse-main/
 │   │   ├── LabGrid.tsx           # Track D labs
 │   │   ├── PrescriptionDropzone.tsx
 │   │   ├── DocAiDock.tsx
-│   │   ├── LiveAgentPipDock.tsx  # PiP iframe + SSE terminal
+│   │   ├── LiveAgentPipDock.tsx  # parallel PiP browser tiles + SSE terminal
+│   │   ├── PremiumModal.tsx      # mock ₹299 preview gate
 │   │   ├── SplitCartDrawer.tsx
 │   │   ├── UnresolvedPanel.tsx
 │   │   ├── ThemeToggle.tsx
@@ -503,11 +519,13 @@ MedPulse-main/
 │       ├── pricing.ts            # normalisation + strength guard
 │       ├── rate-limit.ts         # per-IP budgets
 │       ├── cache.ts              # in-memory TTL cache
-│       ├── catalog.ts            # local typeahead catalog
+│       ├── catalog.ts            # 350-entry local typeahead catalog (298 meds + 52 labs)
 │       ├── domains.ts            # portal registry
 │       ├── demo-seed.ts          # labelled demo fixtures
 │       ├── schedule.ts           # EN/HI dosing schedule
 │       ├── welcome-store.ts      # local-only demo profile/session/history
+│       ├── premium.ts            # mock premium preview flag
+│       ├── agent-scope.ts        # bulk Agent Run / Auto-verify scope helpers
 │       ├── schemas.ts            # zod contracts
 │       ├── sse.ts / sse-client.ts
 │       ├── compare-client.ts / agent-client.ts
@@ -529,7 +547,12 @@ MedPulse-main/
 | Change provenance display | `src/components/DualTrackGrid.tsx` |
 | Change share URL behaviour | `src/app/engine/page.tsx`, `ShareLinkButton.tsx` |
 | Change the premium gate | `src/components/PremiumModal.tsx`, `src/lib/premium.ts` |
-| Change theme tokens | `src/app/globals.css` |
+| Change theme tokens / default | `src/app/globals.css`, `src/app/layout.tsx` |
+| Change the ambient mesh | `src/app/ambient.css`, `src/app/welcome.css`, `SiteAmbient.tsx` |
+| Change the welcome/history flow | `src/components/welcome/*`, `src/lib/welcome-store.ts` |
+| Change catalog suggestions | `src/lib/catalog.ts` |
+| Change agent scopes | `src/lib/agent-scope.ts`, `NavbarPincode.tsx` |
+| Change deploy ignores | `.vercelignore` |
 
 ---
 
@@ -538,14 +561,15 @@ MedPulse-main/
 | Layer | Technology | Why |
 | --- | --- | --- |
 | Framework | Next.js 16 App Router, TypeScript | Server route handlers + React UI in one deployable; no separate backend |
-| Styling | Tailwind CSS v4, custom `@theme` tokens | Fast, consistent dark/light clinical UI |
+| Styling | Tailwind CSS v4, custom `@theme` tokens | Fast, light-first clinical UI with a dark variant |
+| Ambient background | CSS radial-gradient mesh | Six slow blobs on a fixed layer; no JS or image assets |
 | Icons | lucide-react | Clear, lightweight iconography |
 | 3D | Three.js 0.160 (bundled) | Procedural welcome hero only; no textures or model files |
 | AI | AI SDK v7 + zod v4, Vercel AI Gateway | Unified model routing, schema-validated outputs |
 | Web execution | TinyFish SDK (Search / Fetch / Agent) | Real portal discovery + on-demand stealth-browser verification |
 | Tests | Vitest 5 | Fast unit coverage for pricing, schedules, demo, optimizer, catalog, rate limits |
-| Hosting | Vercel | Serverless route handlers, previews, production aliasing |
-| Persistence | localStorage only | Demo profile/history + settings; no server DB or auth |
+| Hosting | Vercel | Serverless route handlers, previews, production aliasing; CLI deploys, Git auto-deploy once authorized |
+| Persistence | localStorage only | Settings, welcome demo profile/history, mock premium flag; no server DB or auth |
 | Caching | In-memory TTL | Simple, dependency-free; documented as per-instance |
 | Rate limiting | In-memory fixed window | Protects paid routes without external infrastructure |
 
@@ -622,6 +646,8 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 9. **No checkout** — the agent only checks stock; purchases happen on the source site.
 10. **Honest failures** — auto mode falls back to labelled demo; live mode surfaces errors.
 11. **Local demo profile only** — the welcome sign-in is a localStorage demo gate, not authentication; no password is stored and it can be cleared any time.
+12. **Light-first default** — the server renders light; dark is an explicit opt-in and is honored on reload. The ambient mesh is decorative, hidden in dark mode and static under reduced motion.
+13. **Mock premium only** — the ₹299 preview has no payment, account, subscription or server record; the localStorage flag can be cleared at any time.
 
 ---
 
@@ -643,13 +669,17 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Rate limiting | 20 requests → 429 with `Retry-After` in production |
 | OCR | ~27 s baseline → ~5–9 s local; 8.8 s production warm; correct medicines/salts |
 | Cold start | First OCR after idle observed at ~20.3 s |
+| Welcome + engine smoke | `/` 200 (light default), `/engine` 200, legacy `?q=` → 307, 3D canvas active, no console errors |
+| Theme toggle | Light default → dark hides both ambient meshes; the choice survives reload and updates `theme-color` |
+| Ambient mesh | Six site blobs + warm hero overlay; CSS-only; static under reduced motion |
 
 ### 12.2 Engineering proof
 
 - **42/42 Vitest tests** across 6 files: pricing, schedule, demo, optimizer, catalog, rate limits.
 - **TypeScript typecheck:** clean.
 - **Production build:** clean (Next.js 16).
-- **Production browser smoke (external harness):** 17/17 checks, including empty state, example pills, live badge, real stage timings, savings receipt, provenance, copy link, share-link rehydration, and rate limiting.
+- **Production smoke (latest):** `/` and `/engine` return 200; the welcome is light by default; the dark toggle hides both ambient meshes and persists; the 3D canvas is active; the legacy share URL 307-forwards; no console errors.
+- **Earlier engine-flow harness:** 17/17 checks on the pre-welcome build (empty state, example pills, live badge, real stage timings, savings receipt, provenance, copy link, share-link rehydration, rate limiting). Kept as historical evidence; recapture the deck against the current light-first build.
 
 ### 12.3 What the numbers mean
 
@@ -664,6 +694,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Dimension | MedPulse AI |
 | --- | --- |
 | Matching unit | Active salt + strength, not just brand name |
+| First impression | Light-first 3D welcome hero with a CSS-only six-colour mesh and local-only history |
 | Price tracks | Government benchmark + generic + branded + labs in one view |
 | Fairness | Per-10-tablet normalisation + hard strength guard |
 | Trust | Provenance, freshness, live/demo labels, real stage timings |
@@ -685,20 +716,20 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 - **Length:** 10–12 slides (12 recommended).
 - **Tone:** evidence-led, confident, honest; no hype or invented traction.
 - **Aspect ratio:** 16:9.
-- **Visual style:** near-black surfaces, blue accents (light blue `#0000ff` default, dark blue `#0041c2` hover), mono data labels; match the product’s dark clinical aesthetic. Use screenshots where possible.
+- **Visual style:** light-first canvas (`#f4f6f5`) with a soft six-colour gradient mesh, blue accents (`#0000ff` default, `#0041c2` hover), mono data labels; dark variant available via the toggle. Lead with light screenshots and include one dark frame.
 - **Rule:** every number slide must cite “observed in a live run” or “measured in testing”.
 
 ### 14.2 12-slide outline
 
-1. **Title** — MedPulse AI; “One search. Three price tracks. Real provenance.” Team names. Product URL/QR.
+1. **Title** — MedPulse AI; “One search. Four ways to compare. Real provenance.” Team names. Product URL/QR.
 2. **The problem** — same salt, wildly different prices; fragmented portals; unfair pack comparisons; prescription friction; trust gap.
 3. **The insight** — compare the active salt and strength, not the brand; normalise to 10 tablets; guard the dose.
-4. **Welcome → engine** — show the 3D welcome hero and local-only history, then the annotated engine dashboard: search, three tracks, savings receipt, provenance, timings.
+4. **Welcome → engine** — show the light-first 3D welcome hero with the fluid mesh and local-only history, then the annotated engine dashboard: search, four tracks (A/B/C/D), savings receipt, provenance, timings.
 5. **How it works** — simple two-wave architecture diagram: resolve → search/fetch → extract → guard → results; on-demand agent.
 6. **The trust layer** — savings receipt, provenance chips, share links, real timings, honest empty state.
 7. **Prescription intelligence** — photo → vision transcription → clinical structuring → EN/HI schedule + interactions; show the OCR result screenshot.
 8. **Agent Run** — one click verifies every displayed medicine/lab link; show the parallel PiP browser tiles and terminal, plus the Auto-verify scope chooser (generics / branded / all). “No checkout, no login”.
-9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 42 tests; 17/17 production checks; OCR 27s → 5–9s. Caveat label.
+9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 42 tests; clean typecheck/build; production smoke passed; OCR 27s → 5–9s. Caveat label.
 10. **Safety & reliability** — strength guard, live/demo honesty, rate limits, schema validation, no model IDs, disclaimers.
 11. **Differentiation, premium & roadmap** — comparison table; the mock ₹299/month Premium tier with one-click preview; roadmap: PWA/offline, voice EN/HI, OCR streaming, richer interaction checks, shared rate-limit store, more portals.
 12. **Close** — “From prescription to fair price, with the receipts.” Links: production URL + repo. Thank you.
@@ -711,7 +742,8 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Apple icon | `src/app/apple-icon.png` |
 | Social card | `src/app/opengraph-image.png` |
 | Logo lockup | Render from `src/components/Logo.tsx` or screenshot the navbar |
-| Welcome hero | `docs/screenshots/00-welcome-dark.png` + `00-welcome-light.png` (captured) |
+| Welcome hero | `docs/screenshots/00-welcome-light.png` + `00-welcome-dark.png`; recapture the light hero after the ambient-mesh update |
+| Light dashboard + states | `docs/screenshots/light-engine-empty.png`, `light-results-progress.png`, `light-results-full.png`, `light-receipt.png`, `light-rx-full.png`, `light-welcome.png` (captured; recapture if the ambient changes) |
 | Dashboard empty state | `docs/screenshots/01-empty-dark.png` (captured) |
 | Live results + savings receipt | `docs/screenshots/02-results-dark.png` + `03-receipt-dark.png` (captured from a live Augmentin 625 Duo run) |
 | OCR result | `docs/screenshots/04-ocr-dark.png` (captured from a live OCR run) |
@@ -721,18 +753,19 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Expanded catalog dropdown | `docs/screenshots/13-catalog-dropdown.png` (captured) |
 | Agent PiP | Pending — capture as `05-agent-pip-dark.png` from a user-triggered run |
 | Share link | Pending — capture as `08-share-light.png` |
-| Light theme | `docs/screenshots/06-empty-light.png` (captured) |
+| Light theme | `docs/screenshots/06-empty-light.png` (captured; light is now the default) |
 | Palette hover | `docs/screenshots/07-hover-dark.png` (captured; dark-blue hover `#0041c2`) |
 | Architecture diagram | Recreate from §6.1; keep it to 5 boxes + 2 arrows |
 
-> Final deck captures belong in `docs/screenshots/` — see its README for the capture standard and planned filenames. Use fresh 1440px captures after the blue palette update. Earlier smoke screenshots in `C:\Users\Administrator\AppData\Local\Temp\opencode\medpulse-e2e\` predate the palette change; do not use them in the final deck.
+> Final deck captures belong in `docs/screenshots/` — see its README for the capture standard and planned filenames. Use fresh 1440px captures after the light-first ambient update. The product defaults to light, so lead with light captures and include one dark frame from the toggle. Earlier smoke screenshots in `C:\Users\Administrator\AppData\Local\Temp\opencode\medpulse-e2e\` predate the palette/ambient changes; do not use them in the final deck.
 
 ### 14.4 Claims to use / avoid
 
 **Use:**
 
 - “Observed 65.3% lower than the branded reference in a live run.”
-- “42 automated tests; 17/17 production browser checks.”
+- “42 automated tests; clean typecheck/build; production smoke covering welcome, engine, theme and share redirects.”
+- “Light-first 3D welcome with a six-colour CSS mesh; dark mode preserved.”
 - “Structured prescription output with an English + Hindi schedule.”
 - “Strength-guarded, per-10-tablet comparison.”
 - “Live and demo data are always labelled.”
@@ -759,9 +792,11 @@ Key constraints:
 - Never invent metrics, customers, revenue, funding, partnerships or clinical claims.
 - Label every performance/savings number as "observed in a live run" or "measured in testing".
 - Do not claim PWA/offline support, guarantees, or regulatory certification.
-- Use the product's dark clinical aesthetic: near-black surfaces, blue accents
-  (light blue #0000ff default, dark blue #0041c2 on hover), Geist-style sans for
-  headings, JetBrains Mono for data labels.
+- The Premium tier is a mock ₹299 preview: no payment, account, subscription or revenue.
+- Use the product's light-first clinical aesthetic: a soft six-colour gradient
+  mesh on a light canvas, blue accents (#0000ff default, #0041c2 hover),
+  Geist-style sans for headings, JetBrains Mono for data labels. Include one
+  dark-mode frame for the toggle.
 - Include the strength guard, per-10-tablet normalisation, live/demo honesty,
   provenance, savings receipt, shareable links, real stage timings, Agent Run
   (all listings) and Auto-verify (generics / branded / all).
@@ -778,19 +813,20 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 
 1. Warm the OCR endpoint with one throwaway scan (first call after idle can be slow).
 2. Confirm the production deployment is live and the pincode is 110053 (or the demo city).
-3. Clear the browser console; keep one tab on `/` (welcome) and one on `/engine`.
-4. Have a prescription image ready; avoid sensitive real patient data.
-5. Know the fallback: if live fails, the app labels demo data honestly — do not hide it.
+3. Confirm the app is in **light mode** (fresh profile or the navbar toggle). Light is the default; keep a dark tab if you plan to show the toggle.
+4. Clear the browser console; keep one tab on `/` (welcome) and one on `/engine`.
+5. Have a prescription image ready; avoid sensitive real patient data.
+6. Know the fallback: if live fails, the app labels demo data honestly — do not hide it.
 
 **Flow**
 
-1. **Welcome + empty state (35 s):** show the 3D hero and local-only profile/history, click “Enter price engine”; explain the three tracks, example pills, and “real stages, no fake progress”.
+1. **Welcome + empty state (35 s):** show the light-first 3D hero and fluid mesh, the local-only profile/history below, then click “Enter price engine”; explain the four tracks (A/B/C/D), example pills, and “real stages, no fake progress”.
 2. **Search Augmentin 625 Duo (90 s):** run it; narrate the real stage panel; point out the strength guard.
 3. **Results + receipt (60 s):** show per-10-tablet prices, savings receipt, provenance, freshness.
 4. **Share (20 s):** copy the link; open it in a new tab; show it rehydrates.
 5. **Prescription OCR (60 s):** upload the image; show medicines, salts, EN/HI schedule, disclaimer.
-6. **Agent Run (45 s):** click Agent Run for all listings, or Auto-verify → subsidised generic substitutes; show the parallel PiP browser tiles and terminal; note “no login, no checkout”.
-7. **Close (25 s):** recap the trust layer, 42 tests, 17/17 checks; point to the repo and production URL.
+6. **Agent Run (45 s):** click Agent Run for all listings, or Auto-verify → subsidised generic substitutes; the mock Premium panel appears first — click “Unlock preview — no payment” to resume. Show the parallel PiP browser tiles and terminal; note “no login, no checkout”.
+7. **Close (25 s):** recap the trust layer, 42 tests, clean build and latest production smoke; point to the repo and production URL.
 
 ---
 
@@ -806,6 +842,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 
 **Platform**
 
+- CI/CD: connect the Vercel Git integration for push-to-deploy (production currently ships via the CLI).
 - Shared rate-limit/cache store (Vercel KV/Redis) for multi-instance correctness.
 - More generic/lab portals and city-level stock coverage.
 - Structured feedback loop for strength-guard edge cases.
@@ -833,6 +870,8 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 | **Provenance** | Evidence of how a price was obtained and when. |
 | **Live / demo** | Real data vs clearly labelled fixtures. |
 | **Local demo profile** | Browser-only welcome sign-in gate for saved history; not real auth, no password stored. |
+| **Ambient mesh** | CSS-only six-blob light-mode background; hidden in dark, static under reduced motion. |
+| **Premium preview** | Mock ₹299/month gate; localStorage unlock, no payment or account. |
 | **NABL** | Indian accreditation for testing/calibration labs. |
 
 ---
