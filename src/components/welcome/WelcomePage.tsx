@@ -66,6 +66,13 @@ export function WelcomePage() {
 
       <main id="main">
         <section className="hero" id="top">
+          <div className="hero-ambient" aria-hidden="true">
+            <span className="hero-blob hero-blob-1" />
+            <span className="hero-blob hero-blob-2" />
+            <span className="hero-blob hero-blob-3" />
+            <span className="hero-ambient-scrim" />
+          </div>
+
           <div className="hero-copy wrap">
             <p className="eyebrow">
               <span className="eyebrow-long">Track A PMBJP · B Generics · C Branded · D Labs</span>

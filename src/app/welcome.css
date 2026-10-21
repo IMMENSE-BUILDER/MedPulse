@@ -9,15 +9,11 @@
   font-size: 15px;
   line-height: 1.5;
   color: var(--color-ink);
-  background:
-    radial-gradient(900px 520px at 62% -120px, rgba(0, 65, 194, 0.16), transparent 70%),
-    var(--color-canvas);
 }
 
-html.light .welcome-root {
-  background:
-    radial-gradient(900px 520px at 62% -120px, rgba(0, 65, 194, 0.09), transparent 70%),
-    var(--color-canvas);
+/* Dark mode keeps the original blue glow instead of the light-mode mesh. */
+html:not(.light) .welcome-root {
+  background: radial-gradient(900px 520px at 62% -120px, rgba(0, 65, 194, 0.16), transparent 70%);
 }
 
 .welcome-root.motion-on .reveal {
@@ -335,6 +331,105 @@ html.light .welcome-root .nav {
   text-align: center;
   transform: translate3d(0, calc(var(--hero-p, 0) * -28px), 0);
   opacity: calc(1 - var(--hero-fade, 0) * 0.95);
+}
+
+/* ---- fluid light-mode hero mesh ----------------------------------------- */
+
+.welcome-root .hero-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: calc(1 - var(--hero-fade, 0) * 0.55);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
+}
+
+html:not(.light) .welcome-root .hero-ambient {
+  display: none;
+}
+
+.welcome-root .hero-blob {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: var(--hero-blob-opacity, 0.2);
+  will-change: transform;
+  animation:
+    hero-drift 36s ease-in-out infinite alternate,
+    hero-breathe 28s ease-in-out infinite;
+}
+
+.welcome-root .hero-blob-1 {
+  top: -18%;
+  left: -10%;
+  width: min(58vw, 920px);
+  --hero-blob-opacity: 0.22;
+  background: radial-gradient(circle at 38% 38%, #ff8a3d 0%, #ff9a6b 28%, #2f6cf0 76%, transparent 92%);
+  animation-duration: 38s, 28s;
+}
+
+.welcome-root .hero-blob-2 {
+  top: 0;
+  right: -14%;
+  width: min(52vw, 840px);
+  --hero-blob-opacity: 0.18;
+  background: radial-gradient(circle at 45% 45%, #b78cf5 0%, #a06cf0 42%, #ffc59a 82%, transparent 94%);
+  animation-duration: 44s, 34s;
+  animation-delay: -9s, -5s;
+}
+
+.welcome-root .hero-blob-3 {
+  bottom: -22%;
+  left: 14%;
+  width: min(50vw, 820px);
+  --hero-blob-opacity: 0.16;
+  background: radial-gradient(circle at 40% 40%, #f2d64a 0%, #66c6d9 55%, #2a67e8 86%, transparent 96%);
+  animation-duration: 40s, 32s;
+  animation-delay: -16s, -11s;
+}
+
+.welcome-root .hero-ambient-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(56% 48% at 50% 24%, rgba(250, 251, 255, 0.86), rgba(250, 251, 255, 0.46) 58%, transparent 78%);
+}
+
+@keyframes hero-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 3%, 0) scale(1.07);
+  }
+}
+
+@keyframes hero-breathe {
+  0%,
+  100% {
+    opacity: var(--hero-blob-opacity, 0.2);
+  }
+  50% {
+    opacity: calc(var(--hero-blob-opacity, 0.2) * 1.45);
+  }
+}
+
+@media (max-width: 640px) {
+  .welcome-root .hero-blob {
+    filter: blur(58px);
+  }
+
+  .welcome-root .hero-blob-3 {
+    --hero-blob-opacity: 0.12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-root .hero-blob {
+    animation: none;
+  }
 }
 
 .welcome-root .eyebrow {

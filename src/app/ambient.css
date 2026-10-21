@@ -1,0 +1,147 @@
+/* Site-wide fluid gradient mesh — light mode only.
+   Six blurred blobs keep the palette moving very slowly behind the app. The
+   engine's cards and the welcome panels stay opaque, so this is only ever a
+   tint in the gaps. Dark mode keeps the original near-black canvas. */
+
+.site-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-canvas);
+}
+
+html:not(.light) .site-ambient {
+  display: none;
+}
+
+.site-blob {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: var(--blob-opacity, 0.14);
+  will-change: transform;
+  animation:
+    site-drift 38s ease-in-out infinite alternate,
+    site-breathe 30s ease-in-out infinite;
+}
+
+/* Cool trio — dominant on the main site (lavender / lime-aqua / cyan-blue). */
+.site-blob-1 {
+  top: -20%;
+  left: -12%;
+  width: min(62vw, 1100px);
+  --blob-opacity: 0.17;
+  background: radial-gradient(circle at 35% 35%, #c9d6ff 0%, #e7efff 45%, transparent 72%);
+  animation-duration: 42s, 32s;
+}
+
+.site-blob-2 {
+  top: 4%;
+  right: -18%;
+  width: min(58vw, 1000px);
+  --blob-opacity: 0.15;
+  background: radial-gradient(circle at 45% 45%, #c7ec7a 0%, #7fd6cf 46%, #3e6cf3 78%, transparent 92%);
+  animation-duration: 36s, 28s;
+  animation-delay: -9s, -6s;
+}
+
+.site-blob-3 {
+  bottom: -30%;
+  left: 8%;
+  width: min(55vw, 980px);
+  --blob-opacity: 0.14;
+  background: radial-gradient(circle at 45% 45%, #eaf7ff 0%, #4fe0ef 24%, #1a4fd6 68%, transparent 90%);
+  animation-duration: 46s, 34s;
+  animation-delay: -16s, -12s;
+}
+
+/* Warm accents — present everywhere at low strength (orange / violet / yellow). */
+.site-blob-4 {
+  top: 38%;
+  left: 32%;
+  width: min(38vw, 720px);
+  --blob-opacity: 0.08;
+  background: radial-gradient(circle at 40% 40%, #ff8a3d 0%, #ff9a6b 30%, #2f6cf0 76%, transparent 92%);
+  animation-duration: 40s, 26s;
+  animation-delay: -5s, -3s;
+}
+
+.site-blob-5 {
+  right: 6%;
+  bottom: -4%;
+  width: min(44vw, 780px);
+  --blob-opacity: 0.08;
+  background: radial-gradient(circle at 45% 45%, #b78cf5 0%, #a06cf0 42%, #ffc59a 82%, transparent 94%);
+  animation-duration: 48s, 36s;
+  animation-delay: -20s, -15s;
+}
+
+.site-blob-6 {
+  top: -10%;
+  left: 38%;
+  width: min(36vw, 680px);
+  --blob-opacity: 0.07;
+  background: radial-gradient(circle at 40% 40%, #f2d64a 0%, #66c6d9 55%, #2a67e8 86%, transparent 96%);
+  animation-duration: 44s, 30s;
+  animation-delay: -12s, -8s;
+}
+
+.site-ambient-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 60% at 50% 0%, rgba(250, 251, 255, 0.5), transparent 70%),
+    linear-gradient(180deg, rgba(250, 251, 255, 0.24), rgba(250, 251, 255, 0.34));
+}
+
+.site-ambient-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+@keyframes site-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4%, 3%, 0) scale(1.08);
+  }
+}
+
+@keyframes site-breathe {
+  0%,
+  100% {
+    opacity: var(--blob-opacity, 0.14);
+  }
+  50% {
+    opacity: calc(var(--blob-opacity, 0.14) * 1.55);
+  }
+}
+
+@media (max-width: 640px) {
+  .site-blob {
+    filter: blur(58px);
+  }
+
+  .site-blob-5,
+  .site-blob-6 {
+    display: none;
+  }
+
+  .site-blob-4 {
+    opacity: 0.06;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-blob {
+    animation: none;
+  }
+}

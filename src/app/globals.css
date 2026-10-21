@@ -20,9 +20,14 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-html,
-body {
+html {
   background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* Transparent so the fixed light-mode mesh in ambient.css can sit behind the app. */
+body {
+  background: transparent;
   color: var(--color-ink);
 }
 

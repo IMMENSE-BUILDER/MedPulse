@@ -5,7 +5,7 @@ Final captures for the PPT live here. Re-capture after any UI change.
 ## Capture standard
 
 - **Viewport:** 1440 × 900 (desktop), device scale factor 2.
-- **Themes:** dark by default; include one light-theme frame.
+- **Themes:** light by default; include a dark frame from the toggle for comparison.
 - **Palette:** primary blue `#0000ff`; button hover dark blue `#0041c2`.
 - **Data:** live results where possible; otherwise use demo data and keep the visible `DEMO DATA` label.
 - **Privacy:** use only the test prescription; never capture real patient data.

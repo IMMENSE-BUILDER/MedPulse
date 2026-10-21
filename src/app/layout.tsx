@@ -1,6 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { SiteAmbient } from "@/components/SiteAmbient";
 import "./globals.css";
+import "./ambient.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://medpulse-ai-snowy.vercel.app"),
@@ -19,14 +21,18 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#f4f6f5",
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="light">
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html:
-              'try{if(localStorage.getItem("medpulse:theme")==="light")document.documentElement.classList.add("light")}catch(e){}',
+              'try{if(localStorage.getItem("medpulse:theme")==="dark")document.documentElement.classList.remove("light");else document.documentElement.classList.add("light")}catch(e){document.documentElement.classList.add("light")}',
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,7 +42,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-dvh bg-canvas font-sans text-ink antialiased">{children}</body>
+      <body className="min-h-dvh font-sans text-ink antialiased">
+        <SiteAmbient />
+        {children}
+      </body>
     </html>
   );
 }

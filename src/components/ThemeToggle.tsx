@@ -23,6 +23,9 @@ export function ThemeToggle() {
     } catch {
       /* storage unavailable — theme still applies for this session */
     }
+    // Keep the mobile browser chrome in step with the app theme.
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", next ? "#f4f6f5" : "#050607");
     // The welcome page's Three.js scene listens for this to retune lighting.
     window.dispatchEvent(new CustomEvent("medpulse:theme", { detail: { light: next } }));
     setLight(next);
