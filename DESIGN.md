@@ -218,6 +218,15 @@ The design system employs a refined, compact corner radius (`roundedness: 1`).
 - **Status / Savings (Emerald)**: `#000000` or `#0a0a0a` background with a 1px hairline border of `rgba(16, 185, 129, 0.3)`. Text is `#10b981` rendered in `label-sm` (`JetBrains Mono`). Accompanied by a solid 6px emerald circle ping.
 - **Neutral Chip**: `#121212` fill, `#27272a` hairline border, `#a1a1aa` mono text.
 
+### Trust & provenance surfaces
+- **Savings receipt**: one panel per comparison, driven only by real per-10-tab offers. The delta uses mono/emerald emphasis; the “per 10-tab strip” basis is always explicit. Monthly/yearly values are projections from the user-adjustable strips-per-month control and must be labelled as projections. Never render the receipt when there is no positive real delta. Copy receipt is a ghost action with a transient confirmation.
+- **Provenance chips**: every offer shows how it was verified (`verified_by`), the source host as an outbound link with an external-link icon, the NABL batch when present, and “as of …” freshness. Demo fixtures must read “demo fixture”; unverified stock reads “Stock unverified — run agent”. Never hide that a price is a demo fixture.
+- **Share link**: a ghost pill in each result header. The URL carries `q`, `pin` and `type`; the copy action shows a transient “Link copied” state.
+- **Real progress**: stage list with timestamps measured from actual SSE arrivals and a total; the completed panel may stay visible. Never show simulated steps or invented timings.
+
+### Empty states
+- The pre-search state explains the real pipeline in plain language and offers example-query pills that actually run. Never fake a progress bar or placeholder prices. If a query cannot be decoded, show honest alternatives from real search results instead of a dead end.
+
 ### Form Inputs
 - **Text Fields**: Pitch surface `#0a0a0a`, 1px border `#27272a`, `#ffffff` text, `#71717a` placeholder. 
 - **Focus State**: 1px solid border `#ffffff` (or active `#3f3f46`) with zero outer ring glow. Sharp, immediate transition.

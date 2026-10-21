@@ -7,7 +7,7 @@
 
 Two core engineering challenges:
 1. **Clinical Salt Decoding** — mapping expensive prescribed brand names to their exact WHO-GMP active salt composition.
-2. **Two-Wave Progressive Execution** — sub-3-second zero-cost price discovery in **Wave 1** (`TinySearch` + `TinyFetch` + AI extraction), then on-demand streaming stealth-browser verification (`TinyAgent`) rendered inside a Picture-in-Picture `<iframe>` dock in **Wave 2**.
+2. **Two-Wave Progressive Execution** — progressive, zero-TinyAgent-spend price discovery in **Wave 1** (`TinySearch` + `TinyFetch` + AI extraction), then on-demand streaming stealth-browser verification (`TinyAgent`) rendered inside a Picture-in-Picture `<iframe>` dock in **Wave 2**. Latency is whatever the real network + models take; never advertise a fixed latency guarantee.
 
 ## 2. Tech Stack & Core Dependencies
 - **Framework:** Next.js 16 (App Router, TypeScript, Route Handlers). No Server Actions — the API surface is explicit route handlers.
@@ -22,17 +22,18 @@ Two core engineering challenges:
   MEDPULSE_MODE=auto                # auto | demo | live
   DEFAULT_PINCODE=110053
   CACHE_TTL_SECONDS=3600
+  # VISION_MODEL / TEXT_MODEL       # optional overrides; never expose these IDs
   ```
 
 ## 3. Strict Dual-Model AI Routing (CRITICAL)
 All LLM calls go through `src/lib/ai-router.ts` and the Vercel AI Gateway. **Never mix the models up.**
 
-> Model IDs are **env-configured** (defaults in `src/lib/env.ts`, override via `VISION_MODEL` / `TEXT_MODEL`) and are **never surfaced in the UI or API responses** — no badges, no footers, no `/api/health` fields. Never hardcode a model ID outside `src/lib/env.ts` defaults.
+> Model IDs are **env-configured** (defaults in `src/lib/env.ts`, override via `VISION_MODEL` / `TEXT_MODEL`) and are **never surfaced in the UI, API responses or documentation** — no badges, no footers, no `/api/health` fields, no README/DESIGN examples. Never hardcode a model ID outside `src/lib/env.ts` defaults.
 
 ### A. Vision model (`VISION_MODEL`) — prescription OCR
 - **Only** for uploaded prescription images (`/api/ocr`, `visionExtractRx`). Never for text/JSON tasks.
 - Output: raw transcription + rough medicine lines, handed to the text model.
-- OCR pins `reasoning: "none"` on **both** legs (`visionExtractRx` and the Rx `structureRx` call) via `generateValidated`. Both models are reasoning models; leaving reasoning on adds ~6 s (vision) and ~10–20 s (structuring) of hidden thinking without improving the output. Do not remove this without benchmarking — it is the main OCR latency lever.
+- OCR pins `reasoning: "none"` on **both** legs (`visionExtractRx` and the Rx `structureRx` call) via `generateValidated`. The structuring leg is still the text model doing JSON — only its reasoning setting changes. The default models are reasoning models; leaving reasoning on adds ~6 s (vision) and ~10–20 s (structuring) of hidden thinking without improving the output. Do not remove this without benchmarking — it is the main OCR latency lever.
 - The OCR response must never include the model name/ID (no `models` field) — see §7.12.
 
 ### B. Text model (`TEXT_MODEL`) — clinical reasoning / salt mapping / JSON
@@ -44,7 +45,7 @@ All LLM calls go through `src/lib/ai-router.ts` and the Vercel AI Gateway. **Nev
 ## 4. TinyFish Escalation & Cost-Control Rules
 Protect the prepaid wallet (`$0.016/step` for TinyAgent). Enforce the **Two-Wave pattern**:
 
-### Wave 1 — zero-cost discovery (always on)
+### Wave 1 — zero-TinyAgent discovery (always on)
 1. `tf.search.query()` — `location: "IN"`, always pass a `purpose`. Branded portals queried by **brand name**; generic portals by **chemical salt**; labs (Track D) by **test/package name**.
 2. `tf.fetch.getContents()` — batch ≤10 URLs, `format: "markdown"`, `ttl` 3600. Per-URL extraction results are cached 1 hr (`x:<url>` keys).
 3. Progress is streamed **for real** — the compare pipeline emits live stage events (`resolve → search → fetch → extract → guard`, unresolved queries add `suggest`) through `POST /api/compare-stream` (`jsonSseResponse`). STAGE frames carry actual counts (listings, portals, pages, failed batches). Never simulate progress.
@@ -125,9 +126,10 @@ MedPulse-main/
 │       ├── schemas.ts                  # zod contracts (PRD §9 shapes)
 │       ├── agent-client.ts             # Browser-side SSE reader (agent-stream)
 │       ├── compare-client.ts           # Browser-side SSE reader (compare-stream)
-│       ├── sse-client.ts               # Shared SSE frame parser
-│       └── hooks: src/hooks/useAgentStream.ts
-├── tests/                              # Vitest: pricing, schedule, demo, optimizer
+│       └── sse-client.ts               # Shared SSE frame parser
+├── tests/                              # Vitest: pricing, schedule, demo, optimizer, catalog, rate limits (42)
+├── README.md                           # User/API/deploy docs — keep in sync with shipped behavior
+├── DESIGN.md                           # Design-system reference for the UI surfaces
 └── .env.local / .env.example
 ```
 
@@ -143,7 +145,7 @@ MedPulse-main/
 9. **Real progress only:** `/api/compare-stream` emits real pipeline stage events with actual counts — the tracker (`CompareProgress`) must never display simulated or fabricated steps. The completed panel may stay visible with its real arrival timings, always labelled as measured in the browser.
 10. **Typeahead suggestions are local + honest:** the search dropdown filters the curated catalog (`src/lib/catalog.ts`) client-side — instant, no network, no AI call per keystroke. Selecting a suggestion fills the box and runs the real compare; the **"Search ⋯ in live prices anyway"** row always runs the user's exact text through the live pipeline. Never invent suggestion names from the network here, and never present catalog hints as live prices.
 11. **Light/dark theme:** `ThemeToggle` (navbar top-right corner) toggles `light` on `<html>`; the initial theme is applied before first paint by the inline script in `layout.tsx` and stored under `medpulse:theme`. Light palette lives in `globals.css` as `html.light` token overrides — add new colors as tokens, never as per-component hardcoded values.
-12. **Never surface model IDs:** no badges, footers, dock chips or API response fields may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3).
+12. **Never surface model IDs:** no badges, footers, dock chips, API response fields or docs may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3). The OCR response in particular must not contain a `models` field.
 13. **Branding & icons:** the brand mark is the blister-grid lockup rendered by `Logo.tsx` (navbar + footer) — never re-create the badge or wordmark inline. Tab/app/social icons are file-based app metadata: `icon.svg` / `icon.png` / `apple-icon.png` / `opengraph-image.png`. If the logo ever changes, regenerate those files (the generator lives outside the repo in the logos demo workspace).
 14. **Shareable results:** `page.tsx` keeps `?q=&pin=&type=` in the address bar via `history.replaceState` after every successful comparison, and hydrates those params on boot (skipping the demo auto-query). `ShareLinkButton` copies the current URL. Never break a shared link — a missing `/api/health` response must not block hydration.
 15. **Provenance is visible:** every offer card shows how it was verified (`verified_by`, or "demo fixture"), the source host as an outbound link, the NABL batch when present, and "as of …" from the comparison's `generated_at`. Never hide that demo prices are fixtures.
@@ -160,6 +162,8 @@ MedPulse-main/
 ## 9. Never Do
 - Never hardcode API keys in source (`.env.local` only, gitignored).
 - Never call the vision model for text tasks or the text model for images.
+- Never surface model IDs in the UI, API responses or docs; never re-add a `models` field to the OCR response.
+- Never remove the OCR `reasoning: "none"` pins without re-benchmarking both OCR legs.
 - Never auto-run TinyAgent outside the Auto-verify toggle / user click; never log in or checkout with the agent.
 - Never present demo numbers as live; always keep `data_source` accurate.
 - Never bypass the strength guard (`strengthOk`) — a 500 mg listing must not appear for a 650 mg query.
