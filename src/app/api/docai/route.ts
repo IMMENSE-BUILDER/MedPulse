@@ -8,6 +8,7 @@
 import { docaiChat } from "@/lib/ai-router";
 import { apiErrorResponse, assertLiveConfig, validationResponse } from "@/lib/errors";
 import { env, gatewayAuthMode } from "@/lib/env";
+import { guard } from "@/lib/rate-limit";
 import { DocAiRequestSchema } from "@/lib/schemas";
 
 export const runtime = "nodejs";
@@ -20,6 +21,8 @@ const DEMO_REPLY =
   "Glycomet SR 500 and Pan 40.";
 
 export async function POST(req: Request) {
+  const limited = guard(req, "docai");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await req.json();

@@ -15,6 +15,7 @@ import { env, hasTinyFish, liveAgentEnabled } from "@/lib/env";
 import { assertLiveConfig, apiErrorResponse, validationResponse } from "@/lib/errors";
 import { hostOf } from "@/lib/format";
 import { runPool } from "@/lib/pool";
+import { guard } from "@/lib/rate-limit";
 import { AgentStreamRequestSchema, type AgentEvent, type Kendra, type StockCheck } from "@/lib/schemas";
 import { agentSseResponse } from "@/lib/sse";
 
@@ -24,6 +25,8 @@ export const maxDuration = 300;
 type Send = (event: AgentEvent) => void;
 
 export async function POST(req: Request) {
+  const limited = guard(req, "agent");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await req.json();

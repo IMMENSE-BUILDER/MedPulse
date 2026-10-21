@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Bot, Building2, HeartPulse, Loader2, ShieldCheck } from "lucide-react";
 import { inr, pct } from "@/lib/format";
+import { ShareLinkButton } from "@/components/ShareLinkButton";
 import type { DualTrackComparison, Kendra } from "@/lib/schemas";
 
 export function ClinicalSaltBanner({
@@ -36,13 +37,16 @@ export function ClinicalSaltBanner({
             Save up to {pct(cmp.best_savings_percent)} with generics
           </span>
         ) : null}
-        <span
-          className={`ml-auto rounded-full border px-2.5 py-1 text-[10px] ${
-            cmp.data_source === "live" ? "border-brand/40 bg-brand/10 text-brand-2" : "border-warn/40 bg-warn/10 text-warn"
-          }`}
-        >
-          {cmp.data_source === "live" ? "LIVE DATA" : "DEMO DATA"}
-        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <ShareLinkButton />
+          <span
+            className={`rounded-full border px-2.5 py-1 text-[10px] ${
+              cmp.data_source === "live" ? "border-brand/40 bg-brand/10 text-brand-2" : "border-warn/40 bg-warn/10 text-warn"
+            }`}
+          >
+            {cmp.data_source === "live" ? "LIVE DATA" : "DEMO DATA"}
+          </span>
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">

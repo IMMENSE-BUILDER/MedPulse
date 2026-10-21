@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Bot, Pill, Wallet } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ClinicalSaltBanner } from "@/components/ClinicalSaltBanner";
 import { CompareProgress } from "@/components/CompareProgress";
@@ -11,6 +11,7 @@ import { LiveAgentPipDock } from "@/components/LiveAgentPipDock";
 import { Logo } from "@/components/Logo";
 import { NavbarPincode } from "@/components/NavbarPincode";
 import { PrescriptionDropzone } from "@/components/PrescriptionDropzone";
+import { SavingsReceipt } from "@/components/SavingsReceipt";
 import { SearchPanel } from "@/components/SearchPanel";
 import { SplitCartDrawer } from "@/components/SplitCartDrawer";
 import { UnresolvedPanel } from "@/components/UnresolvedPanel";
@@ -64,6 +65,24 @@ function toBase64(buffer: ArrayBuffer): string {
     binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
   }
   return btoa(binary);
+}
+
+/**
+ * Keep the address bar in sync with the current comparison so a result can be
+ * shared (or bookmarked) and rehydrated on the next visit. Uses replaceState —
+ * no navigation, no history spam.
+ */
+function writeShareUrl(track: Track, query: string, pincode: string): void {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", query);
+    url.searchParams.set("pin", pincode);
+    if (track === "lab") url.searchParams.set("type", "lab");
+    else url.searchParams.delete("type");
+    window.history.replaceState(null, "", url.toString());
+  } catch {
+    /* history unavailable — sharing still works via the current URL */
+  }
 }
 
 export default function Home() {
@@ -225,6 +244,7 @@ export default function Home() {
           setKendras(null);
           autoRef.current = null;
         }
+        writeShareUrl(t, search, pin ?? pincode);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Network error.");
       } finally {
@@ -239,28 +259,42 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // A shared link always wins over the demo boot query.
+      const params = new URLSearchParams(window.location.search);
+      const sharedQuery = (params.get("q") ?? "").trim();
+      const sharedTrack: Track = params.get("type") === "lab" ? "lab" : "medicine";
+      const sharedPinRaw = params.get("pin");
+      const sharedPin = sharedPinRaw && /^\d{6}$/.test(sharedPinRaw) ? sharedPinRaw : null;
+      let data: Health | null = null;
       try {
         const res = await fetch("/api/health");
-        if (!res.ok) return;
-        const data = (await res.json()) as Health;
-        if (cancelled) return;
-        setHealth(data);
-        let stored: string | null = null;
-        try {
-          stored = window.localStorage.getItem(PIN_KEY);
-        } catch {
-          /* storage unavailable */
-        }
-        const pin = stored && /^\d{6}$/.test(stored) ? stored : data.default_pincode || "110053";
-        setPincode(pin);
-        prevPin.current = pin;
-        maybeAutoLocate(stored);
-        if (data.mode === "demo" && !bootRef.current) {
-          bootRef.current = true;
-          void runCompare("medicine", "Augmentin 625 Duo", pin);
-        }
+        if (res.ok) data = (await res.json()) as Health;
       } catch {
-        /* health is best-effort */
+        /* health is best-effort — a shared link must still hydrate without it */
+      }
+      if (cancelled) return;
+      if (data) setHealth(data);
+      let stored: string | null = null;
+      try {
+        stored = window.localStorage.getItem(PIN_KEY);
+      } catch {
+        /* storage unavailable */
+      }
+      const pin = sharedPin ?? (stored && /^\d{6}$/.test(stored) ? stored : data?.default_pincode || "110053");
+      setPincode(pin);
+      prevPin.current = pin;
+      if (sharedQuery.length >= 2 && !bootRef.current) {
+        bootRef.current = true;
+        setQuery(sharedQuery);
+        setTrack(sharedTrack);
+        writeShareUrl(sharedTrack, sharedQuery, pin);
+        void runCompare(sharedTrack, sharedQuery, pin);
+        return;
+      }
+      maybeAutoLocate(stored);
+      if (data?.mode === "demo" && !bootRef.current) {
+        bootRef.current = true;
+        void runCompare("medicine", "Augmentin 625 Duo", pin);
       }
     })();
     return () => {
@@ -445,7 +479,9 @@ export default function Home() {
 
   const cartCount = Object.keys(cart).length;
   const expressCount = Object.values(cart).filter((m) => m === "urgent").length;
-  const quickMeds = health?.demo_medicines?.filter((m) => "Augmentin 625 Duo Dolo 650 Telma 40 Glycomet SR 500 Pan 40".includes(m)).slice(0, 5) ?? FALLBACK_QUICK_MEDS;
+  const quickMeds =
+    health?.demo_medicines?.length ? health.demo_medicines.slice(0, 5) : FALLBACK_QUICK_MEDS;
+  const quickLabs = health?.demo_labs?.length ? health.demo_labs : FALLBACK_QUICK_LABS;
   const showEmpty = !cmp && !labs && !busy;
 
   return (
@@ -475,7 +511,7 @@ export default function Home() {
             busy={busy}
             onSearch={(q) => void runCompare(track, q ?? query)}
             quickMeds={quickMeds}
-            quickLabs={health?.demo_labs ?? FALLBACK_QUICK_LABS}
+            quickLabs={quickLabs}
             error={error}
           />
           <PrescriptionDropzone
@@ -488,7 +524,7 @@ export default function Home() {
           />
         </div>
 
-        {busy ? <CompareProgress stages={stages} live={busy} /> : null}
+        {stages.length > 0 ? <CompareProgress stages={stages} live={busy} /> : null}
 
         {cmp?.status === "unresolved" && !busy ? (
           <UnresolvedPanel
@@ -503,6 +539,7 @@ export default function Home() {
         {track === "medicine" && cmp && cmp.status !== "unresolved" ? (
           <>
             <ClinicalSaltBanner cmp={cmp} kendras={kendras} onFindKendra={findKendra} agentRunning={agent.state.running} />
+            <SavingsReceipt cmp={cmp} />
             <DualTrackGrid
               cmp={cmp}
               cart={cart}
@@ -522,12 +559,49 @@ export default function Home() {
         {track === "lab" && labs ? <LabGrid labs={labs} /> : null}
 
         {showEmpty ? (
-          <section className="rounded-2xl border border-line bg-panel p-10 text-center">
-            <div className="text-sm font-medium text-ink-2">Search a brand — or scan a prescription</div>
-            <p className="mx-auto mt-2 max-w-lg text-[11px] leading-relaxed text-faint">
-              One search prices it three ways at once: the government PMBJP benchmark, subsidised generic listings
-              matched by active salt, and branded express e-pharmacies for your pincode. Track D compares lab test
-              packages the same way.
+          <section className="rounded-2xl border border-line bg-panel p-6 sm:p-8">
+            <div className="text-center">
+              <div className="text-sm font-medium text-ink-2">Search a brand — or scan a prescription</div>
+              <p className="mx-auto mt-2 max-w-xl text-[11px] leading-relaxed text-faint">
+                One search prices it four ways at once: the government PMBJP benchmark, subsidised generic listings
+                matched by active salt, branded express e-pharmacies for your pincode, and lab test packages.
+              </p>
+            </div>
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border border-line bg-inset p-3.5">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-brand-2">
+                  <Pill className="h-3.5 w-3.5" />
+                  Decode the salt
+                </div>
+                <p className="mt-1.5 text-[10px] leading-relaxed text-mute">
+                  Brand name → exact active salt, with a strength guard so a 500 mg listing can never stand in for
+                  650 mg.
+                </p>
+              </div>
+              <div className="rounded-xl border border-line bg-inset p-3.5">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-brand-2">
+                  <Wallet className="h-3.5 w-3.5" />
+                  Price it four ways
+                </div>
+                <p className="mt-1.5 text-[10px] leading-relaxed text-mute">
+                  PMBJP ceiling, subsidised generics, branded express and lab packages — normalised per 10 tablets so
+                  pack sizes can&apos;t hide the real price.
+                </p>
+              </div>
+              <div className="rounded-xl border border-line bg-inset p-3.5">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-brand-2">
+                  <Bot className="h-3.5 w-3.5" />
+                  Verify, then switch
+                </div>
+                <p className="mt-1.5 text-[10px] leading-relaxed text-mute">
+                  The on-demand browser agent checks stock at your pincode; the split cart keeps urgent branded and
+                  refill generic purchases in one basket.
+                </p>
+              </div>
+            </div>
+            <p className="mt-4 text-center text-[10px] leading-relaxed text-faint">
+              Every stage you see is a real server step — no simulated progress, no invented prices. Demo mode is
+              always labelled.
             </p>
           </section>
         ) : null}

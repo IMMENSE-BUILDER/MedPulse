@@ -4,12 +4,15 @@
  */
 import { apiErrorResponse, validationResponse } from "@/lib/errors";
 import { optimiseCart } from "@/lib/optimizer";
+import { guard } from "@/lib/rate-limit";
 import { CartRequestSchema } from "@/lib/schemas";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  const limited = guard(req, "cart");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await req.json();

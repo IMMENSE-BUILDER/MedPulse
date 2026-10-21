@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Clock, ExternalLink, Loader2, Pill, ShieldCheck, ShoppingBag, Bot, XCircle } from "lucide-react";
 import type { ReactNode } from "react";
-import { inr0, hostOf } from "@/lib/format";
+import { inr0, hostOf, timeAgo } from "@/lib/format";
 import type { CartMode, DualTrackComparison, Offer } from "@/lib/schemas";
 
 function StockLine({ offer }: { offer: Offer }) {
@@ -29,11 +29,13 @@ function OfferCard({
   offer,
   accent,
   added,
+  generatedAt,
   onAdd,
 }: {
   offer: Offer;
   accent: "generic" | "branded";
   added: boolean;
+  generatedAt?: string;
   onAdd: () => void;
 }) {
   const border =
@@ -89,6 +91,32 @@ function OfferCard({
         </span>
         <StockLine offer={offer} />
         {offer.equivalence_percent ? <span className="text-faint">equivalence {offer.equivalence_percent}%</span> : null}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line pt-2 text-[9.5px] text-faint">
+        <span className="inline-flex min-w-0 items-center gap-1" title="How this price was verified">
+          <ShieldCheck className="h-2.5 w-2.5 shrink-0 text-brand-2/80" />
+          <span className="truncate">
+            {offer.verified_by === "demo-seed" ? "demo fixture" : `verified · ${offer.verified_by}`}
+          </span>
+        </span>
+        {offer.product_url ? (
+          <a
+            href={offer.product_url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 transition-colors hover:text-brand-2"
+            title={`Open the source listing on ${hostOf(offer.product_url)}`}
+          >
+            {hostOf(offer.product_url)}
+            <ExternalLink className="h-2.5 w-2.5" />
+          </a>
+        ) : null}
+        {generatedAt ? (
+          <span className="ml-auto" title={`Prices generated at ${new Date(generatedAt).toLocaleString("en-IN")}`}>
+            as of {timeAgo(generatedAt)}
+          </span>
+        ) : null}
       </div>
 
       {accent === "generic" && offer.savings_vs_branded_percent > 0 ? (
@@ -190,6 +218,7 @@ export function DualTrackGrid({
                 offer={offer}
                 accent="generic"
                 added={cart[cmp.query_brand] === "refill"}
+                generatedAt={cmp.generated_at}
                 onAdd={() => onAdd(cmp.query_brand, "refill")}
               />
             ))
@@ -232,6 +261,7 @@ export function DualTrackGrid({
                 offer={offer}
                 accent="branded"
                 added={cart[cmp.query_brand] === "urgent"}
+                generatedAt={cmp.generated_at}
                 onAdd={() => onAdd(cmp.query_brand, "urgent")}
               />
             ))

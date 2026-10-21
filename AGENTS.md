@@ -14,7 +14,7 @@ Two core engineering challenges:
 - **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Deep-emerald on near-black, editorial-clinical aesthetic.
 - **AI:** `ai` package (AI SDK) + `zod` v4 schemas, routed **exclusively** through the Vercel AI Gateway.
 - **Web execution:** `@tiny-fish/sdk` (Search / Fetch / Agent).
-- **Tests:** Vitest (`tests/*.test.ts`, 34 tests).
+- **Tests:** Vitest (`tests/*.test.ts`, 42 tests).
 - **Required env (`.env.local`, never committed):**
   ```env
   TINYFISH_API_KEY="..."            # Search/Fetch (free tier) + Agent (paid, on-demand)
@@ -95,8 +95,10 @@ MedPulse-main/
 │   │   ├── PrescriptionDropzone.tsx    # capture="environment" camera + Rx result
 │   │   ├── ClinicalSaltBanner.tsx      # PMBJP ceiling + kendra + AMRIT/bilingual safety
 │   │   ├── CompareProgress.tsx         # Real pipeline stage tracker (SSE from compare-stream)
-│   │   ├── DualTrackGrid.tsx           # Generic vs Branded columns (+ per-10-tabs pricing)
+│   │   ├── DualTrackGrid.tsx           # Generic vs Branded columns (+ per-10-tabs pricing + provenance chips)
 │   │   ├── LabGrid.tsx                 # Track D lab offer rows
+│   │   ├── SavingsReceipt.tsx          # Savings per strip + adjustable monthly/yearly projection + copy receipt
+│   │   ├── ShareLinkButton.tsx         # Copies the current ?q=&pin=&type= result URL
 │   │   ├── LiveAgentPipDock.tsx        # Non-blocking PiP iframe + SSE terminal
 │   │   ├── SplitCartDrawer.tsx         # Express vs refill cart + checkout links
 │   │   ├── UnresolvedPanel.tsx         # Undecodable query → reliable real search picks
@@ -116,6 +118,7 @@ MedPulse-main/
 │       ├── domains.ts                  # Track A/B/C/D registry
 │       ├── demo-seed.ts                # Labelled demo fixtures (used when no keys)
 │       ├── cache.ts                    # In-memory TTL cache (default 1 hr)
+│       ├── rate-limit.ts               # Per-IP fixed-window budgets for public/AI routes
 │       ├── env.ts / errors.ts / pool.ts / sse.ts / format.ts / urls.ts
 │       ├── schemas.ts                  # zod contracts (PRD §9 shapes)
 │       ├── agent-client.ts             # Browser-side SSE reader (agent-stream)
@@ -135,11 +138,15 @@ MedPulse-main/
 6. **DocAI honesty + safety:** the DocAI dock answers general medical questions only via the text model. Always keep the footer disclaimer (not a doctor / emergencies 108–112), never invent prices, never advise changing prescribed doses, and in demo mode return the clearly labelled demo reply.
 7. **Live-location pincode:** the navbar locate button (`/api/locate`, bigdatacloud → nominatim fallback) sets the delivery pincode from real coordinates — only via the browser permission prompt or an explicit click. Store the chosen pincode in `medpulse:pincode`; never invent a pincode when geocoding fails — show the honest message instead.
 8. **Unresolved queries never dead-end:** a query that cannot be decoded to a salt — or whose listings yield no trustworthy price (D3-60K class etc.) — runs a real TinySearch across the tracked portals and the text model picks up to 4 suggestions **that must appear in the search results** (rendered as clickable picks in `UnresolvedPanel`). If the suggestion path fails, fall back to the honest error. `status:"unresolved"` results are never cached.
-9. **Real progress only:** `/api/compare-stream` emits real pipeline stage events with actual counts — the tracker (`CompareProgress`) must never display simulated or fabricated steps.
+9. **Real progress only:** `/api/compare-stream` emits real pipeline stage events with actual counts — the tracker (`CompareProgress`) must never display simulated or fabricated steps. The completed panel may stay visible with its real arrival timings, always labelled as measured in the browser.
 10. **Typeahead suggestions are local + honest:** the search dropdown filters the curated catalog (`src/lib/catalog.ts`) client-side — instant, no network, no AI call per keystroke. Selecting a suggestion fills the box and runs the real compare; the **"Search ⋯ in live prices anyway"** row always runs the user's exact text through the live pipeline. Never invent suggestion names from the network here, and never present catalog hints as live prices.
 11. **Light/dark theme:** `ThemeToggle` (navbar top-right corner) toggles `light` on `<html>`; the initial theme is applied before first paint by the inline script in `layout.tsx` and stored under `medpulse:theme`. Light palette lives in `globals.css` as `html.light` token overrides — add new colors as tokens, never as per-component hardcoded values.
 12. **Never surface model IDs:** no badges, footers, dock chips or API response fields may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3).
 13. **Branding & icons:** the brand mark is the blister-grid lockup rendered by `Logo.tsx` (navbar + footer) — never re-create the badge or wordmark inline. Tab/app/social icons are file-based app metadata: `icon.svg` / `icon.png` / `apple-icon.png` / `opengraph-image.png`. If the logo ever changes, regenerate those files (the generator lives outside the repo in the logos demo workspace).
+14. **Shareable results:** `page.tsx` keeps `?q=&pin=&type=` in the address bar via `history.replaceState` after every successful comparison, and hydrates those params on boot (skipping the demo auto-query). `ShareLinkButton` copies the current URL. Never break a shared link — a missing `/api/health` response must not block hydration.
+15. **Provenance is visible:** every offer card shows how it was verified (`verified_by`, or "demo fixture"), the source host as an outbound link, the NABL batch when present, and "as of …" from the comparison's `generated_at`. Never hide that demo prices are fixtures.
+16. **Savings receipt:** `SavingsReceipt` may only use real per-10-tab offers from the current comparison. The monthly/yearly numbers are an explicit projection from a user-adjustable "strips per month" assumption and must stay labelled as a projection — never invent adherence or usage statistics.
+17. **Rate limits / cost guard:** `src/lib/rate-limit.ts` holds the per-IP budgets (compare 20/min, OCR 6/min, DocAI 20/min, cart 30/min, agent 4/min). Every new paid or AI-backed route must add a bucket and call `guard()` before parsing the body. SSE routes must return the plain 429 JSON **before** starting a stream.
 
 ## 8. Common Commands
 - Install: `npm install`

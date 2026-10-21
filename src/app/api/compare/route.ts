@@ -5,12 +5,15 @@
 import { compareMedicines } from "@/lib/compare";
 import { apiErrorResponse, validationResponse } from "@/lib/errors";
 import { compareLabs } from "@/lib/labs";
+import { guard } from "@/lib/rate-limit";
 import { CompareRequestSchema } from "@/lib/schemas";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(req: Request) {
+  const limited = guard(req, "compare");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await req.json();

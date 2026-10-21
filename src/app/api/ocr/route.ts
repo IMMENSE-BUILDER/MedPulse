@@ -4,12 +4,15 @@
  */
 import { apiErrorResponse, validationResponse } from "@/lib/errors";
 import { analyzePrescription } from "@/lib/prescription";
+import { guard } from "@/lib/rate-limit";
 import { OcrRequestSchema } from "@/lib/schemas";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(req: Request) {
+  const limited = guard(req, "ocr");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await req.json();

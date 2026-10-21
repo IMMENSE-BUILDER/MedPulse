@@ -8,6 +8,7 @@
 import { compareMedicines } from "@/lib/compare";
 import { ApiError, describeError, validationResponse } from "@/lib/errors";
 import { compareLabs } from "@/lib/labs";
+import { guard } from "@/lib/rate-limit";
 import { CompareRequestSchema, type CompareStage, type CompareStreamEvent } from "@/lib/schemas";
 import { jsonSseResponse } from "@/lib/sse";
 
@@ -15,6 +16,8 @@ export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(req: Request) {
+  const limited = guard(req, "compare");
+  if (limited) return limited;
   let body: unknown;
   try {
     body = await req.json();

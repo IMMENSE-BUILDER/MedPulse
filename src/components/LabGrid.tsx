@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, FlaskConical, Home, Timer } from "lucide-react";
+import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { inr0, pct } from "@/lib/format";
 import type { LabComparison } from "@/lib/schemas";
 
@@ -22,13 +23,16 @@ export function LabGrid({ labs }: { labs: LabComparison }) {
             Best {inr0(labs.best_price_inr)} · save {pct(labs.best_savings_percent)} vs highest
           </span>
         ) : null}
-        <span
-          className={`ml-auto rounded-full border px-2.5 py-1 text-[10px] ${
-            labs.data_source === "live" ? "border-brand/40 bg-brand/10 text-brand-2" : "border-warn/40 bg-warn/10 text-warn"
-          }`}
-        >
-          {labs.data_source === "live" ? "LIVE DATA" : "DEMO DATA"}
-        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <ShareLinkButton />
+          <span
+            className={`rounded-full border px-2.5 py-1 text-[10px] ${
+              labs.data_source === "live" ? "border-brand/40 bg-brand/10 text-brand-2" : "border-warn/40 bg-warn/10 text-warn"
+            }`}
+          >
+            {labs.data_source === "live" ? "LIVE DATA" : "DEMO DATA"}
+          </span>
+        </div>
       </div>
 
       <div className="mt-4 space-y-2.5">
