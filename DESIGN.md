@@ -146,7 +146,7 @@ spacing:
 
 This design system embodies high-performance engineering discipline: utilitarian, ultra-crisp, and uncompromisingly modern. Built for technical operators, developers, and platform architects, the visual tone avoids decorative fluff, neon glows, and soft organic metaphors. Instead, it mirrors the architectural rigor of command-line tools, modern terminal emulators, and low-latency infrastructure consoles.
 
-The aesthetic fuses **Minimalism** with an **Architectural High-Density Layout**. The interface is anchored by deep pitch-black backdrops, razor-sharp hairline borders, and pure white type hierarchy. Contrast is applied with mathematical precision: elements earn visual prominence strictly through functional state changes, typographic density, or precise emerald status accents. The resulting emotional response is extreme focus, speed, stability, and supreme technical confidence.
+The aesthetic fuses **Minimalism** with an **Architectural High-Density Layout**. The interface is anchored by deep pitch-black backdrops, razor-sharp hairline borders, and pure white type hierarchy. Contrast is applied with mathematical precision: elements earn visual prominence strictly through functional state changes, typographic density, or precise blue status accents. The resulting emotional response is extreme focus, speed, stability, and supreme technical confidence.
 
 ## Colors
 
@@ -166,8 +166,9 @@ The palette operates on absolute values, rejecting diffuse blurs and multicolore
   - `Text Muted`: `#a1a1aa` (Standard descriptions and metadata)
   - `Text Subtle`: `#71717a` (De-emphasized labels, shortcuts, and counters)
 - **Signal Accents**:
-  - `Accent Primary (Emerald)`: `#10b981` (Strictly reserved for verified badges, successful deployments, savings statistics, and live production pings)
-  - `Accent Background`: `#064e3b` (Subtle 10-15% opacity fills behind emerald badges)
+  - `Accent Primary (Blue)`: `#0000ff` (default state for primary buttons, verified badges, live pings, and savings statistics; white text on solid fills)
+  - `Accent Hover (Dark Blue)`: `#0041c2` (hover state for solid blue buttons only)
+  - `Accent Background`: `rgba(0, 0, 255, 0.10)` (subtle 10–15% opacity fills behind blue badges)
 
 ## Typography
 
@@ -210,16 +211,16 @@ The design system employs a refined, compact corner radius (`roundedness: 1`).
 ## Components
 
 ### Buttons
-- **Primary**: Pure white (`#ffffff`) solid background with pitch black (`#000000`) text, font weight 500, 4px border radius. On hover: `#fafafa` background with subtle scale opacity.
-- **Secondary**: Surface-2 (`#121212`) background, 1px solid hairline (`#27272a`), `#ffffff` text. On hover: border transitions to `#3f3f46` with `#18181b` fill.
+- **Primary**: Blue (`#0000ff`) solid background with white (`#ffffff`) text, font weight 600, rounded-xl. On hover: dark blue (`#0041c2`) background. Primary buttons are the only solid-blue controls.
+- **Secondary**: Surface-2 (`#121212`) background, 1px solid hairline (`#27272a`), `#ffffff` text. On hover: border transitions to `#3f3f46` with `#18181b` fill, or to blue at 40% for accent actions.
 - **Ghost**: Transparent fill, muted text (`#a1a1aa`). On hover: `#121212` background, white text.
 
 ### Badges & Chips
-- **Status / Savings (Emerald)**: `#000000` or `#0a0a0a` background with a 1px hairline border of `rgba(16, 185, 129, 0.3)`. Text is `#10b981` rendered in `label-sm` (`JetBrains Mono`). Accompanied by a solid 6px emerald circle ping.
+- **Status / Savings (Blue)**: `#000000` or `#0a0a0a` background with a 1px hairline border of `rgba(0, 0, 255, 0.3)`. Text is `#0000ff` rendered in `label-sm` (`JetBrains Mono`). Accompanied by a solid 6px blue circle ping.
 - **Neutral Chip**: `#121212` fill, `#27272a` hairline border, `#a1a1aa` mono text.
 
 ### Trust & provenance surfaces
-- **Savings receipt**: one panel per comparison, driven only by real per-10-tab offers. The delta uses mono/emerald emphasis; the “per 10-tab strip” basis is always explicit. Monthly/yearly values are projections from the user-adjustable strips-per-month control and must be labelled as projections. Never render the receipt when there is no positive real delta. Copy receipt is a ghost action with a transient confirmation.
+- **Savings receipt**: one panel per comparison, driven only by real per-10-tab offers. The delta uses mono/blue emphasis; the “per 10-tab strip” basis is always explicit. Monthly/yearly values are projections from the user-adjustable strips-per-month control and must be labelled as projections. Never render the receipt when there is no positive real delta. Copy receipt is a ghost action with a transient confirmation.
 - **Provenance chips**: every offer shows how it was verified (`verified_by`), the source host as an outbound link with an external-link icon, the NABL batch when present, and “as of …” freshness. Demo fixtures must read “demo fixture”; unverified stock reads “Stock unverified — run agent”. Never hide that a price is a demo fixture.
 - **Share link**: a ghost pill in each result header. The URL carries `q`, `pin` and `type`; the copy action shows a transient “Link copied” state.
 - **Real progress**: stage list with timestamps measured from actual SSE arrivals and a total; the completed panel may stay visible. Never show simulated steps or invented timings.

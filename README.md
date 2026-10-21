@@ -143,6 +143,7 @@ Notes:
 ## Documentation
 
 - [`docs/MASTER_SPEC.md`](docs/MASTER_SPEC.md) — full product + engineering spec with a ready-to-use PPT generation brief (start here for decks and onboarding).
+- [`docs/screenshots/`](docs/screenshots/README.md) — final deck captures and the screenshot capture standard.
 - [`AGENTS.md`](AGENTS.md) — architecture rules, dual-model routing, UI conventions and guardrails.
 - [`DESIGN.md`](DESIGN.md) — visual system and component/token reference.
 

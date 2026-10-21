@@ -11,8 +11,9 @@
   --color-ink-2: #d4d4d8;
   --color-mute: #a1a1aa;
   --color-faint: #71717a;
-  --color-brand: #10b981;
-  --color-brand-2: #34d399;
+  --color-brand: #0000ff;
+  --color-brand-2: #0000ff;
+  --color-brand-hover: #0041c2;
   --color-warn: #f59e0b;
   --color-danger: #ef4444;
   --font-sans: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -42,23 +43,24 @@ html.light {
   --color-ink-2: #2d3935;
   --color-mute: #56625e;
   --color-faint: #828e89;
-  --color-brand: #0f9f70;
-  --color-brand-2: #0b7d57;
+  --color-brand: #0000ff;
+  --color-brand-2: #0000ff;
+  --color-brand-hover: #0041c2;
   --color-warn: #b45309;
   --color-danger: #dc2626;
 }
 
-/* Floating docks / dropdowns: strong black glow on dark, soft green-grey on light. */
+/* Floating docks / dropdowns: strong black glow on dark, soft blue-grey on light. */
 .shadow-pop {
   box-shadow: 0 20px 46px -16px rgb(0 0 0 / 0.75);
 }
 
 html.light .shadow-pop {
-  box-shadow: 0 20px 46px -16px rgb(24 44 37 / 0.25);
+  box-shadow: 0 20px 46px -16px rgb(15 23 42 / 0.2);
 }
 
 ::selection {
-  background: rgba(16, 185, 129, 0.28);
+  background: rgba(0, 0, 255, 0.32);
 }
 
 * {

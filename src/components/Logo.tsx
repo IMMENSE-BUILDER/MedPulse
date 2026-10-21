@@ -13,14 +13,14 @@ export function Logo({ className, label = "MedPulse AI" }: { className?: string;
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect x="18" y="18" width="60" height="60" rx="18" fill="#0c2018" />
-      <circle cx="37" cy="37" r="8" stroke="var(--color-brand, #10b981)" strokeWidth="3.5" />
-      <circle cx="59" cy="37" r="8" fill="var(--color-brand, #10b981)" />
-      <circle cx="37" cy="59" r="8" stroke="var(--color-brand, #10b981)" strokeWidth="3.5" />
-      <circle cx="59" cy="59" r="8" stroke="var(--color-brand-2, #34d399)" strokeWidth="3.5" />
+      <rect x="18" y="18" width="60" height="60" rx="18" fill="#0a0f24" />
+      <circle cx="37" cy="37" r="8" stroke="var(--color-brand, #0000ff)" strokeWidth="3.5" />
+      <circle cx="59" cy="37" r="8" fill="var(--color-brand, #0000ff)" />
+      <circle cx="37" cy="59" r="8" stroke="var(--color-brand, #0000ff)" strokeWidth="3.5" />
+      <circle cx="59" cy="59" r="8" stroke="var(--color-brand-2, #0000ff)" strokeWidth="3.5" />
       <text x="96" y="60" fontSize="30" fontWeight="700" fill="currentColor">
         {"MedPulse "}
-        <tspan fill="var(--color-brand, #10b981)">AI</tspan>
+        <tspan fill="var(--color-brand, #0000ff)">AI</tspan>
       </text>
     </svg>
   );

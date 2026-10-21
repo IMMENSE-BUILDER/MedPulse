@@ -282,7 +282,7 @@ A responsive Next.js web application that:
 - Theme is applied before first paint and stored under `medpulse:theme` to avoid flash.
 - Brand mark: blister-grid badge + wordmark, used consistently in navbar and footer.
 - Icons/metadata: `icon.svg`, `icon.png`, `apple-icon.png`, `opengraph-image.png`.
-- Palette: near-black surfaces, emerald accents, Geist + JetBrains Mono.
+- Palette: near-black surfaces, blue accents — light blue `#0000ff` by default, dark blue `#0041c2` on hover — with Geist + JetBrains Mono. White text on solid blue buttons.
 
 **Files:** `src/components/ThemeToggle.tsx`, `src/components/Logo.tsx`, `src/app/layout.tsx`, `src/app/globals.css`.
 
@@ -592,10 +592,11 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 
 | Evidence | Result |
 | --- | --- |
-| Live search: Augmentin 625 Duo | 3 generic + 2–3 branded offers in production runs |
-| Observed savings | 65.3% less than the branded reference |
+| Live search: Augmentin 625 Duo | 3 generic + 3 branded offers in the latest captured live run |
+| Observed savings | 65.3% less than the branded reference; the receipt rounds this to 65% |
 | Observed receipt | ~₹160 saved per 10-tablet strip; ~₹3.8k/year at 2 strips/month (projection) |
 | Portal coverage in one run | 14 listings across 9 portals |
+| Pipeline window | 8.8 s total in the captured run, with client-measured stage timings |
 | Strength guard example | Dolo 650 run returned branded offers only because the generic listings failed the strength guard |
 | Share link | `?q=Augmentin+625+Duo+Tablet&pin=110053` rehydrated and re-ran successfully |
 | Rate limiting | 20 requests → 429 with `Retry-After` in production |
@@ -643,7 +644,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 - **Length:** 10–12 slides (12 recommended).
 - **Tone:** evidence-led, confident, honest; no hype or invented traction.
 - **Aspect ratio:** 16:9.
-- **Visual style:** near-black surfaces, emerald accents, mono data labels; match the product’s dark clinical aesthetic. Use screenshots where possible.
+- **Visual style:** near-black surfaces, blue accents (light blue `#0000ff` default, dark blue `#0041c2` hover), mono data labels; match the product’s dark clinical aesthetic. Use screenshots where possible.
 - **Rule:** every number slide must cite “observed in a live run” or “measured in testing”.
 
 ### 14.2 12-slide outline
@@ -669,14 +670,16 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | Apple icon | `src/app/apple-icon.png` |
 | Social card | `src/app/opengraph-image.png` |
 | Logo lockup | Render from `src/components/Logo.tsx` or screenshot the navbar |
-| Dashboard empty state | Capture at 1440px wide with example pills visible |
-| Live results + savings receipt | Capture Augmentin 625 Duo results; include receipt and provenance |
-| OCR result | Capture a prescription upload result with schedule and disclaimer |
-| Agent PiP | Capture a stock-verification run with the progress terminal visible |
-| Share link | Capture the “Link copied” state |
+| Dashboard empty state | `docs/screenshots/01-empty-dark.png` (captured) |
+| Live results + savings receipt | `docs/screenshots/02-results-dark.png` + `03-receipt-dark.png` (captured from a live Augmentin 625 Duo run) |
+| OCR result | `docs/screenshots/04-ocr-dark.png` (captured from a live OCR run) |
+| Agent PiP | Pending — capture as `05-agent-pip-dark.png` from a user-triggered stock run |
+| Share link | Pending — capture as `08-share-light.png` |
+| Light theme | `docs/screenshots/06-empty-light.png` (captured) |
+| Palette hover | `docs/screenshots/07-hover-dark.png` (captured; dark-blue hover `#0041c2`) |
 | Architecture diagram | Recreate from §6.1; keep it to 5 boxes + 2 arrows |
 
-> Screenshots from earlier production smoke runs exist outside the repo at `C:\Users\Administrator\AppData\Local\Temp\opencode\medpulse-e2e\results-prod-live.png` and `results-prod-final.png`. Prefer fresh captures for the final deck; temp files may be removed.
+> Final deck captures belong in `docs/screenshots/` — see its README for the capture standard and planned filenames. Use fresh 1440px captures after the blue palette update. Earlier smoke screenshots in `C:\Users\Administrator\AppData\Local\Temp\opencode\medpulse-e2e\` predate the palette change; do not use them in the final deck.
 
 ### 14.4 Claims to use / avoid
 
@@ -710,8 +713,9 @@ Key constraints:
 - Never invent metrics, customers, revenue, funding, partnerships or clinical claims.
 - Label every performance/savings number as "observed in a live run" or "measured in testing".
 - Do not claim PWA/offline support, guarantees, or regulatory certification.
-- Use the product's dark clinical aesthetic: near-black surfaces, emerald accents,
-  Geist-style sans for headings, JetBrains Mono for data labels.
+- Use the product's dark clinical aesthetic: near-black surfaces, blue accents
+  (light blue #0000ff default, dark blue #0041c2 on hover), Geist-style sans for
+  headings, JetBrains Mono for data labels.
 - Include the strength guard, per-10-tablet normalisation, live/demo honesty,
   provenance, savings receipt, shareable links and real stage timings.
 - Use screenshots for the product and OCR slides; keep diagrams minimal.
@@ -793,6 +797,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 | `AGENTS.md` | Strict engineering rules, dual-model routing, TinyFish cost controls, repo conventions, UI guardrails |
 | `DESIGN.md` | Visual system, palette, typography, components, trust-surface conventions |
 | `docs/MASTER_SPEC.md` | This document: full product/engineering spec + PPT generation brief |
+| `docs/screenshots/` | Final deck captures, capture standard and pending-shot checklist |
 | `src/lib/schemas.ts` | Machine-readable API and AI contracts |
 | `tests/` | Unit tests for pricing, schedules, demo, optimizer, catalog, rate limits |
 

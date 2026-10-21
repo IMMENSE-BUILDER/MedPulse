@@ -131,7 +131,7 @@ function OfferCard({
             added
               ? "border border-brand/50 bg-brand/15 text-brand-2"
               : accent === "generic"
-                ? "bg-brand text-[#03150f] hover:bg-brand-2"
+                ? "bg-brand text-white hover:bg-brand-hover"
                 : "border border-line-2 bg-panel-2 text-ink-2 hover:border-brand/50 hover:text-ink"
           }`}
         >

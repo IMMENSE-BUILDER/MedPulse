@@ -57,7 +57,7 @@ export function SearchPanel({
             close();
           }}
           className={`flex items-center justify-center gap-2 rounded-lg py-2 text-[13px] font-medium transition-colors ${
-            track === "medicine" ? "bg-brand text-[#03150f]" : "text-mute hover:text-ink-2"
+            track === "medicine" ? "bg-brand text-white hover:bg-brand-hover" : "text-mute hover:text-ink-2"
           }`}
         >
           <Pill className="h-3.5 w-3.5" />
@@ -70,7 +70,7 @@ export function SearchPanel({
             close();
           }}
           className={`flex items-center justify-center gap-2 rounded-lg py-2 text-[13px] font-medium transition-colors ${
-            track === "lab" ? "bg-brand text-[#03150f]" : "text-mute hover:text-ink-2"
+            track === "lab" ? "bg-brand text-white hover:bg-brand-hover" : "text-mute hover:text-ink-2"
           }`}
         >
           <FlaskConical className="h-3.5 w-3.5" />
@@ -187,7 +187,7 @@ export function SearchPanel({
         <button
           type="submit"
           disabled={busy || query.trim().length < 2}
-          className="flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-[#03150f] transition-colors hover:bg-brand-2 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Compare

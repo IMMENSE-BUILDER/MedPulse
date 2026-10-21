@@ -163,7 +163,7 @@ export function SplitCartDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="h-10 flex-1 rounded-xl bg-brand text-[12px] font-semibold text-[#03150f] transition-colors hover:bg-brand-2"
+            className="h-10 flex-1 rounded-xl bg-brand text-[12px] font-semibold text-white transition-colors hover:bg-brand-hover"
           >
             Done
           </button>

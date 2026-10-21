@@ -147,7 +147,7 @@ export function DocAiDock({
             type="button"
             onClick={() => void send(draft)}
             disabled={busy || !draft.trim()}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand text-[#03150f] transition-colors hover:bg-brand-2 disabled:cursor-not-allowed disabled:opacity-40"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
             title="Send"
           >
             <Send className="h-3.5 w-3.5" />

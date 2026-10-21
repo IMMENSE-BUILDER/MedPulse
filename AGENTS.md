@@ -13,7 +13,7 @@ Full product/engineering spec and PPT generation brief: `docs/MASTER_SPEC.md`. K
 
 ## 2. Tech Stack & Core Dependencies
 - **Framework:** Next.js 16 (App Router, TypeScript, Route Handlers). No Server Actions — the API surface is explicit route handlers.
-- **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Deep-emerald on near-black, editorial-clinical aesthetic.
+- **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Blue (`#0000ff` default, dark-blue `#0041c2` on hover) on near-black, editorial-clinical aesthetic.
 - **AI:** `ai` package (AI SDK) + `zod` v4 schemas, routed **exclusively** through the Vercel AI Gateway.
 - **Web execution:** `@tiny-fish/sdk` (Search / Fetch / Agent).
 - **Tests:** Vitest (`tests/*.test.ts`, 42 tests).
@@ -131,7 +131,8 @@ MedPulse-main/
 │       └── sse-client.ts               # Shared SSE frame parser
 ├── tests/                              # Vitest: pricing, schedule, demo, optimizer, catalog, rate limits (42)
 ├── docs/
-│   └── MASTER_SPEC.md                  # Full product/engineering spec + PPT generation brief
+│   ├── MASTER_SPEC.md                  # Full product/engineering spec + PPT generation brief
+│   └── screenshots/                    # Final deck captures (see README.md inside)
 ├── README.md                           # User/API/deploy docs — keep in sync with shipped behavior
 ├── DESIGN.md                           # Design-system reference for the UI surfaces
 └── .env.local / .env.example

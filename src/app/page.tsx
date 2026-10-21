@@ -634,7 +634,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="ml-auto h-10 rounded-xl bg-brand px-5 text-[12px] font-semibold text-[#03150f] transition-colors hover:bg-brand-2"
+              className="ml-auto h-10 rounded-xl bg-brand px-5 text-[12px] font-semibold text-white transition-colors hover:bg-brand-hover"
             >
               Open split cart
             </button>
