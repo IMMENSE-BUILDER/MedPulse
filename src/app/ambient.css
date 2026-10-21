@@ -33,7 +33,7 @@ html:not(.light) .site-ambient {
   top: -20%;
   left: -12%;
   width: min(62vw, 1100px);
-  --blob-opacity: 0.17;
+  --blob-opacity: 0.21;
   background: radial-gradient(circle at 35% 35%, #c9d6ff 0%, #e7efff 45%, transparent 72%);
   animation-duration: 42s, 32s;
 }
@@ -42,7 +42,7 @@ html:not(.light) .site-ambient {
   top: 4%;
   right: -18%;
   width: min(58vw, 1000px);
-  --blob-opacity: 0.15;
+  --blob-opacity: 0.19;
   background: radial-gradient(circle at 45% 45%, #c7ec7a 0%, #7fd6cf 46%, #3e6cf3 78%, transparent 92%);
   animation-duration: 36s, 28s;
   animation-delay: -9s, -6s;
@@ -52,7 +52,7 @@ html:not(.light) .site-ambient {
   bottom: -30%;
   left: 8%;
   width: min(55vw, 980px);
-  --blob-opacity: 0.14;
+  --blob-opacity: 0.18;
   background: radial-gradient(circle at 45% 45%, #eaf7ff 0%, #4fe0ef 24%, #1a4fd6 68%, transparent 90%);
   animation-duration: 46s, 34s;
   animation-delay: -16s, -12s;
@@ -63,7 +63,7 @@ html:not(.light) .site-ambient {
   top: 38%;
   left: 32%;
   width: min(38vw, 720px);
-  --blob-opacity: 0.08;
+  --blob-opacity: 0.1;
   background: radial-gradient(circle at 40% 40%, #ff8a3d 0%, #ff9a6b 30%, #2f6cf0 76%, transparent 92%);
   animation-duration: 40s, 26s;
   animation-delay: -5s, -3s;
@@ -73,7 +73,7 @@ html:not(.light) .site-ambient {
   right: 6%;
   bottom: -4%;
   width: min(44vw, 780px);
-  --blob-opacity: 0.08;
+  --blob-opacity: 0.1;
   background: radial-gradient(circle at 45% 45%, #b78cf5 0%, #a06cf0 42%, #ffc59a 82%, transparent 94%);
   animation-duration: 48s, 36s;
   animation-delay: -20s, -15s;
@@ -83,7 +83,7 @@ html:not(.light) .site-ambient {
   top: -10%;
   left: 38%;
   width: min(36vw, 680px);
-  --blob-opacity: 0.07;
+  --blob-opacity: 0.09;
   background: radial-gradient(circle at 40% 40%, #f2d64a 0%, #66c6d9 55%, #2a67e8 86%, transparent 96%);
   animation-duration: 44s, 30s;
   animation-delay: -12s, -8s;
@@ -93,8 +93,8 @@ html:not(.light) .site-ambient {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(70% 60% at 50% 0%, rgba(250, 251, 255, 0.5), transparent 70%),
-    linear-gradient(180deg, rgba(250, 251, 255, 0.24), rgba(250, 251, 255, 0.34));
+    radial-gradient(70% 60% at 50% 0%, rgba(250, 251, 255, 0.4), transparent 70%),
+    linear-gradient(180deg, rgba(250, 251, 255, 0.17), rgba(250, 251, 255, 0.24));
 }
 
 .site-ambient-grain {
@@ -136,7 +136,7 @@ html:not(.light) .site-ambient {
   }
 
   .site-blob-4 {
-    opacity: 0.06;
+    opacity: 0.08;
   }
 }
 
