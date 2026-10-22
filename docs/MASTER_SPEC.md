@@ -282,7 +282,7 @@ The engine:
 - Stock and lab checks accept up to 10 URLs, with ≤5 concurrent runs. Lab results expose an Agent Run button backed by `kind:"lab"`.
 - The PiP dock renders one live browser tile per active run — a 2-column grid when multiple agents stream in parallel — so every screen is visible during a demo.
 - Pincode injection into pharmacy stock modals.
-- Jan Aushadhi Kendra lookup via UMANG.
+- Jan Aushadhi Kendra lookup via the official `janaushadhi.gov.in/near-by-kendra` locator: pincode entry, scrolling, Next-page pagination, then text-model cleanup. The results modal lists every kendra and offers a client-generated PDF named for the pincode.
 - Never logs in, adds to cart, or checks out.
 - With no key or in demo mode, an explicitly labelled simulation runs — no fake stock numbers.
 
@@ -604,7 +604,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 
 - Branded: 1mg, PharmEasy, Apollo Pharmacy, Netmeds.
 - Generic: SayaCare, Jan Aushadhi Online, Jan Aushadhi Store, APJ Jan Aushadhi, Zeelab, DavaIndia, Truemeds.
-- Government: Jan Aushadhi master, UMANG kendra locator, AMRIT.
+- Government: Jan Aushadhi master + near-by-kendra locator, AMRIT.
 - Labs: Redcliffe, Lal PathLabs, Orange Health, Healthians.
 
 ### 10.3 Pricing semantics
@@ -746,6 +746,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 | OCR result | `docs/screenshots/04-ocr-dark.png` (captured from a live OCR run) |
 | Agent Run controls | `docs/screenshots/10-agent-run-dark.png` (captured) |
 | Auto-verify scope chooser | `docs/screenshots/11-auto-verify-dark.png` (captured) |
+| Jan Aushadhi near me | `docs/screenshots/14-jan-aushadhi-near-me.png` (captured; includes the PDF action) |
 | Premium gate panel | `docs/screenshots/12-premium-gate.png` (captured) |
 | Expanded catalog dropdown | `docs/screenshots/13-catalog-dropdown.png` (captured) |
 | Agent PiP | Pending — capture as `05-agent-pip-dark.png` from a user-triggered run |

@@ -32,6 +32,7 @@ Final captures for the PPT live here. Re-capture after any UI change.
 | `11-auto-verify-dark.png` | Auto-verify scope chooser (generics / branded / all) | Captured 21 Oct 2026 |
 | `12-premium-gate.png` | Mock ₹299/month Premium gate | Captured 21 Oct 2026 |
 | `13-catalog-dropdown.png` | Expanded medicine catalog typeahead | Captured 21 Oct 2026 |
+| `14-jan-aushadhi-near-me.png` | Jan Aushadhi live locator results panel + Download PDF | Captured 22 Oct 2026 |
 | `06-empty-light.png` | Light-theme dashboard | Captured 21 Oct 2026 |
 | `07-hover-dark.png` | Primary button in dark-blue hover state | Captured 21 Oct 2026 |
 

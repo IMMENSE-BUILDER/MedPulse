@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, ChevronDown, Crown, Loader2, LocateFixed, MapPin, Stethoscope, X } from "lucide-react";
+import { Bot, Building2, ChevronDown, Crown, Loader2, LocateFixed, MapPin, Stethoscope, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
@@ -19,6 +19,8 @@ export function NavbarPincode({
   onOpenDocAi,
   onOpenPremium,
   premiumActive,
+  onFindKendra,
+  kendraRunning,
   onLocate,
   locating,
   locateMsg,
@@ -34,6 +36,8 @@ export function NavbarPincode({
   onOpenDocAi: () => void;
   onOpenPremium: () => void;
   premiumActive: boolean;
+  onFindKendra: () => void;
+  kendraRunning: boolean;
   onLocate: () => void;
   locating: boolean;
   locateMsg: string | null;
@@ -127,6 +131,17 @@ export function NavbarPincode({
             title="Use my current location to set the delivery pincode (asks for permission)"
           >
             {locating ? <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" /> : <LocateFixed className="h-3.5 w-3.5" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={onFindKendra}
+            disabled={kendraRunning}
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-line bg-inset px-2.5 text-[11px] font-medium text-mute transition-colors hover:border-brand/40 hover:text-brand-2 disabled:opacity-60"
+            title={tr("Find Jan Aushadhi Kendras near your pincode with the live browser agent", "लाइव ब्राउज़र एजेंट से अपने पिनकोड के पास जन औषधि केंद्र खोजें")}
+          >
+            {kendraRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" /> : <Building2 className="h-3.5 w-3.5" />}
+            <span className="hidden lg:inline">{tr("Jan Aushadhi", "जन औषधि")}</span>
           </button>
 
           <button

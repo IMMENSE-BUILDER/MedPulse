@@ -57,7 +57,7 @@ Protect the prepaid wallet (`$0.016/step` for TinyAgent). Enforce the **Two-Wave
 
 ### Wave 2 — live stealth browser (`$0.016/step`, user-triggered ONLY)
 - **Never** auto-run the agent in a loop without consent. The only auto path is the explicit **Auto-verify** scope chooser, and it only fires for **live** results, with a chosen scope (generics, branded, or all), up to 10 URLs, and at most 5 concurrent runs.
-- `browser_profile: BrowserProfile.STEALTH`, pincode injection (`110053` default) into pharmacy modals; UMANG (`web.umang.gov.in`) for Jan Aushadhi Kendra lookup.
+- `browser_profile: BrowserProfile.STEALTH`, pincode injection (`110053` default) into pharmacy modals. Kendra lookup opens `https://janaushadhi.gov.in/near-by-kendra`, enters the user pincode, scrolls every result and clicks Next through all pages, then the text model deduplicates/cleans the list. The results modal offers a client-generated PDF (`jspdf`) containing every kendra for that pincode.
 - The PiP dock renders one live browser tile per active run (2-column grid when multiple runs stream in parallel), so every agent screen is visible during a demo.
 - Agents must **never** log in, add to cart, or checkout. Stock check only.
 - **SSE contract** (`POST /api/agent-stream`, via `src/lib/sse.ts`) — forward all frames:
@@ -70,7 +70,7 @@ Protect the prepaid wallet (`$0.016/step` for TinyAgent). Enforce the **Two-Wave
 ## 5. Domain Registry (Track A/B/C/D)
 - **Branded (Track C):** `1mg.com`, `pharmeasy.in`, `apollopharmacy.in`, `netmeds.com`
 - **Subsidised generics (Track B):** `sayacare.in`, `janaushadhionline.com`, `janaushadhistore.in`, **`apijanaushadhi.in`**, `zeelabpharmacy.com`, `davaindia.com`, `truemeds.in`
-- **Govt (Track A):** `janaushadhi.gov.in` (PMBJP master), `web.umang.gov.in` (kendra locator), `lifecarehll.com` (AMRIT)
+- **Govt (Track A):** `janaushadhi.gov.in` (PMBJP master + near-by-kendra locator), `lifecarehll.com` (AMRIT)
 - **Labs (Track D):** `redcliffelabs.com`, `lalpathlabs.com`, `orangehealth.in`, `healthians.com`
 
 Edit `src/lib/domains.ts` only — nothing else hardcodes domains.

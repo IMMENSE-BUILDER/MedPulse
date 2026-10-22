@@ -6,6 +6,7 @@ import { ClinicalSaltBanner } from "@/components/ClinicalSaltBanner";
 import { CompareProgress } from "@/components/CompareProgress";
 import { DocAiDock } from "@/components/DocAiDock";
 import { DualTrackGrid } from "@/components/DualTrackGrid";
+import { KendraModal } from "@/components/KendraModal";
 import { LabGrid } from "@/components/LabGrid";
 import { LiveAgentPipDock } from "@/components/LiveAgentPipDock";
 import { Logo } from "@/components/Logo";
@@ -114,6 +115,7 @@ export default function Home() {
   const [rxBusy, setRxBusy] = useState(false);
   const [rxError, setRxError] = useState<string | null>(null);
   const [kendras, setKendras] = useState<Kendra[] | null>(null);
+  const [kendraOpen, setKendraOpen] = useState(false);
   const [docaiOpen, setDocaiOpen] = useState(false);
   const [stages, setStages] = useState<CompareStage[]>([]);
   const [locating, setLocating] = useState(false);
@@ -571,10 +573,13 @@ export default function Home() {
   const findKendra = useCallback(() => {
     const pin = cmp?.user_pincode ?? pincode;
     ensurePremium(() => {
+      setKendras(null);
+      setKendraOpen(true);
       setAgentScope(null);
       void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder - ${pin}`, (result) => {
         const r = result as { kind?: string; kendras?: Kendra[] } | null;
-        if (r?.kendras?.length) setKendras(r.kendras);
+        setKendras(r?.kendras?.length ? r.kendras : []);
+        setKendraOpen(true);
       });
     });
   }, [cmp, pincode, ensurePremium, agent]);
@@ -601,6 +606,8 @@ export default function Home() {
         onOpenDocAi={() => setDocaiOpen(true)}
         onOpenPremium={() => setPremiumOpen(true)}
         premiumActive={premiumActive}
+        onFindKendra={findKendra}
+        kendraRunning={agent.state.running && agentScope === null}
         onLocate={() => void locateMe(true)}
         locating={locating}
         locateMsg={locateMsg}
@@ -773,6 +780,14 @@ export default function Home() {
       />
 
       <LiveAgentPipDock state={agent.state} onClose={agent.close} raised={cartCount > 0} />
+      <KendraModal
+        open={kendraOpen}
+        kendras={kendras}
+        pincode={cmp?.user_pincode ?? pincode}
+        running={agent.state.running}
+        onClose={() => setKendraOpen(false)}
+        onRetry={findKendra}
+      />
       <DocAiDock open={docaiOpen} onClose={() => setDocaiOpen(false)} raised={cartCount > 0} />
       <PremiumModal
         open={premiumOpen}

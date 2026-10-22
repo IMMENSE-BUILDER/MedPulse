@@ -100,7 +100,7 @@ export function ClinicalSaltBanner({
             className="mt-2 flex items-center gap-1.5 rounded-lg border border-line bg-panel-2 px-2.5 py-1 text-[10px] text-mute transition-colors hover:border-brand/40 hover:text-brand-2 disabled:opacity-50"
           >
             {agentRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
-            Find live via UMANG agent
+            Find Jan Aushadhi near me
           </button>
         </div>
 

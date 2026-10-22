@@ -149,7 +149,7 @@ export const STOCK_SCHEMA: Record<string, unknown> = {
   required: ["in_stock"],
 };
 
-/** Browser-agent output schema for the UMANG Jan Aushadhi Kendra locator. */
+/** Browser-agent output schema for the official Jan Aushadhi Kendra locator. */
 export const KENDRA_SCHEMA: Record<string, unknown> = {
   type: "object",
   properties: {
@@ -171,4 +171,3 @@ export const KENDRA_SCHEMA: Record<string, unknown> = {
   required: ["kendras"],
 };
 
-export const UMANG_URL = "https://web.umang.gov.in/";

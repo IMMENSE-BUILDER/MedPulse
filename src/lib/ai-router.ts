@@ -25,6 +25,7 @@ import {
   AiRxSchema,
   AiSuggestionsSchema,
   AiVisionRxSchema,
+  KendraSchema,
   SaltResolutionSchema,
   type AiLab,
   type AiOffer,
@@ -32,6 +33,7 @@ import {
   type AiSuggestions,
   type AiVisionRx,
   type DocAiMessage,
+  type Kendra,
   type SaltResolution,
 } from "./schemas";
 import { env } from "./env";
@@ -169,6 +171,43 @@ async function generateValidated<T>(opts: {
   const secondCheck = validateReply(second.text, opts.schema);
   if (secondCheck.ok) return secondCheck.value;
   throw new Error(`AI reply failed schema validation twice (${secondCheck.issue})`);
+}
+
+/* ------------------------------------------------------- kendra summary */
+const KendraSummarySchema = z.object({
+  kendras: z.array(
+    KendraSchema.pick({ name: true, address: true, distance_km: true, phone: true }),
+  ),
+});
+
+/**
+ * TinyAgent returns the raw Jan Aushadhi locator rows. The clinical text model
+ * deduplicates and cleans them into a stable list; callers fall back to the raw
+ * rows if the model is unavailable.
+ */
+export async function summarizeKendras(raw: Kendra[], pincode: string): Promise<Kendra[]> {
+  if (!raw.length) return [];
+  const object = await generateValidated({
+    model: textModel(),
+    schema: KendraSummarySchema,
+    prompt:
+      "You are normalising Jan Aushadhi Kendra locator results for India. " +
+      `The user searched pincode ${pincode}. TinyAgent returned these rows:\n` +
+      JSON.stringify(raw) +
+      "\n\nKeep every distinct real kendra from the rows. Do not invent names, addresses, " +
+      "distances or phone numbers. Merge exact duplicates by name + address. Keep addresses " +
+      "in English as shown. Return all kendras, nearest first when distance is present.",
+  });
+  return object.kendras.map((k, index) => ({
+    kendra_id: `ja-${index + 1}`,
+    name: k.name,
+    address: k.address,
+    pincode: null,
+    distance_km: k.distance_km ?? null,
+    phone: k.phone ?? null,
+    stock_note: null,
+    source_portal: "janaushadhi.gov.in (live agent + text model)",
+  }));
 }
 
 /* ------------------------------------------------------------ salt decode */

@@ -3,14 +3,15 @@
  *
  * kind:"stock"  -> verify up to 10 medicine URLs against a pincode (max 5 concurrent)
  * kind:"lab"    -> verify up to 10 diagnostic lab URLs against a pincode
- * kind:"kendra" -> find Jan Aushadhi Kendras near a pincode via UMANG
+ * kind:"kendra" -> find all Jan Aushadhi Kendras near a pincode via janaushadhi.gov.in
  *
  * Emits the typed contract: STARTED, STREAMING_URL, PROGRESS, COMPLETE.
  * Without a TinyFish key (or in demo mode) it runs an honest simulation so the
  * PiP dock stays demonstrable.
  */
 import { kendrasFor } from "@/lib/demo-seed";
-import { KENDRA_SCHEMA, STOCK_SCHEMA, UMANG_URL, tfRunAgent } from "@/lib/tinyfish";
+import { KENDRA_SCHEMA, STOCK_SCHEMA, tfRunAgent } from "@/lib/tinyfish";
+import { summarizeKendras } from "@/lib/ai-router";
 import { platformFor } from "@/lib/domains";
 import { env, hasTinyFish, liveAgentEnabled } from "@/lib/env";
 import { assertLiveConfig, apiErrorResponse, validationResponse } from "@/lib/errors";
@@ -151,21 +152,30 @@ async function runStockLive(
 async function runKendraLive(pincode: string, send: Send, signal: AbortSignal): Promise<void> {
   const outcome = await tfRunAgent({
     goal:
-      "Open UMANG (Government of India services app). Navigate to the Jan Aushadhi Kendra locator " +
-      `(PM Bharatiya Janaushadhi Pariyojana). Search for kendras near pincode ${pincode}. Report up to 5 outlets ` +
-      "with name, full address, distance in km if shown, and phone if shown. Do not log in.",
-    url: UMANG_URL,
+      "Open https://janaushadhi.gov.in/near-by-kendra . Enter the user's pincode " +
+      `${pincode} in the locator search field and submit it. Wait for the results table/cards. ` +
+      "Scroll through the results and collect every Jan Aushadhi Kendra: name, full address, " +
+      "distance in km if shown, and phone if shown. If the page shows pagination because there " +
+      "are more than 10 results, click the next-page button and repeat until there is no next " +
+      "page. Return every kendra across all pages, not just the first page. Do not log in.",
+    url: "https://janaushadhi.gov.in/near-by-kendra",
     outputSchema: KENDRA_SCHEMA,
     timeoutMs: 180_000,
     signal,
     callbacks: {
       onStarted: (runId) => send({ type: "STARTED", run_id: runId, goal: `Jan Aushadhi Kendra finder near ${pincode}` }),
-      onStreamUrl: (streamingUrl) => send({ type: "STREAMING_URL", streaming_url: streamingUrl }),
-      onProgress: (purpose) => send({ type: "PROGRESS", purpose: `UMANG: ${purpose}` }),
+      onStreamUrl: (streamingUrl) => send({ type: "STREAMING_URL", streaming_url: streamingUrl, label: "janaushadhi.gov.in" }),
+      onProgress: (purpose) => send({ type: "PROGRESS", purpose: `janaushadhi.gov.in: ${purpose}`, label: "janaushadhi.gov.in" }),
     },
   });
 
-  const kendras = normalizeKendras(outcome.result);
+  const raw = normalizeKendras(outcome.result);
+  let kendras = raw;
+  try {
+    if (raw.length) kendras = await summarizeKendras(raw, pincode);
+  } catch {
+    /* keep the raw locator rows if the text model is unavailable */
+  }
   send({
     type: "COMPLETE",
     ok: kendras.length > 0,
@@ -191,11 +201,11 @@ function normalizeKendras(result: Record<string, unknown> | null): Kendra[] {
         distance_km: typeof r.distance_km === "number" ? r.distance_km : null,
         phone: typeof r.phone === "string" ? r.phone : null,
         stock_note: null,
-        source_portal: "web.umang.gov.in (live agent)",
+        source_portal: "janaushadhi.gov.in (live agent)",
       };
     })
     .filter((k): k is Kendra => k !== null)
-    .slice(0, 5);
+    .slice(0, 100);
 }
 
 /* ------------------------------------------------------------- simulated */
