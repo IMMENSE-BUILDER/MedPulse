@@ -379,6 +379,12 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   };
   window.addEventListener("medpulse:scroll", onScroll, { signal });
 
+  const onIntro = (event: Event): void => {
+    introPaused = Boolean((event as CustomEvent<{ playing?: boolean }>).detail?.playing);
+    sync();
+  };
+  window.addEventListener("medpulse:intro", onIntro, { signal });
+
   const onStagePointerMove = (event: PointerEvent): void => {
     const rect = stage.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
@@ -481,6 +487,7 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   /* ---- animation loop --------------------------------------------------- */
 
   let onScreen = true;
+  let introPaused = false;
   let running = false;
   let contextLost = false;
   let frameId = 0;
@@ -530,7 +537,7 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   }
 
   function shouldRun(): boolean {
-    return !reduced && !contextLost && onScreen && !document.hidden;
+    return !reduced && !contextLost && onScreen && !document.hidden && !introPaused;
   }
 
   function sync(): void {

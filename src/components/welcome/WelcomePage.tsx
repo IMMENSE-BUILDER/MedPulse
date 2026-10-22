@@ -9,6 +9,46 @@ import { initWelcomeMotion } from "./welcome-motion";
 import { WelcomeScene } from "./WelcomeScene";
 
 /**
+ * Critical inline copy of the intro rules. The intro must never render naked
+ * (skip link in normal flow, hero visible) if an external CSS chunk is stale or
+ * delayed, so these styles ship inside the server-rendered markup too.
+ */
+const INTRO_CRITICAL_CSS = `
+  .welcome-root .welcome-content { opacity: 1; transition: opacity 1.5s ease; }
+  .welcome-root.intro-on .welcome-content { opacity: 0; pointer-events: none; }
+  .welcome-root .welcome-intro {
+    position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
+    overflow: hidden; padding: clamp(16px, 4vw, 48px); background: transparent;
+    opacity: 1; transition: opacity 1.5s ease;
+  }
+  .welcome-root .welcome-intro.is-out { opacity: 0; pointer-events: none; }
+  .welcome-root .welcome-video-frame {
+    width: min(88vw, 1180px, calc(78vh * 16 / 9)); aspect-ratio: 16 / 9;
+    overflow: hidden; border: 1px solid var(--color-line); border-radius: 18px;
+    background: #fff; box-shadow: 0 32px 80px -34px rgba(14, 22, 19, 0.38);
+  }
+  .welcome-root .welcome-video-frame video {
+    display: block; width: 100%; height: 100%; object-fit: contain; background: #fff;
+  }
+  .welcome-root .intro-skip {
+    position: absolute; right: clamp(16px, 3vw, 32px); bottom: clamp(16px, 3vw, 32px);
+    z-index: 1; padding: 8px 14px; border: 1px solid var(--color-line-2);
+    border-radius: 999px; background: rgba(255, 255, 255, 0.82);
+    color: var(--color-ink-2); font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+  html.intro-playing .site-blob,
+  html.intro-playing .welcome-root .hero-blob { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-root .welcome-intro { display: none; }
+    .welcome-root .welcome-content {
+      opacity: 1 !important; pointer-events: auto !important; transition: none;
+    }
+  }
+`;
+
+/**
  * The public welcome page. Marketing content + the procedural 3D hero + the
  * local-only history panel. The price engine lives at /engine; every CTA hands
  * off there with the same ?q=&pin= contract the engine already hydrates.
@@ -20,11 +60,26 @@ export function WelcomePage() {
   const { tr } = useLanguage();
 
   const finishIntro = useCallback((immediate = false) => {
+    videoRef.current?.pause();
     setIntroPhase((current) => {
       if (current !== "intro") return current;
       return immediate ? "done" : "out";
     });
   }, []);
+
+  useEffect(() => {
+    const playing = introPhase !== "done";
+    document.documentElement.classList.toggle("intro-playing", playing);
+    window.dispatchEvent(new CustomEvent("medpulse:intro", { detail: { playing } }));
+  }, [introPhase]);
+
+  useEffect(
+    () => () => {
+      document.documentElement.classList.remove("intro-playing");
+      window.dispatchEvent(new CustomEvent("medpulse:intro", { detail: { playing: false } }));
+    },
+    []
+  );
 
   useEffect(() => {
     if (introPhase !== "out") return;
@@ -92,6 +147,8 @@ export function WelcomePage() {
 
   return (
     <div className={`welcome-root${introPhase === "intro" ? " intro-on" : ""}`} ref={rootRef}>
+      <style>{INTRO_CRITICAL_CSS}</style>
+
       {introPhase !== "done" ? (
         <div className={`welcome-intro${introPhase === "out" ? " is-out" : ""}`}>
           <div className="welcome-video-frame">
