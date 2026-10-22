@@ -152,15 +152,16 @@ async function runStockLive(
 async function runKendraLive(pincode: string, send: Send, signal: AbortSignal): Promise<void> {
   const outcome = await tfRunAgent({
     goal:
-      "Open https://janaushadhi.gov.in/near-by-kendra . Enter the user's pincode " +
-      `${pincode} in the locator search field and submit it. Wait for the results table/cards. ` +
-      "Scroll through the results and collect every Jan Aushadhi Kendra: name, full address, " +
-      "distance in km if shown, and phone if shown. If the page shows pagination because there " +
-      "are more than 10 results, click the next-page button and repeat until there is no next " +
-      "page. Return every kendra across all pages, not just the first page. Do not log in.",
+      "Open https://janaushadhi.gov.in/near-by-kendra . The locator form requires State and Pin Code; " +
+      `District is optional. Determine the Indian State for pincode ${pincode} (for 110xxx select Delhi; ` +
+      "use an online pincode lookup if needed), select that State, leave District as --Select District--, " +
+      `enter ${pincode} in the Pin Code field (name pinCodeData) and click Search. Wait for the results table. ` +
+      "Collect every row: Kendra Code, Owner Name, State, District, Pin Code and full Address. " +
+      "If the results show Previous/Next pagination, click Next and repeat until there is no next page. " +
+      "Return every kendra across all pages, not just the first page. Do not log in.",
     url: "https://janaushadhi.gov.in/near-by-kendra",
     outputSchema: KENDRA_SCHEMA,
-    timeoutMs: 180_000,
+    timeoutMs: 240_000,
     signal,
     callbacks: {
       onStarted: (runId) => send({ type: "STARTED", run_id: runId, goal: `Jan Aushadhi Kendra finder near ${pincode}` }),
@@ -190,11 +191,18 @@ function normalizeKendras(result: Record<string, unknown> | null): Kendra[] {
   return raw
     .map((item, i): Kendra | null => {
       const r = (item ?? {}) as Record<string, unknown>;
-      const name = typeof r.name === "string" ? r.name : null;
+      const owner = typeof r.owner_name === "string" ? r.owner_name : null;
+      const code = typeof r.kendra_code === "string" ? r.kendra_code : null;
+      const name =
+        typeof r.name === "string" && r.name.trim()
+          ? r.name
+          : owner
+            ? `Jan Aushadhi Kendra - ${owner}`
+            : "Jan Aushadhi Kendra";
       const address = typeof r.address === "string" ? r.address : null;
-      if (!name || !address) return null;
+      if (!address) return null;
       return {
-        kendra_id: typeof r.kendra_id === "string" ? r.kendra_id : `umang-${i + 1}`,
+        kendra_id: typeof r.kendra_id === "string" ? r.kendra_id : code ?? `ja-${i + 1}`,
         name,
         address,
         pincode: typeof r.pincode === "string" ? r.pincode : null,
@@ -202,6 +210,10 @@ function normalizeKendras(result: Record<string, unknown> | null): Kendra[] {
         phone: typeof r.phone === "string" ? r.phone : null,
         stock_note: null,
         source_portal: "janaushadhi.gov.in (live agent)",
+        kendra_code: code,
+        owner_name: owner,
+        state: typeof r.state === "string" ? r.state : null,
+        district: typeof r.district === "string" ? r.district : null,
       };
     })
     .filter((k): k is Kendra => k !== null)

@@ -176,7 +176,17 @@ async function generateValidated<T>(opts: {
 /* ------------------------------------------------------- kendra summary */
 const KendraSummarySchema = z.object({
   kendras: z.array(
-    KendraSchema.pick({ name: true, address: true, distance_km: true, phone: true }),
+    KendraSchema.pick({
+      name: true,
+      address: true,
+      pincode: true,
+      distance_km: true,
+      phone: true,
+      kendra_code: true,
+      owner_name: true,
+      state: true,
+      district: true,
+    }),
   ),
 });
 
@@ -199,14 +209,18 @@ export async function summarizeKendras(raw: Kendra[], pincode: string): Promise<
       "in English as shown. Return all kendras, nearest first when distance is present.",
   });
   return object.kendras.map((k, index) => ({
-    kendra_id: `ja-${index + 1}`,
+    kendra_id: k.kendra_code ?? `ja-${index + 1}`,
     name: k.name,
     address: k.address,
-    pincode: null,
+    pincode: k.pincode ?? null,
     distance_km: k.distance_km ?? null,
     phone: k.phone ?? null,
     stock_note: null,
     source_portal: "janaushadhi.gov.in (live agent + text model)",
+    kendra_code: k.kendra_code ?? null,
+    owner_name: k.owner_name ?? null,
+    state: k.state ?? null,
+    district: k.district ?? null,
   }));
 }
 

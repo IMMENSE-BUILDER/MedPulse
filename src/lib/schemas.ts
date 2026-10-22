@@ -59,6 +59,10 @@ export const KendraSchema = z.object({
   phone: z.string().nullable(),
   stock_note: z.string().nullable(),
   source_portal: z.string(),
+  kendra_code: z.string().nullable().optional(),
+  owner_name: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  district: z.string().nullable().optional(),
 });
 export type Kendra = z.infer<typeof KendraSchema>;
 

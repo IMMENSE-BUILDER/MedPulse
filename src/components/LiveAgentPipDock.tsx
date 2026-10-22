@@ -47,7 +47,7 @@ export function LiveAgentPipDock({
       <button
         type="button"
         onClick={() => setCollapsed(false)}
-        className={`fixed ${bottom} right-4 z-50 flex h-10 items-center gap-2 rounded-full border border-line bg-panel px-4 text-[11px] text-mute shadow-pop transition-colors hover:border-brand/40 hover:text-brand-2`}
+        className={`fixed ${bottom} right-4 z-[85] flex h-10 items-center gap-2 rounded-full border border-line bg-panel px-4 text-[11px] text-mute shadow-pop transition-colors hover:border-brand/40 hover:text-brand-2`}
       >
         {state.running ? <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" /> : <Bot className="h-3.5 w-3.5" />}
         {streamCount > 0
@@ -63,7 +63,7 @@ export function LiveAgentPipDock({
 
   return (
     <aside
-      className={`fixed ${bottom} right-4 z-50 ${
+      className={`fixed ${bottom} right-4 z-[85] ${
         wide ? "w-[min(96vw,780px)]" : "w-[min(92vw,400px)]"
       } overflow-hidden rounded-2xl border border-line bg-panel shadow-pop`}
     >

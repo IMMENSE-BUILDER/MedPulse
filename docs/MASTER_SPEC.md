@@ -282,7 +282,7 @@ The engine:
 - Stock and lab checks accept up to 10 URLs, with ≤5 concurrent runs. Lab results expose an Agent Run button backed by `kind:"lab"`.
 - The PiP dock renders one live browser tile per active run — a 2-column grid when multiple agents stream in parallel — so every screen is visible during a demo.
 - Pincode injection into pharmacy stock modals.
-- Jan Aushadhi Kendra lookup via the official `janaushadhi.gov.in/near-by-kendra` locator: pincode entry, scrolling, Next-page pagination, then text-model cleanup. The results modal lists every kendra and offers a client-generated PDF named for the pincode.
+- Jan Aushadhi Kendra lookup via the official `janaushadhi.gov.in/near-by-kendra` locator: State selection, pincode entry, scrolling, Next-page pagination, then text-model cleanup. The results modal surfaces timeouts/errors; the live PiP stays above the modal. The results modal lists every kendra and offers a client-generated PDF named for the pincode.
 - Never logs in, adds to cart, or checks out.
 - With no key or in demo mode, an explicitly labelled simulation runs — no fake stock numbers.
 

@@ -115,7 +115,9 @@ export default function Home() {
   const [rxBusy, setRxBusy] = useState(false);
   const [rxError, setRxError] = useState<string | null>(null);
   const [kendras, setKendras] = useState<Kendra[] | null>(null);
+  const [kendraError, setKendraError] = useState<string | null>(null);
   const [kendraOpen, setKendraOpen] = useState(false);
+  const kendraPendingRef = useRef(false);
   const [docaiOpen, setDocaiOpen] = useState(false);
   const [stages, setStages] = useState<CompareStage[]>([]);
   const [locating, setLocating] = useState(false);
@@ -574,15 +576,28 @@ export default function Home() {
     const pin = cmp?.user_pincode ?? pincode;
     ensurePremium(() => {
       setKendras(null);
-      setKendraOpen(true);
+      setKendraError(null);
       setAgentScope(null);
-      void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder - ${pin}`, (result) => {
+      kendraPendingRef.current = true;
+      void agent.run({ kind: "kendra", pincode: pin }, `Jan Aushadhi finder - ${pin}`, (result, _ok, error) => {
         const r = result as { kind?: string; kendras?: Kendra[] } | null;
-        setKendras(r?.kendras?.length ? r.kendras : []);
+        kendraPendingRef.current = false;
+        setKendras(r?.kendras ?? []);
+        setKendraError(error);
         setKendraOpen(true);
       });
     });
   }, [cmp, pincode, ensurePremium, agent]);
+
+  useEffect(() => {
+    if (!kendraPendingRef.current || agent.state.running) return;
+    if (agent.state.error) {
+      kendraPendingRef.current = false;
+      setKendras([]);
+      setKendraError(agent.state.error);
+      setKendraOpen(true);
+    }
+  }, [agent.state.error, agent.state.running]);
 
   /* ---------------------------------------------------------------- view */
 
@@ -785,6 +800,7 @@ export default function Home() {
         kendras={kendras}
         pincode={cmp?.user_pincode ?? pincode}
         running={agent.state.running}
+        error={kendraError}
         onClose={() => setKendraOpen(false)}
         onRetry={findKendra}
       />

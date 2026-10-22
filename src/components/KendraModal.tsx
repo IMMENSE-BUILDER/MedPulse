@@ -11,6 +11,7 @@ export function KendraModal({
   kendras,
   pincode,
   running,
+  error,
   onClose,
   onRetry,
 }: {
@@ -18,6 +19,7 @@ export function KendraModal({
   kendras: Kendra[] | null;
   pincode: string;
   running: boolean;
+  error: string | null;
   onClose: () => void;
   onRetry: () => void;
 }) {
@@ -76,6 +78,11 @@ export function KendraModal({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-3">
+          {error ? (
+            <div className="mb-2 rounded-xl border border-warn/40 bg-warn/10 px-3 py-2 text-[10.5px] leading-relaxed text-warn">
+              {tr("Live agent could not finish:", "लाइव एजेंट पूरा नहीं कर सका:")} {error}
+            </div>
+          ) : null}
           {running && !kendras?.length ? (
             <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
               <Loader2 className="h-6 w-6 animate-spin text-brand" />
@@ -105,6 +112,14 @@ export function KendraModal({
                         ) : null}
                       </div>
                       <p className="mt-1 text-[10.5px] leading-relaxed text-mute">{kendra.address}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] text-faint">
+                        {kendra.kendra_code ? <span>Code {kendra.kendra_code}</span> : null}
+                        {kendra.owner_name ? <span>Owner {kendra.owner_name}</span> : null}
+                        {kendra.state || kendra.district ? (
+                          <span>{[kendra.district, kendra.state].filter(Boolean).join(", ")}</span>
+                        ) : null}
+                        {kendra.pincode ? <span>{kendra.pincode}</span> : null}
+                      </div>
                       {kendra.phone ? (
                         <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-faint">
                           <Phone className="h-2.5 w-2.5" />

@@ -26,7 +26,14 @@ export async function downloadKendraPdf(kendras: Kendra[], pincode: string): Pro
 
   kendras.forEach((kendra, index) => {
     const addressLines = doc.splitTextToSize(kendra.address, maxWidth - 20) as string[];
-    const blockHeight = 30 + addressLines.length * 13 + (kendra.phone ? 13 : 0);
+    const meta = [
+      kendra.kendra_code ? `Code: ${kendra.kendra_code}` : null,
+      kendra.owner_name ? `Owner: ${kendra.owner_name}` : null,
+      kendra.district || kendra.state ? [kendra.district, kendra.state].filter(Boolean).join(", ") : null,
+      kendra.pincode ? `PIN ${kendra.pincode}` : null,
+    ].filter(Boolean) as string[];
+    const metaLines = meta.length ? (doc.splitTextToSize(meta.join("  |  "), maxWidth - 20) as string[]) : [];
+    const blockHeight = 30 + addressLines.length * 13 + metaLines.length * 12 + (kendra.phone ? 13 : 0);
 
     if (y + blockHeight > pageHeight - 50) {
       doc.addPage();
@@ -54,6 +61,12 @@ export async function downloadKendraPdf(kendras: Kendra[], pincode: string): Pro
       doc.text(line, margin + 14, y);
       y += 12;
     }
+    doc.setFontSize(8.5);
+    for (const line of metaLines) {
+      doc.text(line, margin + 14, y);
+      y += 11;
+    }
+    doc.setFontSize(9.5);
     if (kendra.phone) {
       doc.text(`Phone: ${kendra.phone}`, margin + 14, y);
       y += 12;
