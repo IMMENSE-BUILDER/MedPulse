@@ -4,6 +4,8 @@ import { Bot, ChevronDown, Crown, Loader2, LocateFixed, MapPin, Stethoscope, X }
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/lib/i18n";
 import { AGENT_SCOPE_LABEL, AGENT_SCOPE_SHORT, type AgentScope } from "@/lib/agent-scope";
 
 export function NavbarPincode({
@@ -39,6 +41,7 @@ export function NavbarPincode({
 }) {
   const [draft, setDraft] = useState(pincode);
   const [autoOpen, setAutoOpen] = useState(false);
+  const { lang, tr } = useLanguage();
   useEffect(() => setDraft(pincode), [pincode]);
   const valid = /^\d{6}$/.test(draft);
 
@@ -84,7 +87,7 @@ export function NavbarPincode({
             title={`MedPulse Premium - ₹299/month mock preview`}
           >
             <Crown className="h-3.5 w-3.5" />
-            Premium
+            {tr("Premium", "प्रीमियम")}
           </button>
           {locateMsg ? (
             <span className="hidden max-w-[240px] truncate text-[10px] text-warn md:inline" title={locateMsg}>
@@ -143,7 +146,7 @@ export function NavbarPincode({
                 }`}
               />
             </span>
-            {autoVerify ? `Auto: ${AGENT_SCOPE_SHORT[autoVerify]}` : "Auto-verify"}
+            {autoVerify ? (lang === "hi" ? `ऑटो: ${AGENT_SCOPE_SHORT[autoVerify]}` : `Auto: ${AGENT_SCOPE_SHORT[autoVerify]}`) : tr("Auto-verify", "अपने आप जाँच")}
             <ChevronDown className="h-3 w-3 opacity-70" />
           </button>
 
@@ -154,7 +157,7 @@ export function NavbarPincode({
             title="DocAI — general medical help & consulting"
           >
             <Stethoscope className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">DocAI</span>
+            <span className="hidden sm:inline">{tr("DocAI", "DocAI")}</span>
           </button>
 
           <button
@@ -163,9 +166,10 @@ export function NavbarPincode({
             className="flex h-9 items-center gap-2 rounded-xl border border-line bg-panel-2 px-3 text-[12px] font-medium text-ink-2 transition-colors hover:border-line-2 hover:text-ink"
           >
             {agentRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" /> : <Bot className="h-3.5 w-3.5" />}
-            Agent
+            {tr("Agent", "एजेंट")}
           </button>
 
+          <LanguageToggle />
         </div>
       </div>
     </header>
@@ -189,11 +193,13 @@ export function NavbarPincode({
               </span>
               <div className="min-w-0">
                 <h2 id="auto-verify-title" className="text-sm font-semibold">
-                  Auto-verify with the live agent
+                  {tr("Auto-verify with the live agent", "लाइव एजेंट से अपने आप जाँच")}
                 </h2>
                 <p className="mt-1 text-[11px] leading-relaxed text-mute">
-                  Choose which listings the browser agent should check. It runs immediately on the current live
-                  results and on every new live comparison.
+                  {tr(
+                    "Choose which listings the browser agent should check. It runs immediately on the current live results and on every new live comparison.",
+                    "चुनें कि ब्राउज़र एजेंट किन दवाओं की जाँच करे। यह मौजूदा नतीजों पर तुरंत चलेगा और हर नई लाइव तुलना पर दोबारा चलेगा।",
+                  )}
                 </p>
               </div>
               <button
@@ -220,13 +226,19 @@ export function NavbarPincode({
                 >
                   <Bot className="mt-0.5 h-4 w-4 shrink-0 text-brand-2" />
                   <span>
-                    <span className="block text-[12px] font-medium text-ink-2">{AGENT_SCOPE_LABEL[scope]}</span>
+                    <span className="block text-[12px] font-medium text-ink-2">
+                      {scope === "generic"
+                        ? tr("Subsidised generic substitutes", "सस्ती जेनेरिक दवाइयाँ")
+                        : scope === "branded"
+                          ? tr("Branded express medicines", "ब्रांडेड दवाइयाँ")
+                          : tr("All medicine offers", "सभी दवाइयाँ")}
+                    </span>
                     <span className="mt-0.5 block text-[10px] leading-relaxed text-faint">
                       {scope === "generic"
-                        ? "Run every Track B generic listing in the live browser."
+                        ? tr("Run every Track B generic listing in the live browser.", "लाइव ब्राउज़र में सभी Track B जेनेरिक दवाइयाँ जाँचें।")
                         : scope === "branded"
-                          ? "Run every Track C branded express listing in the live browser."
-                          : "Run every generic and branded medicine link in one pass."}
+                          ? tr("Run every Track C branded express listing in the live browser.", "लाइव ब्राउज़र में सभी Track C ब्रांडेड दवाइयाँ जाँचें।")
+                          : tr("Run every generic and branded medicine link in one pass.", "सभी जेनेरिक और ब्रांडेड दवाओं को एक साथ जाँचें।")}
                     </span>
                   </span>
                 </button>
@@ -238,7 +250,7 @@ export function NavbarPincode({
                   onClick={() => chooseAuto(null)}
                   className="w-full rounded-xl border border-line px-3 py-2 text-[11px] text-mute transition-colors hover:border-danger/40 hover:text-danger"
                 >
-                  Turn off auto-verify
+                  {tr("Turn off auto-verify", "अपने आप जाँच बंद करें")}
                 </button>
               ) : null}
             </div>

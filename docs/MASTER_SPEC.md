@@ -120,6 +120,7 @@ The engine:
 - Sign-in is a **local-only demo profile**: name/email and up to 30 history entries in localStorage. No password is stored, no account is created, and nothing is sent to a server.
 - The six-colour ambient mesh is always on; it is CSS-only, low-opacity and frozen under `prefers-reduced-motion`.
 - The welcome page shares the logo and blue brand tokens with the engine.
+- **Hindi UI:** an EN/हिं toggle in the top corner switches UI labels to simple Hindi. Medicine names, salts, lab test names and standard clinical terms stay in English.
 - Legacy `/?q=&pin=&type=` URLs 307-forward to `/engine` so old share links still work.
 
 **Files:** `src/app/page.tsx`, `src/components/welcome/*` (`WelcomePage`, `WelcomeScene`, `welcome-auth`, `welcome-motion`), `src/lib/welcome-store.ts`, `src/app/welcome.css`, `src/app/ambient.css`, `src/components/SiteAmbient.tsx`.

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, FlaskConical, Loader2, Pill, Search } from "lucide-react";
 import { searchCatalog } from "@/lib/catalog";
+import { useLanguage } from "@/lib/i18n";
 
 export function SearchPanel({
   track,
@@ -28,6 +29,7 @@ export function SearchPanel({
   const quick = track === "medicine" ? quickMeds : quickLabs;
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const { tr } = useLanguage();
 
   const suggestions = useMemo(() => searchCatalog(query, track, 9), [query, track]);
   const trimmed = query.trim();
@@ -61,7 +63,7 @@ export function SearchPanel({
           }`}
         >
           <Pill className="h-3.5 w-3.5" />
-          Medicines
+          {tr("Medicines", "दवाइयाँ")}
         </button>
         <button
           type="button"
@@ -74,7 +76,7 @@ export function SearchPanel({
           }`}
         >
           <FlaskConical className="h-3.5 w-3.5" />
-          Lab tests
+          {tr("Lab tests", "लैब टेस्ट")}
         </button>
       </div>
 
@@ -190,12 +192,12 @@ export function SearchPanel({
           className="flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          Compare
+          {tr("Compare", "तुलना करें")}
         </button>
       </form>
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <span className="mr-1 text-[11px] text-faint">Try:</span>
+        <span className="mr-1 text-[11px] text-faint">{tr("Try:", "आज़माएँ:")}</span>
         {quick.map((q) => (
           <button
             key={q}

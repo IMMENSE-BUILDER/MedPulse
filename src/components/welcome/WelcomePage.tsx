@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/Logo";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/lib/i18n";
 import { initWelcomeAuth } from "./welcome-auth";
 import { initWelcomeMotion } from "./welcome-motion";
 import { WelcomeScene } from "./WelcomeScene";
@@ -13,6 +15,58 @@ import { WelcomeScene } from "./WelcomeScene";
  */
 export function WelcomePage() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [introPhase, setIntroPhase] = useState<"intro" | "out" | "done">("intro");
+  const { tr } = useLanguage();
+
+  const finishIntro = useCallback((immediate = false) => {
+    setIntroPhase((current) => {
+      if (current !== "intro") return current;
+      return immediate ? "done" : "out";
+    });
+  }, []);
+
+  useEffect(() => {
+    if (introPhase !== "out") return;
+    const timer = window.setTimeout(() => setIntroPhase("done"), 1600);
+    return () => window.clearTimeout(timer);
+  }, [introPhase]);
+
+  useEffect(() => {
+    if (introPhase !== "intro") return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      videoRef.current?.pause();
+      finishIntro(true);
+      return;
+    }
+
+    const video = videoRef.current;
+    if (video?.ended) {
+      finishIntro();
+      return;
+    }
+
+    // If autoplay is blocked, the video errors, or the end event is missed,
+    // reveal the hero rather than trapping the page behind the intro.
+    const fallback = window.setTimeout(() => finishIntro(), 11000);
+    const attempt = video?.play();
+    if (attempt && typeof attempt.catch === "function") {
+      attempt.catch(() => finishIntro());
+    }
+
+    return () => window.clearTimeout(fallback);
+  }, [finishIntro, introPhase]);
+
+  useEffect(() => {
+    if (introPhase !== "intro") return;
+    const html = document.documentElement;
+    const previous = html.style.overflow;
+    html.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = previous;
+    };
+  }, [introPhase]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -37,10 +91,32 @@ export function WelcomePage() {
   }, []);
 
   return (
-    <div className="welcome-root" ref={rootRef}>
-      <a className="skip" href="#main">
-        Skip to content
-      </a>
+    <div className={`welcome-root${introPhase === "intro" ? " intro-on" : ""}`} ref={rootRef}>
+      {introPhase !== "done" ? (
+        <div className={`welcome-intro${introPhase === "out" ? " is-out" : ""}`}>
+          <div className="welcome-video-frame">
+            <video
+              ref={videoRef}
+              src="/hero-intro.mp4"
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+              onEnded={() => finishIntro()}
+              onError={() => finishIntro()}
+            />
+          </div>
+          <button type="button" className="intro-skip" onClick={() => finishIntro()}>
+            {tr("Skip intro", "इंट्रो छोड़ें")}
+          </button>
+        </div>
+      ) : null}
+
+      <div className="welcome-content">
+        <a className="skip" href="#main">
+          {tr("Skip to content", "मुख्य भाग पर जाएँ")}
+        </a>
 
       <header className="nav">
         <div className="wrap nav-inner">
@@ -49,14 +125,15 @@ export function WelcomePage() {
           </a>
 
           <nav className="nav-links" aria-label="Sections">
-            <a href="#tracks">Tracks</a>
-            <a href="#fair">Why it&rsquo;s fair</a>
-            <a href="/engine">Price engine</a>
+            <a href="#tracks">{tr("Tracks", "ट्रैक")}</a>
+            <a href="#fair">{tr("Why it’s fair", "यह क्यों सही है")}</a>
+            <a href="/engine">{tr("Price engine", "कीमत इंजन")}</a>
           </nav>
 
           <div className="nav-actions">
+            <LanguageToggle />
             <button id="nav-signin" className="btn ghost sm" type="button">
-              Sign in
+              {tr("Sign in", "साइन इन")}
             </button>
           </div>
         </div>
@@ -77,39 +154,44 @@ export function WelcomePage() {
               <span className="eyebrow-short">PMBJP · Generics · Branded · Labs</span>
             </p>
             <h1>
-              One search prices your medicine <em>four ways.</em>
+              {tr("One search prices your medicine", "एक खोज में आपकी दवा की कीमत")}{" "}
+              <em>{tr("four ways.", "चार तरह से।")}</em>
             </h1>
             <p className="lede">
-              MedPulse decodes a brand to its active salt, checks the government PMBJP benchmark, matches subsidised
-              generics and branded express listings by exact strength, and prices diagnostic lab packages &mdash; every
-              figure normalised per 10 tablets so pack sizes can&rsquo;t hide the real cost.
+              {tr(
+                "MedPulse decodes a brand to its active salt, checks the government PMBJP benchmark, matches subsidised generics and branded express listings by exact strength, and prices diagnostic lab packages — every figure normalised per 10 tablets so pack sizes can’t hide the real cost.",
+                "MedPulse आपकी दवा के ब्रांड को उसके सॉल्ट में बदलता है, सरकारी PMBJP कीमत देखता है, सही स्ट्रेंथ वाली सस्ती जेनेरिक और ब्रांडेड दवाइयाँ ढूँढता है, और लैब टेस्ट के पैकेज भी तुलना करता है — हर कीमत 10 गोली के हिसाब से, ताकि पैक साइज़ से असली कीमत न छिपे।",
+              )}
             </p>
 
             <ul className="proof">
               <li>
                 <span className="dot" />
-                Per-10-tab pricing
+                {tr("Per-10-tab pricing", "10 गोली की कीमत")}
               </li>
               <li>
                 <span className="dot" />
-                Strength guard
+                {tr("Strength guard", "सही स्ट्रेंथ की जाँच")}
               </li>
               <li>
                 <span className="dot" />
-                Visible provenance
+                {tr("Visible provenance", "हर कीमत का स्रोत")}
               </li>
             </ul>
 
             <div className="cta-row">
               <a className="btn primary" data-go href="/engine">
-                Enter price engine <span aria-hidden="true">→</span>
+                {tr("Enter price engine", "कीमत इंजन खोलें")} <span aria-hidden="true">→</span>
               </a>
               <a className="btn ghost" href="#fair">
-                See how it works
+                {tr("See how it works", "यह कैसे काम करता है")}
               </a>
             </div>
             <p className="micro">
-              Indicative prices &mdash; confirm the final amount at checkout and with a pharmacist.
+              {tr(
+                "Indicative prices — confirm the final amount at checkout and with a pharmacist.",
+                "कीमतें सिर्फ जानकारी के लिए हैं — खरीदने से पहले और फार्मासिस्ट से अंतिम कीमत ज़रूर पुष्टि करें।",
+              )}
             </p>
           </div>
 
@@ -117,7 +199,7 @@ export function WelcomePage() {
 
           <div className="hero-foot wrap">
             <div className="quick">
-              <span className="quick-label">Try a search</span>
+              <span className="quick-label">{tr("Try a search", "खोज करें")}</span>
               <button className="chip" type="button" data-quick="Augmentin 625 Duo" data-kind="medicine">
                 Augmentin 625 Duo
               </button>
@@ -385,11 +467,13 @@ export function WelcomePage() {
       <div className="toast" id="toast" role="status" aria-live="polite" />
 
       <noscript>
+        <style>{`.welcome-intro{display:none!important}.welcome-root.intro-on .welcome-content{opacity:1!important;pointer-events:auto!important}`}</style>
         <p className="wrap noscript">
           This page uses JavaScript for the 3D scene and the local history panel. The price engine links above still
           work.
         </p>
       </noscript>
+      </div>
     </div>
   );
 }

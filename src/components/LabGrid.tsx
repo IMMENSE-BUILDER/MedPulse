@@ -2,6 +2,7 @@
 
 import { Bot, ExternalLink, FlaskConical, Home, Loader2, Timer } from "lucide-react";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
+import { useLanguage } from "@/lib/i18n";
 import { inr0, pct } from "@/lib/format";
 import type { LabComparison } from "@/lib/schemas";
 
@@ -18,6 +19,7 @@ export function LabGrid({
   verifyDisabled?: boolean;
   verifyTitle?: string;
 }) {
+  const { tr } = useLanguage();
   return (
     <section className="rounded-2xl border border-line bg-panel p-5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -45,7 +47,7 @@ export function LabGrid({
               title={verifyTitle ?? "Run the live browser agent on every lab listing"}
             >
               {agentRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
-              Agent Run
+              {tr("Agent Run", "एजेंट चलाएँ")}
             </button>
           ) : null}
           <ShareLinkButton />
@@ -106,7 +108,7 @@ export function LabGrid({
                   rel="noreferrer"
                   className="flex h-8 items-center gap-1.5 rounded-lg border border-line-2 bg-panel-2 px-3 text-[11px] text-ink-2 transition-colors hover:border-brand/50"
                 >
-                  Book
+                  {tr("Book", "बुक करें")}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : null}
@@ -127,7 +129,7 @@ export function LabGrid({
       {agentRunning ? (
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-3 py-2 text-[10px] font-medium text-brand-2">
           <span className="dot-live h-1.5 w-1.5 rounded-full bg-brand" />
-          Agent live - checking lab listings in the PiP browser
+          {tr("Agent live - checking lab listings in the PiP browser", "एजेंट लाइव - PiP ब्राउज़र में लैब जाँच रहा है")}
         </div>
       ) : null}
     </section>

@@ -3,6 +3,7 @@
 import { Check, Copy, Minus, Plus, Wallet } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { clockOf, inr0, pct } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n";
 import type { DualTrackComparison } from "@/lib/schemas";
 
 /**
@@ -16,6 +17,7 @@ import type { DualTrackComparison } from "@/lib/schemas";
  */
 export function SavingsReceipt({ cmp }: { cmp: DualTrackComparison }) {
   const [strips, setStrips] = useState(2);
+  const { tr } = useLanguage();
   const [copied, setCopied] = useState<"idle" | "ok" | "fail">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -85,7 +87,7 @@ export function SavingsReceipt({ cmp }: { cmp: DualTrackComparison }) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="flex items-center gap-1.5 text-[11px] font-medium text-brand-2">
               <Wallet className="h-3.5 w-3.5" />
-              What switching saves you
+              {tr("What switching saves you", "बदलने पर कितनी बचत")}
             </span>
             {cmp.data_source === "demo" ? (
               <span className="rounded-full border border-warn/40 bg-warn/10 px-2 py-0.5 text-[9px] text-warn">
@@ -123,14 +125,14 @@ export function SavingsReceipt({ cmp }: { cmp: DualTrackComparison }) {
             >
               <Plus className="h-3 w-3" />
             </button>
-            <span className="text-[10px] text-faint">strips / month</span>
+            <span className="text-[10px] text-faint">{tr("strips / month", "स्ट्रिप / महीना")}</span>
           </div>
           <div className="mt-2 font-mono text-[13px] font-semibold text-brand-2">
             {inr0(monthly)}
-            <span className="text-[10px] font-normal text-faint"> / month</span>
+            <span className="text-[10px] font-normal text-faint"> {tr("/ month", "/ महीना")}</span>
             <span className="text-faint"> · </span>
             {inr0(yearly)}
-            <span className="text-[10px] font-normal text-faint"> / year</span>
+            <span className="text-[10px] font-normal text-faint"> {tr("/ year", "/ साल")}</span>
           </div>
           <div className="mt-1 text-[9.5px] text-faint">
             Projection — 1 strip = 10 tablets · prices as of {clockOf(cmp.generated_at)}
@@ -149,7 +151,7 @@ export function SavingsReceipt({ cmp }: { cmp: DualTrackComparison }) {
           className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-line bg-panel-2 px-3 py-1.5 text-[10px] font-medium text-mute transition-colors hover:border-brand/40 hover:text-brand-2"
         >
           {copied === "ok" ? <Check className="h-3 w-3 text-brand-2" /> : <Copy className="h-3 w-3" />}
-          {copied === "ok" ? "Receipt copied" : copied === "fail" ? "Copy manually" : "Copy receipt"}
+          {copied === "ok" ? tr("Receipt copied", "रसीद कॉपी हुई") : copied === "fail" ? tr("Copy manually", "खुद कॉपी करें") : tr("Copy receipt", "रसीद कॉपी करें")}
         </button>
       </div>
     </section>

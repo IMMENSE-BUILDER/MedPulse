@@ -169,6 +169,7 @@ MedPulse-main/
 18. **Premium gate (mock):** the navbar Premium badge and the first agent action open `PremiumModal` (₹299/month). `ensurePremium()` gates Agent Run, per-offer verify, Auto-verify, lab run, kendra and the agent console; one click unlocks a localStorage preview and resumes the pending action. No payment, checkout, account or subscription exists.
 
 19. **Ambient mesh:** a fixed six-blob mesh (`.site-ambient`, `src/app/ambient.css`) sits behind every page, plus a warmer `.hero-ambient` mesh in the welcome hero (`welcome.css`). Both are always on in the single light theme and frozen under `prefers-reduced-motion`. Keep them low-opacity and behind content.
+20. **Hindi UI:** `LanguageProvider` (`src/lib/i18n.tsx`) persists `medpulse:lang`; `LanguageToggle` sits in the top corner. Translate UI labels with `tr("English", "हिंदी")`; never translate medicine names, salts, lab test names or standard clinical terms.
 
 ## 8. Common Commands
 - Install: `npm install`

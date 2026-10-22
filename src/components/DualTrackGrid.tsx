@@ -3,6 +3,7 @@
 import { CheckCircle2, Clock, ExternalLink, Loader2, Pill, ShieldCheck, ShoppingBag, Bot, XCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import { AGENT_SCOPE_LABEL, type AgentScope } from "@/lib/agent-scope";
+import { useLanguage } from "@/lib/i18n";
 import { inr0, hostOf, timeAgo } from "@/lib/format";
 import type { CartMode, DualTrackComparison, Offer } from "@/lib/schemas";
 
@@ -15,11 +16,13 @@ function StockLine({
   onRun: () => void;
   disabled: boolean;
 }) {
+  const { tr } = useLanguage();
   if (offer.in_stock === true) {
     return (
       <span className="inline-flex items-center gap-1 text-brand-2">
         <CheckCircle2 className="h-3 w-3" />
-        In stock{offer.verified_by.includes("Agent") ? " - agent-verified" : ""}
+        {tr("In stock", "स्टॉक में")}
+        {offer.verified_by.includes("Agent") ? tr(" - agent-verified", " - एजेंट से जाँचा") : ""}
       </span>
     );
   }
@@ -27,7 +30,7 @@ function StockLine({
     return (
       <span className="inline-flex items-center gap-1 text-danger">
         <XCircle className="h-3 w-3" />
-        Out of stock at pincode
+        {tr("Out of stock at pincode", "इस पिनकोड पर स्टॉक नहीं")}
       </span>
     );
   }
@@ -37,10 +40,10 @@ function StockLine({
       onClick={onRun}
       disabled={disabled}
       className="inline-flex items-center gap-1 text-faint transition-colors hover:text-brand-2 disabled:cursor-not-allowed disabled:opacity-50"
-      title="Run the live browser agent on this exact listing"
+      title={tr("Run the live browser agent on this exact listing", "इसी दवा पर लाइव ब्राउज़र एजेंट चलाएँ")}
     >
       <Bot className="h-3 w-3" />
-      Stock unverified - run agent
+      {tr("Stock unverified - run agent", "स्टॉक नहीं जाँचा - एजेंट चलाएँ")}
     </button>
   );
 }
@@ -62,6 +65,7 @@ function OfferCard({
   onVerify: () => void;
   verifyDisabled: boolean;
 }) {
+  const { tr } = useLanguage();
   const border =
     accent === "generic"
       ? "border-brand/25 hover:border-brand/50"
@@ -173,7 +177,7 @@ function OfferCard({
           }`}
         >
           <ShoppingBag className="h-3 w-3" />
-          {added ? "In cart" : accent === "generic" ? "Add refill" : "Add express"}
+          {added ? tr("In cart", "कार्ट में") : accent === "generic" ? tr("Add refill", "रीफिल जोड़ें") : tr("Add express", "एक्सप्रेस जोड़ें")}
         </button>
         {offer.product_url ? (
           <a
@@ -247,6 +251,7 @@ export function DualTrackGrid({
   verifyDisabled: boolean;
   verifyTitle: string;
 }) {
+  const { tr } = useLanguage();
   const allCount = cmp.subsidised_generic_online.length + cmp.branded_express_online.length;
   const liveLabel = agentScope && agentScope !== "all" ? AGENT_SCOPE_LABEL[agentScope] : "all medicine offers";
   const runDisabled = agentRunning || verifyDisabled || allCount === 0;
@@ -256,10 +261,13 @@ export function DualTrackGrid({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-line bg-panel px-3.5 py-2.5">
         <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-ink-2">
           <Bot className="h-3.5 w-3.5 text-brand-2" />
-          Agent Run
+          {tr("Agent Run", "एजेंट चलाएँ")}
         </span>
         <span className="text-[10px] text-faint">
-          Verify every displayed medicine link in the live browser - generic + branded.
+          {tr(
+            "Verify every displayed medicine link in the live browser - generic + branded.",
+            "लाइव ब्राउज़र में हर दवा की जाँच करें - जेनेरिक और ब्रांडेड।",
+          )}
         </span>
         <button
           type="button"
@@ -269,7 +277,7 @@ export function DualTrackGrid({
           title={verifyTitle}
         >
           {agentRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bot className="h-3 w-3" />}
-          Agent Run
+          {tr("Agent Run", "एजेंट चलाएँ")}
         </button>
       </div>
 
@@ -288,8 +296,8 @@ export function DualTrackGrid({
                 <Pill className="h-4 w-4 text-brand-2" />
               </span>
             }
-            title="Subsidised generic - Track B"
-            subtitle="Salt-matched - strength-guarded - NABL checked"
+            title={tr("Subsidised generic - Track B", "सस्ती जेनेरिक - Track B")}
+            subtitle={tr("Salt-matched - strength-guarded - NABL checked", "सॉल्ट से मिलान - सही स्ट्रेंथ - NABL जाँच")}
             count={cmp.subsidised_generic_online.length}
             action={
               <button
@@ -304,7 +312,7 @@ export function DualTrackGrid({
                 ) : (
                   <Bot className="h-3 w-3" />
                 )}
-                Run generics
+                {tr("Run generics", "जेनेरिक जाँचें")}
               </button>
             }
           />
@@ -340,8 +348,8 @@ export function DualTrackGrid({
                 <ShoppingBag className="h-4 w-4 text-mute" />
               </span>
             }
-            title="Branded express - Track C"
-            subtitle="Original brands - ETA verified on demand"
+            title={tr("Branded express - Track C", "ब्रांडेड एक्सप्रेस - Track C")}
+            subtitle={tr("Original brands - ETA verified on demand", "असली ब्रांड - माँग पर डिलीवरी की जाँच")}
             count={cmp.branded_express_online.length}
             action={
               <button
@@ -356,7 +364,7 @@ export function DualTrackGrid({
                 ) : (
                   <Bot className="h-3 w-3" />
                 )}
-                Run branded
+                {tr("Run branded", "ब्रांडेड जाँचें")}
               </button>
             }
           />
