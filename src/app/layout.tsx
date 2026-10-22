@@ -5,7 +5,7 @@ import "./globals.css";
 import "./ambient.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://medpulse-ai-snowy.vercel.app"),
+  metadataBase: new URL("https://medpulseai.vercel.app"),
   title: "MedPulse AI — branded vs generic price engine",
   description:
     "Real-time dual-track price comparison: PMBJP/Jan Aushadhi generics vs branded e-pharmacies, on-demand live-agent stock checks, lab test comparison and prescription OCR.",
@@ -29,12 +29,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="light">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              'try{if(localStorage.getItem("medpulse:theme")==="dark")document.documentElement.classList.remove("light");else document.documentElement.classList.add("light")}catch(e){document.documentElement.classList.add("light")}',
-          }}
-        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

@@ -4,7 +4,6 @@ import { Bot, ChevronDown, Crown, Loader2, LocateFixed, MapPin, Stethoscope, X }
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { AGENT_SCOPE_LABEL, AGENT_SCOPE_SHORT, type AgentScope } from "@/lib/agent-scope";
 
 export function NavbarPincode({
@@ -167,7 +166,6 @@ export function NavbarPincode({
             Agent
           </button>
 
-          <ThemeToggle />
         </div>
       </div>
     </header>

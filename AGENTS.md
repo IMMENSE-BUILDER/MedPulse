@@ -15,7 +15,7 @@ Full product/engineering spec and PPT generation brief: `docs/MASTER_SPEC.md`. K
 
 ## 2. Tech Stack & Core Dependencies
 - **Framework:** Next.js 16 (App Router, TypeScript, Route Handlers). No Server Actions — the API surface is explicit route handlers.
-- **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Blue (`#0000ff` default, dark-blue `#0041c2` on hover) on a light-first canvas, with the near-black dark palette available via the theme toggle.
+- **Styling:** Tailwind CSS v4 (`@theme` tokens in `src/app/globals.css`) + `lucide-react`. Blue (`#0000ff` default, dark-blue `#0041c2` on hover) on a light-only canvas. There is no dark theme.
 - **3D:** Three.js 0.160 (bundled) for the procedural welcome scene only. No textures or model files.
 - **AI:** `ai` package (AI SDK) + `zod` v4 schemas, routed **exclusively** through the Vercel AI Gateway.
 - **Web execution:** `@tiny-fish/sdk` (Search / Fetch / Agent).
@@ -117,7 +117,6 @@ MedPulse-main/
 │   │   ├── SplitCartDrawer.tsx         # Express vs refill cart + checkout links
 │   │   ├── UnresolvedPanel.tsx         # Undecodable query → reliable real search picks
 │   │   ├── DocAiDock.tsx               # DocAI chat dock (general help & consulting)
-│   │   └── ThemeToggle.tsx             # Light/dark theme toggle (navbar top-right corner)
 │   ├── hooks/useAgentStream.ts         # Agent dock state machine
 │   └── lib/
 │       ├── ai-router.ts                # ONLY file that talks to the AI Gateway
@@ -159,7 +158,7 @@ MedPulse-main/
 8. **Unresolved queries never dead-end:** a query that cannot be decoded to a salt — or whose listings yield no trustworthy price (D3-60K class etc.) — runs a real TinySearch across the tracked portals and the text model picks up to 4 suggestions **that must appear in the search results** (rendered as clickable picks in `UnresolvedPanel`). If the suggestion path fails, fall back to the honest error. `status:"unresolved"` results are never cached.
 9. **Real progress only:** `/api/compare-stream` emits real pipeline stage events with actual counts — the tracker (`CompareProgress`) must never display simulated or fabricated steps. The completed panel may stay visible with its real arrival timings, always labelled as measured in the browser.
 10. **Typeahead suggestions are local + honest:** the search dropdown filters the curated catalog (`src/lib/catalog.ts`) client-side — instant, no network, no AI call per keystroke. Selecting a suggestion fills the box and runs the real compare; the **"Search ⋯ in live prices anyway"** row always runs the user's exact text through the live pipeline. Never invent suggestion names from the network here, and never present catalog hints as live prices.
-11. **Light/dark theme:** **Light is the default** — `<html class="light">` is server-rendered and the pre-paint script in `layout.tsx` keeps light unless the stored `medpulse:theme` is exactly `dark`. `ThemeToggle` (navbar top-right corner) flips the class, persists the key and updates the browser `theme-color`; a saved dark preference always wins. Light palette lives in `globals.css` as `html.light` token overrides — add new colors as tokens, never as per-component hardcoded values.
+11. **Light theme only:** `<html class="light">` is fixed in `layout.tsx`; there is no toggle, no `medpulse:theme` preference and no dark palette. Add colors as tokens in `globals.css`, never as per-component hardcoded values.
 12. **Never surface model IDs:** no badges, footers, dock chips, API response fields or docs may show the underlying model names — they live only as env defaults in `src/lib/env.ts` (see §3). The OCR response in particular must not contain a `models` field.
 13. **Branding & icons:** the brand mark is the blue blister-grid lockup on a white rounded tile, rendered by `Logo.tsx` (navbar + footer) — never re-create the badge or wordmark inline. Tab/app/social icons are file-based app metadata: `icon.svg` / `icon.png` / `apple-icon.png` / `opengraph-image.png`. If the logo ever changes, regenerate those files (the generator lives outside the repo in the logos demo workspace).
 14. **Shareable results:** `engine/page.tsx` keeps `?q=&pin=&type=` in the address bar via `history.replaceState` after every successful comparison, and hydrates those params on boot (skipping the demo auto-query). `ShareLinkButton` copies the current URL. The public welcome lives at `/`; a root URL carrying any of those params is **307-forwarded** to `/engine` so old shared links keep working. Never break a shared link — a missing `/api/health` response must not block hydration.
@@ -169,7 +168,7 @@ MedPulse-main/
 
 18. **Premium gate (mock):** the navbar Premium badge and the first agent action open `PremiumModal` (₹299/month). `ensurePremium()` gates Agent Run, per-offer verify, Auto-verify, lab run, kendra and the agent console; one click unlocks a localStorage preview and resumes the pending action. No payment, checkout, account or subscription exists.
 
-19. **Light-mode ambient mesh:** the light theme has a fixed six-blob mesh (`.site-ambient`, `src/app/ambient.css`) behind every page and a warmer `.hero-ambient` mesh in the welcome hero (`welcome.css`). Both are hidden in dark mode and frozen under `prefers-reduced-motion`. Keep them low-opacity and behind content — the reference gradient palettes may be saturated, but the UI must stay subtle and readable.
+19. **Ambient mesh:** a fixed six-blob mesh (`.site-ambient`, `src/app/ambient.css`) sits behind every page, plus a warmer `.hero-ambient` mesh in the welcome hero (`welcome.css`). Both are always on in the single light theme and frozen under `prefers-reduced-motion`. Keep them low-opacity and behind content.
 
 ## 8. Common Commands
 - Install: `npm install`

@@ -1,7 +1,7 @@
 /**
  * Brand lockup — blister-grid badge + "MedPulse AI" wordmark (logo pick L51).
  * Text inherits the surrounding font (Geist) and colour (currentColor);
- * the accent follows the theme tokens, so it adapts to light/dark mode.
+ * the accent follows the theme tokens.
  */
 export function Logo({ className, label = "MedPulse AI" }: { className?: string; label?: string }) {
   return (

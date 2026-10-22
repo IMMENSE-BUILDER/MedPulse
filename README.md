@@ -25,7 +25,7 @@ Built on Next.js (App Router) + TypeScript, the Vercel AI Gateway, and the TinyF
   - **Honest empty state** — explains the real pipeline and offers working example queries instead of fake progress.
 - **Live-location pincode:** one tap (with browser permission) reverse-geocodes your coordinates into a delivery pincode and remembers it locally (`/api/locate`).
 - **Instant typeahead:** as you type, a dropdown suggests matching medicines/lab tests from a curated in-app catalog (brand names + their common salt compositions) — pick one to compare it, or hit **"Search ⋯ in live prices anyway"** to run your exact text through the full live pipeline. Suggestions are instant and local; the AI pipeline stays in the real search.
-- **Light & dark themes:** light is the default, with a soft six-colour ambient mesh; the navbar toggle (top-right) switches to the dark clinical theme, and the choice is remembered and applied before first paint (no flash). Model names are never surfaced in the UI.
+- **Light theme only:** a single light clinical palette with a soft six-colour ambient mesh. There is no dark-mode toggle or saved theme preference. Model names are never surfaced in the UI.
 - **Undecodable queries never dead-end:** a brand like "D60" that can't be priced (unknown salt, or no trustworthy listing found) triggers a real search across the tracked portals; the reliable picks come back as one-tap alternatives. Vitamin D3-60K formats ("60,000 IU", "60K") parse correctly in the strength guard.
 
 ## Quick start

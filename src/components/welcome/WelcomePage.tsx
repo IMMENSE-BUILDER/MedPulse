@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { initWelcomeAuth } from "./welcome-auth";
 import { initWelcomeMotion } from "./welcome-motion";
 import { WelcomeScene } from "./WelcomeScene";
@@ -56,7 +55,6 @@ export function WelcomePage() {
           </nav>
 
           <div className="nav-actions">
-            <ThemeToggle />
             <button id="nav-signin" className="btn ghost sm" type="button">
               Sign in
             </button>

@@ -1,7 +1,4 @@
-/* Site-wide fluid gradient mesh — light mode only.
-   Six blurred blobs keep the palette moving very slowly behind the app. The
-   engine's cards and the welcome panels stay opaque, so this is only ever a
-   tint in the gaps. Dark mode keeps the original near-black canvas. */
+/* Site-wide fluid gradient mesh - constant MedPulse backdrop. Six blurred blobs drift behind the app; cards and welcome panels stay opaque, so this is only a tint in the gaps. */
 
 .site-ambient {
   position: fixed;
@@ -12,9 +9,6 @@
   background: var(--color-canvas);
 }
 
-html:not(.light) .site-ambient {
-  display: none;
-}
 
 .site-blob {
   position: absolute;

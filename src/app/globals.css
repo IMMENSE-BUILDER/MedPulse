@@ -1,43 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #050607;
-  --color-panel: #0a0a0c;
-  --color-panel-2: #0f0f12;
-  --color-inset: #0b0b0d;
-  --color-line: #1e1e23;
-  --color-line-2: #2c2c33;
-  --color-ink: #f4f4f5;
-  --color-ink-2: #d4d4d8;
-  --color-mute: #a1a1aa;
-  --color-faint: #71717a;
-  --color-brand: #0000ff;
-  --color-brand-2: #0000ff;
-  --color-brand-hover: #0041c2;
-  --color-warn: #f59e0b;
-  --color-danger: #ef4444;
-  --font-sans: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-html {
-  background: var(--color-canvas);
-  color: var(--color-ink);
-}
-
-/* Transparent so the fixed light-mode mesh in ambient.css can sit behind the app. */
-body {
-  background: transparent;
-  color: var(--color-ink);
-}
-
-:root {
-  color-scheme: dark;
-}
-
-/* Light mode — toggled by adding .light to <html> (ThemeToggle, top-right corner). */
-html.light {
-  color-scheme: light;
   --color-canvas: #f4f6f5;
   --color-panel: #ffffff;
   --color-panel-2: #edf1ef;
@@ -53,14 +16,27 @@ html.light {
   --color-brand-hover: #0041c2;
   --color-warn: #b45309;
   --color-danger: #dc2626;
+  --font-sans: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* Floating docks / dropdowns: strong black glow on dark, soft blue-grey on light. */
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* Transparent so the fixed ambient mesh can sit behind the app. */
+body {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Floating docks / dropdowns: soft blue-grey shadow. */
 .shadow-pop {
-  box-shadow: 0 20px 46px -16px rgb(0 0 0 / 0.75);
-}
-
-html.light .shadow-pop {
   box-shadow: 0 20px 46px -16px rgb(15 23 42 / 0.2);
 }
 

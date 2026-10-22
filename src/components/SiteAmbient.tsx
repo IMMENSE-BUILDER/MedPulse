@@ -1,5 +1,5 @@
 /**
- * Fixed, light-mode-only fluid mesh behind the whole app.
+ * Fixed ambient mesh behind the whole app.
  * Pure CSS (no client JS): the six blobs drift and pulse on long cycles.
  */
 export function SiteAmbient() {

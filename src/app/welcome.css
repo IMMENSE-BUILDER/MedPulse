@@ -11,10 +11,6 @@
   color: var(--color-ink);
 }
 
-/* Dark mode keeps the original blue glow instead of the light-mode mesh. */
-html:not(.light) .welcome-root {
-  background: radial-gradient(900px 520px at 62% -120px, rgba(0, 65, 194, 0.16), transparent 70%);
-}
 
 .welcome-root.motion-on .reveal {
   opacity: 0;
@@ -346,9 +342,6 @@ html.light .welcome-root .nav {
   mask-image: linear-gradient(180deg, #000 0%, #000 84%, transparent 100%);
 }
 
-html:not(.light) .welcome-root .hero-ambient {
-  display: none;
-}
 
 .welcome-root .hero-blob {
   position: absolute;
