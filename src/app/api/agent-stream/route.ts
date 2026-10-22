@@ -150,26 +150,51 @@ async function runStockLive(
 }
 
 async function runKendraLive(pincode: string, send: Send, signal: AbortSignal): Promise<void> {
-  const outcome = await tfRunAgent({
+  let streamingUrl: string | null = null;
+  const agentAbort = new AbortController();
+  const agentPromise = tfRunAgent({
     goal:
-      "Open https://janaushadhi.gov.in/near-by-kendra . The locator form requires State and Pin Code; " +
-      `District is optional. Determine the Indian State for pincode ${pincode} (for 110xxx select Delhi; ` +
-      "use an online pincode lookup if needed), select that State, leave District as --Select District--, " +
-      `enter ${pincode} in the Pin Code field (name pinCodeData) and click Search. Wait for the results table. ` +
-      "Collect every row: Kendra Code, Owner Name, State, District, Pin Code and full Address. " +
-      "If the results show Previous/Next pagination, click Next and repeat until there is no next page. " +
-      "Return every kendra across all pages, not just the first page. Do not log in.",
+      "Open https://janaushadhi.gov.in/near-by-kendra . Select the State for the pincode, " +
+      `enter ${pincode} in the Pin Code field and click Search. Collect every table row across all Next pages.`,
     url: "https://janaushadhi.gov.in/near-by-kendra",
     outputSchema: KENDRA_SCHEMA,
     timeoutMs: 240_000,
-    signal,
+    signal: AbortSignal.any([signal, agentAbort.signal]),
     callbacks: {
       onStarted: (runId) => send({ type: "STARTED", run_id: runId, goal: `Jan Aushadhi Kendra finder near ${pincode}` }),
-      onStreamUrl: (streamingUrl) => send({ type: "STREAMING_URL", streaming_url: streamingUrl, label: "janaushadhi.gov.in" }),
+      onStreamUrl: (url) => {
+        streamingUrl = url;
+        send({ type: "STREAMING_URL", streaming_url: url, label: "janaushadhi.gov.in" });
+      },
       onProgress: (purpose) => send({ type: "PROGRESS", purpose: `janaushadhi.gov.in: ${purpose}`, label: "janaushadhi.gov.in" }),
     },
   });
 
+  // The official locator API returns the same rows the page renders. Use it as
+  // a fast, reliable data path while the live browser provides the visual.
+  const apiRows = await fetchKendraApi(pincode).catch(() => []);
+  if (apiRows.length) {
+    send({ type: "PROGRESS", purpose: `Official locator returned ${apiRows.length} kendras; cleaning the list…` });
+    // Give the live browser a short window to attach its streaming view.
+    await sleep(6_000);
+    agentAbort.abort();
+    let kendras = apiRows;
+    try {
+      kendras = await summarizeKendras(apiRows, pincode);
+    } catch {
+      /* keep the official rows if the text model is unavailable */
+    }
+    send({
+      type: "COMPLETE",
+      ok: kendras.length > 0,
+      result: { kind: "kendra", kendras },
+      error: null,
+      video_url: streamingUrl,
+    });
+    return;
+  }
+
+  const outcome = await agentPromise;
   const raw = normalizeKendras(outcome.result);
   let kendras = raw;
   try {
@@ -182,8 +207,82 @@ async function runKendraLive(pincode: string, send: Send, signal: AbortSignal): 
     ok: kendras.length > 0,
     result: { kind: "kendra", kendras },
     error: outcome.error,
-    video_url: outcome.streamingUrl,
+    video_url: outcome.streamingUrl ?? streamingUrl,
   });
+}
+
+type KendraApiRow = {
+  id?: number;
+  contactPerson?: string;
+  contactNumber?: string;
+  storeCode?: string;
+  pinCode?: string | number;
+  stateName?: string;
+  districtName?: string;
+  kendraAddress?: string;
+  status?: number;
+};
+
+async function fetchKendraApi(pincode: string): Promise<Kendra[]> {
+  const tokenRes = await fetch("https://janaushadhi.gov.in:8443/auth/generateGuestToken", {
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!tokenRes.ok) throw new Error(`locator token ${tokenRes.status}`);
+  const tokenJson = (await tokenRes.json()) as { responseBody?: string };
+  const token = tokenJson.responseBody;
+  if (!token) throw new Error("locator token missing");
+
+  const rows: KendraApiRow[] = [];
+  let pageIndex = 0;
+  let totalPages = 1;
+  do {
+    const res = await fetch("https://janaushadhi.gov.in:8443/api/v1/website/getAllKendraByStateDistrict", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        pageIndex,
+        pageSize: 100,
+        stateId: 0,
+        districtId: 0,
+        pinCode: Number(pincode),
+        storeCode: "",
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!res.ok) throw new Error(`locator API ${res.status}`);
+    const json = (await res.json()) as {
+      responseBody?: { addKendraResponseList?: KendraApiRow[]; totalPages?: number };
+    };
+    const body = json.responseBody;
+    if (!body) throw new Error("locator API empty response");
+    rows.push(...(body.addKendraResponseList ?? []));
+    totalPages = Math.max(1, body.totalPages ?? 1);
+    pageIndex += 1;
+  } while (pageIndex < totalPages && pageIndex < 20);
+
+  return rows
+    .filter((r) => r.kendraAddress)
+    .map((r, index) => {
+      const owner = r.contactPerson?.trim() || null;
+      const code = r.storeCode?.trim() || null;
+      return {
+        kendra_id: code ?? `ja-${r.id ?? index + 1}`,
+        name: owner ? `Jan Aushadhi Kendra - ${owner}` : "Jan Aushadhi Kendra",
+        address: r.kendraAddress ?? "",
+        pincode: r.pinCode != null ? String(r.pinCode) : null,
+        distance_km: null,
+        phone: r.contactNumber?.trim() || null,
+        stock_note: null,
+        source_portal: "janaushadhi.gov.in (official locator API)",
+        kendra_code: code,
+        owner_name: owner,
+        state: r.stateName ?? null,
+        district: r.districtName ?? null,
+      };
+    });
 }
 
 function normalizeKendras(result: Record<string, unknown> | null): Kendra[] {
