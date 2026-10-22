@@ -3,10 +3,10 @@
 > **Purpose:** the single detailed source of truth for the whole MedPulse AI codebase and website. Written to be handed directly to an AI presentation agent to generate a pitch deck.
 >
 > **Status:** live production build (PRD v5.0) — light-only UI, 3D welcome at `/`, price engine at `/engine`.  
-> **Production:** https://medpulse-ai-snowy.vercel.app  
-> **Repository:** https://github.com/Sujal-cyber11/MedPulse  
+> **Production:** https://medpulseai.vercel.app  
+> **Repository:** https://github.com/IMMENSE-BUILDER/MedPulse  
 > **Team:** Satyam and Sujal  
-> **Last updated:** 21 October 2026 — light-only ambient mesh, bulk/parallel agent, mock premium preview
+> **Last updated:** 23 October 2026 — primary domain cutover; fallback project disconnected from Git
 
 ---
 
@@ -450,8 +450,8 @@ Browser (Next.js App Router UI)
 
 ### 6.6 Deployment
 
-- Next.js 16 App Router on Vercel; production domain `https://medpulse-ai-snowy.vercel.app`.
-- Production deploys currently use the linked project via `npx vercel --prod --yes`. Once the Vercel GitHub app is authorized for `Sujal-cyber11/MedPulse`, pushes to `main` can auto-deploy. CLI deploys are atomic: a failed build leaves the previous production live.
+- Next.js 16 App Router on Vercel; production domain `https://medpulseai.vercel.app`.
+- Pushes to `main` on `IMMENSE-BUILDER/MedPulse` auto-deploy the primary `medpulseai` project. The legacy `medpulse-ai` project is disconnected from Git and frozen as a read-only fallback. CLI deploys are atomic: a failed build leaves the previous production live.
 - `.vercelignore` keeps `.env*`, tests, `docs/screenshots/`, `dashboard-3d/`, `AGENTS.md` and `DESIGN.md` out of uploads. Runtime secrets are configured in Vercel, never in the repo.
 - Route handlers run Node.js; `maxDuration` up to 120 s for compare/OCR and 300 s for agent/cart.
 - Environment variables: TinyFish key, AI Gateway key (or Vercel OIDC), mode, default pincode, cache TTL, optional model overrides.

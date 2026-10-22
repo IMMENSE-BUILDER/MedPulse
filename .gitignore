@@ -21,3 +21,5 @@ desktop.ini
 # Logs and local data
 *.log
 *.zip
+.vercel
+.env*
