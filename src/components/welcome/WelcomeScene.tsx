@@ -35,6 +35,20 @@ type FloatData = FloatMotion & {
 type ScrollDetail = { progress?: number };
 type ThemeDetail = { light?: boolean };
 
+type Spinner = {
+  object: THREE.Object3D;
+  speed: number;
+  axis: "x" | "y" | "z";
+};
+
+type Pulse = {
+  light: THREE.PointLight;
+  base: number;
+  amplitude: number;
+  speed: number;
+  phase: number;
+};
+
 export function WelcomeScene() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,7 +72,11 @@ export function WelcomeScene() {
 
   return (
     <div className="stage" id="stage" ref={stageRef}>
-      <canvas id="pill-canvas" ref={canvasRef} aria-label="Animated 3D render of gel capsules and a blister pack" />
+      <canvas
+        id="pill-canvas"
+        ref={canvasRef}
+        aria-label="Animated 3D specimen of a gel capsule, blister card, glass vial, tablets and a medicine carton orbiting inside four comparison rings"
+      />
       <div className="stage-fallback" aria-hidden="true">
         <span className="fb-pill fb-a" />
         <span className="fb-pill fb-b" />
@@ -77,6 +95,9 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   let reduced = motionQuery.matches;
 
+  const spinners: Spinner[] = [];
+  const pulses: Pulse[] = [];
+
   /* ---- renderer --------------------------------------------------------- */
 
   const renderer = new THREE.WebGLRenderer({
@@ -94,8 +115,8 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 60);
-  camera.position.set(0, 1.12, 6.35);
-  camera.lookAt(0, -0.04, 0);
+  camera.position.set(0, 1.3, 6.62);
+  camera.lookAt(0, -0.05, 0);
 
   /* ---- studio environment ---------------------------------------------- */
 
@@ -132,6 +153,16 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   fill.position.set(-2.2, -2.6, 3.2);
   scene.add(fill);
 
+  const bluePulse = new THREE.PointLight(0x3355ff, 18, 10, 2);
+  bluePulse.position.set(-2.1, 0.9, 2.4);
+  scene.add(bluePulse);
+  pulses.push({ light: bluePulse, base: 18, amplitude: 3.5, speed: 0.85, phase: 0.4 });
+
+  const whitePulse = new THREE.PointLight(0xffffff, 9, 8, 2);
+  whitePulse.position.set(2.5, 1.7, 2.1);
+  scene.add(whitePulse);
+  pulses.push({ light: whitePulse, base: 9, amplitude: 1.6, speed: 0.62, phase: 2.1 });
+
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(9, 9),
     new THREE.ShadowMaterial({ color: 0x000000, opacity: 0.34 })
@@ -155,6 +186,30 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
       sheenRoughness: 0.85,
       envMapIntensity: 0.7,
     });
+  }
+
+  /** A real tablet silhouette: a wide disc with a shallow score line. */
+  function makeTablet(radius = 0.15, color = 0xf7fbf9): THREE.Group {
+    const group = new THREE.Group();
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.062, 32), pillMaterial(color));
+    disc.castShadow = true;
+    disc.receiveShadow = true;
+
+    const score = new THREE.Mesh(
+      new THREE.BoxGeometry(radius * 1.34, 0.007, 0.014),
+      new THREE.MeshStandardMaterial({ color: 0xa6b3ae, roughness: 0.72, metalness: 0.1 })
+    );
+    score.position.y = 0.033;
+
+    const bevel = new THREE.Mesh(
+      new THREE.TorusGeometry(radius * 0.92, 0.008, 5, 40),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.42, metalness: 0 })
+    );
+    bevel.rotation.x = Math.PI / 2;
+    bevel.position.y = 0.032;
+
+    group.add(disc, score, bevel);
+    return group;
   }
 
   /** Two-tone gel capsule: cylinder + hemisphere per half, plus a seam ring. */
@@ -188,12 +243,19 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
     bottomCap.position.y = -half;
 
     const seam = new THREE.Mesh(
-      new THREE.TorusGeometry(radius * 0.992, 0.012, 6, 56),
-      new THREE.MeshStandardMaterial({ color: 0x101614, roughness: 0.45, metalness: 0.25 })
+      new THREE.TorusGeometry(radius * 0.992, 0.016, 8, 64),
+      new THREE.MeshStandardMaterial({ color: 0xb9c5cf, roughness: 0.3, metalness: 0.7 })
     );
     seam.rotation.x = Math.PI / 2;
 
-    for (const part of [topWall, topCap, bottomWall, bottomCap, seam]) {
+    const band = new THREE.Mesh(
+      new THREE.TorusGeometry(radius * 0.998, 0.008, 6, 64),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.38 })
+    );
+    band.rotation.x = Math.PI / 2;
+    band.position.y = 0.035;
+
+    for (const part of [topWall, topCap, bottomWall, bottomCap, seam, band]) {
       part.castShadow = true;
       part.receiveShadow = true;
       group.add(part);
@@ -228,15 +290,14 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
 
     group.add(backing, dome);
 
-    const pillGeometry = new THREE.SphereGeometry(0.135, 20, 14);
-    const tabletMaterial = pillMaterial(0xf7fbf9);
     for (const y of [-0.3, 0.3]) {
       for (const x of [-0.58, 0, 0.58]) {
-        const pill = new THREE.Mesh(pillGeometry, tabletMaterial);
-        pill.position.set(x, y, 0.16);
-        pill.scale.set(1, 1, 0.55);
-        pill.castShadow = true;
-        group.add(pill);
+        const tablet = makeTablet(0.14);
+        tablet.position.set(x, y, 0.17);
+        tablet.rotation.x = Math.PI / 2;
+        tablet.rotation.z = (x + y) * 0.3;
+        tablet.scale.set(1, 1, 1.12);
+        group.add(tablet);
       }
     }
 
@@ -257,6 +318,280 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
         envMapIntensity: 0.9,
       })
     );
+  }
+
+  /** Transparent gel shell with a granule fill — the “look inside” specimen. */
+  function makeGranuleCapsule(): THREE.Group {
+    const group = new THREE.Group();
+    const radius = 0.29;
+    const length = 0.94;
+    const half = length / 2;
+    const shell = new THREE.MeshPhysicalMaterial({
+      color: 0xe4edff,
+      roughness: 0.08,
+      metalness: 0,
+      transparent: true,
+      opacity: 0.2,
+      clearcoat: 1,
+      clearcoatRoughness: 0.06,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+
+    const topWall = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, half, 36, 1, true), shell);
+    topWall.position.y = half / 2;
+    const topCap = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 36, 18, 0, Math.PI * 2, 0, Math.PI / 2),
+      shell
+    );
+    topCap.position.y = half;
+    const bottomWall = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius, radius, half, 36, 1, true),
+      shell
+    );
+    bottomWall.position.y = -half / 2;
+    const bottomCap = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 36, 18, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      shell
+    );
+    bottomCap.position.y = -half;
+    for (const part of [topWall, topCap, bottomWall, bottomCap]) {
+      part.renderOrder = 2;
+      part.castShadow = false;
+      group.add(part);
+    }
+
+    const seam = new THREE.Mesh(
+      new THREE.TorusGeometry(radius * 1.004, 0.012, 6, 64),
+      new THREE.MeshStandardMaterial({ color: 0xbfc9d4, roughness: 0.24, metalness: 0.78 })
+    );
+    seam.rotation.x = Math.PI / 2;
+    group.add(seam);
+
+    const granuleGeometry = new THREE.SphereGeometry(0.043, 10, 8);
+    const granuleMaterials = [pillMaterial(0xf8fbff), pillMaterial(0x0000ff), pillMaterial(0x9db4ff)];
+    for (let index = 0; index < 22; index += 1) {
+      const angle = index * 2.399;
+      const y = -0.34 + (index / 21) * 0.68;
+      const spread = 0.155 * (1 - Math.abs(y) / 0.62);
+      const granule = new THREE.Mesh(granuleGeometry, granuleMaterials[index % granuleMaterials.length]);
+      granule.position.set(Math.cos(angle) * spread, y, Math.sin(angle) * spread);
+      granule.scale.setScalar(0.78 + (index % 4) * 0.09);
+      granule.castShadow = true;
+      group.add(granule);
+    }
+
+    return group;
+  }
+
+  /** Glass vial with a blue liquid, a paper label and a metal cap. */
+  function makeVial(): THREE.Group {
+    const group = new THREE.Group();
+    const glass = new THREE.MeshPhysicalMaterial({
+      color: 0xdde9ff,
+      roughness: 0.05,
+      metalness: 0.02,
+      transparent: true,
+      opacity: 0.3,
+      clearcoat: 1,
+      clearcoatRoughness: 0.03,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 1.06, 36, 1, true), glass);
+    body.renderOrder = 2;
+    const shoulder = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22, 0.27, 0.16, 36, 1, true),
+      glass
+    );
+    shoulder.position.y = 0.59;
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.275, 0.275, 0.055, 36),
+      new THREE.MeshStandardMaterial({ color: 0xe9f1ff, roughness: 0.16, metalness: 0.08 })
+    );
+    base.position.y = -0.55;
+    base.castShadow = true;
+
+    const liquid = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.225, 0.225, 0.66, 32),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x183cff,
+        roughness: 0.12,
+        metalness: 0.02,
+        transparent: true,
+        opacity: 0.62,
+        clearcoat: 1,
+        clearcoatRoughness: 0.08,
+      })
+    );
+    liquid.position.y = -0.16;
+
+    const label = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.274, 0.274, 0.235, 36, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0, side: THREE.DoubleSide })
+    );
+    label.position.y = 0.04;
+    const labelStripe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.276, 0.276, 0.026, 36, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.42, metalness: 0.1, side: THREE.DoubleSide })
+    );
+    labelStripe.position.y = -0.055;
+
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.285, 0.305, 0.18, 36),
+      new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.26, metalness: 0.42 })
+    );
+    cap.position.y = 0.74;
+    cap.castShadow = true;
+    const capTop = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.285, 0.285, 0.018, 36),
+      new THREE.MeshStandardMaterial({ color: 0xdbe4ff, roughness: 0.2, metalness: 0.55 })
+    );
+    capTop.position.y = 0.834;
+    const collar = new THREE.Mesh(
+      new THREE.TorusGeometry(0.274, 0.018, 8, 48),
+      new THREE.MeshStandardMaterial({ color: 0xbfc9d4, roughness: 0.2, metalness: 0.8 })
+    );
+    collar.rotation.x = Math.PI / 2;
+    collar.position.y = 0.65;
+
+    group.add(body, shoulder, base, liquid, label, labelStripe, cap, capTop, collar);
+    return group;
+  }
+
+  /** A small medicine carton, with a foil window and a cross mark. */
+  function makeCarton(): THREE.Group {
+    const group = new THREE.Group();
+    const body = new THREE.Mesh(
+      new RoundedBoxGeometry(0.92, 1.12, 0.32, 4, 0.045),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xfbfdff,
+        roughness: 0.46,
+        metalness: 0.02,
+        clearcoat: 0.45,
+        clearcoatRoughness: 0.25,
+      })
+    );
+    body.castShadow = true;
+    body.receiveShadow = true;
+
+    const band = new THREE.Mesh(
+      new RoundedBoxGeometry(0.94, 0.25, 0.335, 3, 0.025),
+      new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.34, metalness: 0.12 })
+    );
+    band.position.y = 0.12;
+
+    const windowFrame = new THREE.Mesh(
+      new RoundedBoxGeometry(0.28, 0.28, 0.02, 3, 0.02),
+      new THREE.MeshStandardMaterial({ color: 0xd8e3f7, roughness: 0.3, metalness: 0.3 })
+    );
+    windowFrame.position.set(-0.22, -0.2, 0.17);
+    const crossA = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.035, 0.012),
+      new THREE.MeshBasicMaterial({ color: 0x0000ff })
+    );
+    crossA.position.set(-0.22, -0.2, 0.188);
+    const crossB = crossA.clone();
+    crossB.rotation.z = Math.PI / 2;
+
+    group.add(body, band, windowFrame, crossA, crossB);
+    return group;
+  }
+
+  /** Four concentric comparison rings with cardinal nodes. */
+  function makeOrbit(radius: number, tiltX: number, tiltY: number, opacity: number): THREE.Group {
+    const group = new THREE.Group();
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, 0.0075, 5, 180),
+      new THREE.MeshBasicMaterial({
+        color: 0x4c69ff,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+      })
+    );
+    group.add(ring);
+
+    const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: Math.min(0.9, opacity + 0.3) });
+    for (let index = 0; index < 4; index += 1) {
+      const angle = (index / 4) * Math.PI * 2;
+      const node = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 8), nodeMaterial);
+      node.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      group.add(node);
+    }
+
+    group.rotation.set(tiltX, tiltY, 0);
+    spinners.push({ object: group, speed: 0.025, axis: "z" });
+    return group;
+  }
+
+  /** Hovering glass plinth and concentric floor guides. */
+  function makePedestal(): THREE.Group {
+    const group = new THREE.Group();
+    const disc = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.9, 3.05, 0.07, 64),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        roughness: 0.18,
+        metalness: 0.15,
+        transparent: true,
+        opacity: 0.14,
+        clearcoat: 1,
+        clearcoatRoughness: 0.08,
+      })
+    );
+    disc.position.y = -1.55;
+    disc.receiveShadow = true;
+    group.add(disc);
+
+    for (const [radius, opacity] of [
+      [2.15, 0.34],
+      [2.55, 0.22],
+      [3.0, 0.14],
+    ] as const) {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.006, 5, 180),
+        new THREE.MeshBasicMaterial({ color: 0x5a74ff, transparent: true, opacity, depthWrite: false })
+      );
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = -1.5;
+      group.add(ring);
+    }
+
+    return group;
+  }
+
+  /** Sparse additive dust so the dark studio feels deep without a texture. */
+  function makeDust(): THREE.Points {
+    const count = 240;
+    const positions = new Float32Array(count * 3);
+    let seed = 17;
+    const random = (): number => {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    };
+
+    for (let index = 0; index < count; index += 1) {
+      const radius = 2.2 + random() * 2.5;
+      const angle = random() * Math.PI * 2;
+      positions[index * 3] = Math.cos(angle) * radius;
+      positions[index * 3 + 1] = -1.2 + random() * 3.1;
+      positions[index * 3 + 2] = Math.sin(angle) * radius;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const material = new THREE.PointsMaterial({
+      color: 0x7892ff,
+      size: 0.024,
+      transparent: true,
+      opacity: 0.56,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+    });
+    return new THREE.Points(geometry, material);
   }
 
   /* ---- composition ------------------------------------------------------ */
@@ -300,65 +635,118 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   }
 
   place(
-    makeCapsule({ radius: 0.38, length: 1.12, colorA: 0xf4f8f6, colorB: 0x0000ff }),
-    [0.14, 0.12, 0.28],
-    [0.14, 0.34, 0.6],
+    makeCapsule({ radius: 0.42, length: 1.24, colorA: 0xf5f9ff, colorB: 0x0000ff }),
+    [0.04, 0.08, 0.3],
+    [0.18, 0.42, 0.62],
     1,
-    { float: 0.07, phase: 0, spin: 0.11, sway: 0.13 }
+    { float: 0.06, phase: 0, spin: 0.1, sway: 0.12 }
   );
 
   place(
     makeCapsule({ radius: 0.3, length: 0.92, colorA: 0x9db4ff, colorB: 0xf4f8f6 }),
-    [-1.16, -0.52, 0.08],
+    [-1.22, -0.62, 0.18],
     [-0.08, -0.78, -0.46],
-    1,
+    0.98,
     { float: 0.09, phase: 1.7, spin: -0.08, sway: 0.12 }
   );
 
   place(
     makeCapsule({ radius: 0.25, length: 0.78, colorA: 0xf4f8f6, colorB: 0x1c2622 }),
-    [1.24, 0.6, -0.22],
+    [1.24, 0.68, -0.05],
     [0.1, 1.12, 1.02],
-    1,
+    0.95,
     { float: 0.08, phase: 3.1, spin: 0.09, sway: 0.11 }
   );
 
   place(
     makeBlister(),
-    [0.36, -0.64, -1.18],
+    [0.3, -0.68, -0.98],
     [0.16, -0.4, -0.13],
-    0.92,
+    0.98,
     { float: 0.045, phase: 0.9, spin: 0, sway: 0.055 }
   );
 
-  place(makeOrb(0.105, 0x0000ff), [-0.66, 1.04, -0.28], [0, 0, 0], 1, {
+  place(
+    makeGranuleCapsule(),
+    [-1.74, 0.58, -1.1],
+    [0.14, 0.5, -0.28],
+    0.86,
+    { float: 0.07, phase: 2.6, spin: -0.05, sway: 0.08 }
+  );
+
+  place(
+    makeVial(),
+    [1.64, -0.5, 0.62],
+    [0.02, -0.3, 0.14],
+    0.82,
+    { float: 0.05, phase: 1.2, spin: 0.03, sway: 0.05 }
+  );
+
+  place(
+    makeCarton(),
+    [1.82, 0.32, -1.45],
+    [0.08, 0.5, -0.08],
+    0.9,
+    { float: 0.035, phase: 4.1, spin: 0, sway: 0.04 }
+  );
+
+  place(makeTablet(0.18), [1.36, -1.06, 1.2], [0.12, 0.4, 0.1], 1.12, {
+    float: 0.03,
+    phase: 0.4,
+    spin: 0.05,
+    sway: 0.04,
+  });
+  place(makeTablet(0.16, 0x9db4ff), [-0.72, -1.08, 1.32], [0.1, -0.6, 0.2], 0.96, {
+    float: 0.03,
+    phase: 2.2,
+    spin: -0.04,
+    sway: 0.03,
+  });
+  place(makeTablet(0.17), [0.18, -1.18, 1.52], [0.2, 0.2, -0.1], 0.84, {
+    float: 0.025,
+    phase: 4.8,
+    spin: 0.03,
+    sway: 0.03,
+  });
+
+  place(makeOrb(0.105, 0x0000ff), [-0.7, 1.18, -0.25], [0, 0, 0], 1, {
     float: 0.11,
     phase: 2.2,
     spin: 0,
     sway: 0,
   });
 
-  place(makeOrb(0.082, 0xffffff), [1.52, -0.04, 0.56], [0, 0, 0], 1, {
+  place(makeOrb(0.082, 0xffffff), [1.45, 0.02, 0.95], [0, 0, 0], 1, {
     float: 0.1,
     phase: 4.4,
     spin: 0,
     sway: 0,
   });
 
-  // Distant orbs for the wide, full-bleed stage.
-  place(makeOrb(0.12, 0x0000ff), [-2.95, 0.72, -2.35], [0, 0, 0], 1, {
+  // Distant orbs extend the composition across the wide stage.
+  place(makeOrb(0.12, 0x0000ff), [-2.9, 0.76, -2.3], [0, 0, 0], 1, {
     float: 0.12,
     phase: 5.2,
     spin: 0,
     sway: 0,
   });
 
-  place(makeOrb(0.085, 0x9db4ff), [3.05, -0.5, -2.05], [0, 0, 0], 1, {
+  place(makeOrb(0.085, 0x9db4ff), [3.0, -0.42, -2.0], [0, 0, 0], 1, {
     float: 0.1,
     phase: 1.1,
     spin: 0,
     sway: 0,
   });
+
+  tilt.add(makeOrbit(2.08, 0.2, 0.08, 0.38));
+  tilt.add(makeOrbit(2.46, -0.42, 0.28, 0.24));
+  tilt.add(makeOrbit(2.9, 0.62, -0.22, 0.16));
+
+  const pedestal = makePedestal();
+  scene.add(pedestal);
+
+  const dust = makeDust();
+  scene.add(dust);
 
   /* ---- interaction ------------------------------------------------------ */
 
@@ -378,12 +766,6 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
     scrollProgress = Number(detail?.progress) || 0;
   };
   window.addEventListener("medpulse:scroll", onScroll, { signal });
-
-  const onIntro = (event: Event): void => {
-    introPaused = Boolean((event as CustomEvent<{ playing?: boolean }>).detail?.playing);
-    sync();
-  };
-  window.addEventListener("medpulse:intro", onIntro, { signal });
 
   const onStagePointerMove = (event: PointerEvent): void => {
     const rect = stage.getBoundingClientRect();
@@ -450,8 +832,9 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
     camera.fov = width < 460 ? 40 : 34;
     camera.updateProjectionMatrix();
 
-    const scale = width < 380 ? 0.82 : width < 520 ? 0.92 : width > 1200 ? 1.2 : width > 900 ? 1.08 : 1;
-    root.scale.setScalar(scale);
+    const scale = width < 360 ? 0.86 : width < 520 ? 0.94 : width < 760 ? 1.02 : width > 1100 ? 1.12 : 1.08;
+    const wideStage = width > 620 && height / width < 0.78;
+    root.scale.setScalar(wideStage ? scale * 1.12 : scale);
 
     if (reduced) renderer.render(scene, camera);
   }
@@ -487,7 +870,6 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   /* ---- animation loop --------------------------------------------------- */
 
   let onScreen = true;
-  let introPaused = false;
   let running = false;
   let contextLost = false;
   let frameId = 0;
@@ -514,7 +896,20 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
     scrollSmooth += (scrollProgress - scrollSmooth) * clamp01(delta * 5);
     scrollRig.rotation.y = scrollSmooth * 0.9;
     scrollRig.rotation.x = scrollSmooth * 0.07;
+    scrollRig.rotation.z = scrollSmooth * 0.025;
     scrollRig.position.y = -scrollSmooth * 0.38;
+
+    for (const spinner of spinners) {
+      spinner.object.rotation[spinner.axis] += delta * spinner.speed;
+    }
+
+    for (const pulse of pulses) {
+      pulse.light.intensity = pulse.base + Math.sin(elapsed * pulse.speed + pulse.phase) * pulse.amplitude;
+    }
+
+    dust.rotation.y += delta * 0.008;
+    dust.rotation.x = Math.sin(elapsed * 0.05) * 0.02;
+    dust.position.y = Math.sin(elapsed * 0.18) * 0.04;
 
     if (!dragging) {
       root.rotation.y += spinVelocity * delta * 3;
@@ -537,7 +932,7 @@ function createScene(canvas: HTMLCanvasElement, stage: HTMLDivElement): () => vo
   }
 
   function shouldRun(): boolean {
-    return !reduced && !contextLost && onScreen && !document.hidden && !introPaused;
+    return !reduced && !contextLost && onScreen && !document.hidden;
   }
 
   function sync(): void {

@@ -9,11 +9,6 @@
   background: var(--color-canvas);
 }
 
-
-html.intro-playing .site-blob {
-  animation-play-state: paused;
-}
-
 .site-blob {
   position: absolute;
   aspect-ratio: 1;
