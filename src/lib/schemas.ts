@@ -280,9 +280,9 @@ export const DocAiRequestSchema = z.object({
 });
 export type DocAiRequest = z.infer<typeof DocAiRequestSchema>;
 
+/** DocAI reply contract — deliberately no model field (AGENTS.md §7.12). */
 export const DocAiResponseSchema = z.object({
   reply: z.string(),
-  model: z.string().nullable(),
   data_source: z.enum(["live", "demo"]),
 });
 export type DocAiResponse = z.infer<typeof DocAiResponseSchema>;

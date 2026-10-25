@@ -41,7 +41,7 @@
 /* ==========================================================================
    MedPulse AI — standalone welcome build
    Design tokens mirror src/app/globals.css so this can be merged 1:1.
-   Dark is the default; `html.light` flips the palette.
+   The app is light-only; palette tokens come from globals.css.
    ========================================================================== */
 
 /* ---- base ---------------------------------------------------------------- */

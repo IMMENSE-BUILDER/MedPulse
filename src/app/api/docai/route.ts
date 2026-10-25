@@ -43,12 +43,13 @@ export async function POST(req: Request) {
     }
   }
   if (env.mode() === "demo" || gatewayAuthMode() === "none") {
-    return Response.json({ reply: DEMO_REPLY, model: null, data_source: "demo" });
+    return Response.json({ reply: DEMO_REPLY, data_source: "demo" });
   }
 
   try {
     const reply = await docaiChat(parsed.data.messages);
-    return Response.json({ reply, model: env.textModel(), data_source: "live" });
+    // Never surface the underlying model ID (AGENTS.md §3 / §7.12).
+    return Response.json({ reply, data_source: "live" });
   } catch (e) {
     return apiErrorResponse(e);
   }

@@ -5,7 +5,7 @@ Final captures for the PPT live here. Re-capture after any UI change.
 ## Capture standard
 
 - **Viewport:** 1440 × 900 (desktop), device scale factor 2.
-- **Themes:** light by default; include a dark frame from the toggle for comparison.
+- **Theme:** light only — the app has a single fixed light theme (`html.light`, no toggle). Older `*-dark.png` frames are legacy captures kept for reference.
 - **Palette:** primary blue `#0000ff`; button hover dark blue `#0041c2`.
 - **Data:** live results where possible; otherwise use demo data and keep the visible `DEMO DATA` label.
 - **Privacy:** use only the test prescription; never capture real patient data.
@@ -36,9 +36,10 @@ Final captures for the PPT live here. Re-capture after any UI change.
 | `06-empty-light.png` | Light-theme dashboard | Captured 21 Oct 2026 |
 | `07-hover-dark.png` | Primary button in dark-blue hover state | Captured 21 Oct 2026 |
 
-The product defaults to light: lead the deck with the light captures and include
-one dark frame for the theme-toggle story. Recapture the welcome hero after the
-ambient-mesh update so the default light mesh is visible.
+The product is light-only: lead the deck with the current light captures. The
+remaining `*-dark.png` files are legacy from the removed dark palette and should
+not be presented as a theme option. Recapture the welcome hero after the
+ambient-mesh update so the light mesh is visible.
 | `08-share-light.png` | “Link copied” state | Pending |
 
 Keep screenshots out of the app bundle; this folder is documentation only.

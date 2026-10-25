@@ -42,7 +42,7 @@ Above the offers, a savings receipt converts the cheapest strength-matched gener
 
 The app also reads a photographed prescription with a dedicated vision model, structures it with a clinical text model, and returns medicines, salts, an English + Hindi dosing schedule and interaction flags. A safety-first DocAI chat answers general medicine questions, routes emergencies to 108/112, and never invents prices. For on-demand confidence, a TinyAgent stealth browser checks pincode stock and locates Jan Aushadhi Kendras inside a non-blocking picture-in-picture dock.
 
-The engineering choices are deliberately honest: live vs demo is always labelled, the strength guard is non-negotiable, model IDs never surface, paid routes are rate-limited, and every AI output is schema-validated. The current build has 42 automated tests, a clean typecheck and production build, and a production browser smoke covering the welcome, engine, light theme, legacy share redirect and 3D scene.
+The engineering choices are deliberately honest: live vs demo is always labelled, the strength guard is non-negotiable, model IDs never surface, paid routes are rate-limited, and every AI output is schema-validated. The current build has 45 automated tests, a clean typecheck and production build, and a production browser smoke covering the welcome, engine, light theme, legacy share redirect and 3D scene.
 
 ---
 
@@ -726,7 +726,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 6. **The trust layer** — savings receipt, provenance chips, share links, real timings, honest empty state.
 7. **Prescription intelligence** — photo → vision transcription → clinical structuring → EN/HI schedule + interactions; show the OCR result screenshot.
 8. **Agent Run** — one click verifies every displayed medicine/lab link; show the parallel PiP browser tiles and terminal, plus the Auto-verify scope chooser (generics / branded / all). “No checkout, no login”.
-9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 42 tests; clean typecheck/build; production smoke passed; OCR 27s → 5–9s. Caveat label.
+9. **Proof** — observed 65.3% savings, ~₹160/strip, 14 listings/9 portals; 45 tests; clean typecheck/build; production smoke passed; OCR 27s → 5–9s. Caveat label.
 10. **Safety & reliability** — strength guard, live/demo honesty, rate limits, schema validation, no model IDs, disclaimers.
 11. **Differentiation, premium & roadmap** — comparison table; the mock ₹299/month Premium tier with one-click preview; roadmap: PWA/offline, voice EN/HI, OCR streaming, richer interaction checks, shared rate-limit store, more portals.
 12. **Close** — “From prescription to fair price, with the receipts.” Links: production URL + repo. Thank you.
@@ -762,7 +762,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 **Use:**
 
 - “Observed 65.3% lower than the branded reference in a live run.”
-- “42 automated tests; clean typecheck/build; production smoke covering welcome, engine, theme and share redirects.”
+- “45 automated tests; clean typecheck/build; production smoke covering welcome, engine, theme and share redirects.”
 - “Light-only 3D welcome with a six-colour CSS mesh; single light theme.”
 - “Structured prescription output with an English + Hindi schedule.”
 - “Strength-guarded, per-10-tablet comparison.”
@@ -824,7 +824,7 @@ Return an editable deck outline first, then the slide-by-slide copy and visual n
 4. **Share (20 s):** copy the link; open it in a new tab; show it rehydrates.
 5. **Prescription OCR (60 s):** upload the image; show medicines, salts, EN/HI schedule, disclaimer.
 6. **Agent Run (45 s):** click Agent Run for all listings, or Auto-verify → subsidised generic substitutes; the mock Premium panel appears first — click “Unlock preview — no payment” to resume. Show the parallel PiP browser tiles and terminal; note “no login, no checkout”.
-7. **Close (25 s):** recap the trust layer, 42 tests, clean build and latest production smoke; point to the repo and production URL.
+7. **Close (25 s):** recap the trust layer, 45 tests, clean build and latest production smoke; point to the repo and production URL.
 
 ---
 

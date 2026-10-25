@@ -19,7 +19,7 @@ Full product/engineering spec and PPT generation brief: `docs/MASTER_SPEC.md`. K
 - **3D:** Three.js 0.160 (bundled) for the procedural welcome scene only. No textures or model files.
 - **AI:** `ai` package (AI SDK) + `zod` v4 schemas, routed **exclusively** through the Vercel AI Gateway.
 - **Web execution:** `@tiny-fish/sdk` (Search / Fetch / Agent).
-- **Tests:** Vitest (`tests/*.test.ts`, 42 tests).
+- **Tests:** Vitest (`tests/*.test.ts`, 45 tests).
 - **Required env (`.env.local`, never committed):**
   ```env
   TINYFISH_API_KEY="..."            # Search/Fetch (free tier) + Agent (paid, on-demand)
@@ -138,7 +138,7 @@ MedPulse-main/
 │       ├── agent-client.ts             # Browser-side SSE reader (agent-stream)
 │       ├── compare-client.ts           # Browser-side SSE reader (compare-stream)
 │       └── sse-client.ts               # Shared SSE frame parser
-├── tests/                              # Vitest: pricing, schedule, demo, optimizer, catalog, rate limits (42)
+├── tests/                              # Vitest: pricing, schedule, demo, optimizer, catalog, rate limits, DocAI (45)
 ├── docs/
 │   ├── MASTER_SPEC.md                  # Full product/engineering spec + PPT generation brief
 │   └── screenshots/                    # Final deck captures (see README.md inside)

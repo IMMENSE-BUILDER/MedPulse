@@ -113,7 +113,7 @@ Full conventions and guardrails: see `AGENTS.md`.
 
 ```bash
 npm run typecheck   # tsc --noEmit
-npm test            # Vitest — 42 tests across pricing, schedule, demo pipelines, optimizer, catalog, rate limits
+npm test            # Vitest — 45 tests across pricing, schedule, demo pipelines, optimizer, catalog, rate limits, DocAI
 npm run build       # production build
 ```
 
