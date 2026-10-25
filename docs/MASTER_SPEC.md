@@ -5,7 +5,7 @@
 > **Status:** live production build (PRD v5.0) — light-only UI, 3D welcome at `/`, price engine at `/engine`.  
 > **Production:** https://medpulseai.vercel.app  
 > **Repository:** https://github.com/IMMENSE-BUILDER/MedPulse  
-> **Team:** Satyam and Sujal  
+> **Credit:** Satyam Kumar  
 > **Last updated:** 23 October 2026 — primary domain cutover; fallback project disconnected from Git
 
 ---
@@ -718,7 +718,7 @@ All AI/paid endpoints return a normalised 429 with `Retry-After` when over budge
 
 ### 14.2 12-slide outline
 
-1. **Title** — MedPulse AI; “One search. Four ways to compare. Real provenance.” Team names. Product URL/QR.
+1. **Title** — MedPulse AI; “One search. Four ways to compare. Real provenance.” Credit name. Product URL/QR.
 2. **The problem** — same salt, wildly different prices; fragmented portals; unfair pack comparisons; prescription friction; trust gap.
 3. **The insight** — compare the active salt and strength, not the brand; normalise to 10 tablets; guard the dose.
 4. **Welcome → engine** — show the light-only 3D welcome hero with the fluid mesh and local-only history, then the annotated engine dashboard: search, four tracks (A/B/C/D), savings receipt, provenance, timings.

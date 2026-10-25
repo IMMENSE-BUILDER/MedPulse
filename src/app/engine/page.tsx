@@ -756,7 +756,7 @@ export default function Home() {
               ? "Live data from tracked portals — confirm final price at checkout."
               : "Demo data — add API keys in .env.local to go live."}
           </span>
-          <span>By Satyam and Sujal ❤️</span>
+          <span>By Satyam Kumar ❤️</span>
         </footer>
       </main>
 

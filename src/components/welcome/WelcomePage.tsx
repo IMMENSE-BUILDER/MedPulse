@@ -677,7 +677,7 @@ export function WelcomePage() {
               Informational tool, not medical advice. Prices are indicative and change often &mdash; confirm at
               checkout and with a doctor or pharmacist. Emergencies: 108 / 112.
             </p>
-            <p className="footer-meta">MedPulse AI &middot; By Satyam and Sujal</p>
+            <p className="footer-meta">MedPulse AI &middot; By Satyam Kumar</p>
           </div>
         </footer>
 

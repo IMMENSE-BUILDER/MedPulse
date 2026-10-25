@@ -2,6 +2,7 @@
   "name": "medpulse-ai",
   "version": "5.0.0",
   "private": true,
+  "author": "Satyam Kumar",
   "description": "MedPulse AI — Real-time branded vs government-subsidised medicine & lab test aggregator (PRD v5.0)",
   "scripts": {
     "dev": "next dev",

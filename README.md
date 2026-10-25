@@ -164,4 +164,4 @@ Notes:
 
 ---
 
-**By Satyam and Sujal** ❤️
+**By Satyam Kumar** ❤️
